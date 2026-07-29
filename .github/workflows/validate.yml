@@ -1,0 +1,38 @@
+name: Validate policy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11.10"
+      - name: Validate JSON and prompt references
+        run: |
+          python - <<'PY'
+          import json
+          import pathlib
+
+          root = pathlib.Path(".")
+          rubric = json.loads((root / "rubric.json").read_text())
+          json.loads((root / "schemas/review.schema.json").read_text())
+          ids = [step["id"] for step in rubric["steps"]]
+          assert len(ids) == len(set(ids)), "duplicate rubric step"
+          assert ids[-1] == "synthesis", "synthesis must be last"
+          for step in rubric["steps"]:
+              path = root / step["prompt"]
+              assert path.is_file(), f"missing prompt: {path}"
+              assert path.read_text().strip(), f"empty prompt: {path}"
+          print(f"validated {len(ids)} review steps")
+          PY

@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "minimum_accept_score": 3,
+  "steps": [
+    {
+      "id": "metadata",
+      "prompt": "prompts/01-metadata.md",
+      "required": true,
+      "inputs": [
+        "formalization.yaml",
+        "README.md",
+        "issue",
+        "mechanical_report"
+      ]
+    },
+    {
+      "id": "statement_alignment",
+      "prompt": "prompts/02-statement-alignment.md",
+      "required": true,
+      "inputs": [
+        "formalization.yaml",
+        "Challenge.lean",
+        "comparator.json",
+        "lakefile.toml"
+      ]
+    },
+    {
+      "id": "definition_fidelity",
+      "prompt": "prompts/03-definition-fidelity.md",
+      "required": true,
+      "inputs": [
+        "Challenge.lean",
+        "comparator.json",
+        "mechanical_report"
+      ]
+    },
+    {
+      "id": "literature_notability",
+      "prompt": "prompts/04-literature-notability.md",
+      "required": true,
+      "inputs": [
+        "formalization.yaml",
+        "README.md",
+        "issue"
+      ]
+    },
+    {
+      "id": "proof_account",
+      "prompt": "prompts/05-proof-account.md",
+      "required": false,
+      "when": "formalization metadata contains an informal proof account",
+      "inputs": [
+        "formalization.yaml",
+        "Solution.lean"
+      ]
+    },
+    {
+      "id": "synthesis",
+      "prompt": "prompts/06-synthesis.md",
+      "required": true,
+      "inputs": [
+        "all_previous_results",
+        "mechanical_report",
+        "issue"
+      ]
+    }
+  ],
+  "step_result": {
+    "required_fields": [
+      "step",
+      "verdict",
+      "summary",
+      "findings",
+      "scores"
+    ],
+    "verdicts": [
+      "pass",
+      "warn",
+      "fail",
+      "escalate"
+    ]
+  }
+}
