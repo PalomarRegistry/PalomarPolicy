@@ -27,10 +27,10 @@ The proof project may otherwise depend on arbitrary pinned Git repositories.
 Palomar does not require the whole development to be “Palomar-shaped.”
 
 The restriction applies to the **transitive import closure of
-`Challenge.lean`**. Every non-core source file in that closure must come from:
-
-- Mathlib or Tau Ceti (including their pinned infrastructure dependencies); or
-- a repository version already indexed in Palomar.
+`Challenge.lean`**. Every non-core source file in that closure must come from
+Mathlib or Tau Ceti, including their pinned infrastructure dependencies.
+Palomar-indexed Challenge dependencies are reserved for a future protocol that
+can reconstruct an earlier statement surface independently.
 
 Dependencies used only by `Solution.lean` may come from anywhere. The
 mechanical report records the full project dependency set separately from the
@@ -44,8 +44,9 @@ definition holes are not accepted.
 
 `Challenge.lean` is the part a mathematical reader is expected to audit.
 
-- Prefer imports from Mathlib alone. Tau Ceti and Palomar-indexed imports are
-  permitted, but are prominently recorded as a larger trust surface.
+- Prefer imports from Mathlib alone. Tau Ceti imports are permitted but are
+  prominently recorded as a larger trust surface. Palomar-indexed Challenge
+  imports are not yet executable inputs.
 - Prefer theorem statements to new definitions.
 - Any definition needed to state a theorem must have a precise docstring and an
   ordinary mathematical meaning. Avoid encoding a desired answer into a
