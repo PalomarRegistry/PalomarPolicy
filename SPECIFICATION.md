@@ -50,10 +50,12 @@ The reviewer checks out source and policy into read-only local directories. Each
 review pass receives:
 
 1. the pass prompt at the recorded policy commit;
-2. `formalization.yaml`, `Challenge.lean`, `Solution.lean`,
+2. any binding policy documents named by that rubric step, including the
+   editorial floor and score threshold for notability and synthesis;
+3. `formalization.yaml`, `Challenge.lean`, `Solution.lean`,
    `comparator.json`, `lakefile.toml`, and `lean-toolchain`;
-3. the issue metadata and mechanical report;
-4. earlier pass results when the rubric says so.
+4. the issue metadata and mechanical report;
+5. earlier pass results when the rubric says so.
 
 Engines must emit JSON matching the per-pass shape in the rubric. Raw model
 outputs, normalized results, and the final report are retained in the review
@@ -66,6 +68,11 @@ Review engines run without write or shell tools, and their public prose is
 rendered inertly. A model result is still advisory: applying a decision never
 reruns the model and can post only the existing schema-validated `review.json`
 whose issue, source, mechanical report, and policy commit an operator inspected.
+
+`rubric.json` versions the engine contract. Version 2 declares score ownership
+per pass, requires strict evidence findings, and binds synthesis decisions to
+the evidence-pass scores. Reviewers must retain version 1 support for historical
+policy commits and reject unknown rubric versions.
 
 ## Publication
 
