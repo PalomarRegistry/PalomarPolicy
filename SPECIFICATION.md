@@ -40,8 +40,9 @@ as a fenced JSON block in the issue comment. A passing report binds:
 - pinned Comparator, lean4export, and landrun commits;
 - the workflow run URL and timestamp.
 
-The report is evidence, not an authorization token. The reviewer independently
-checks that the issue, commit, workflow conclusion, and report agree.
+The report is evidence, not an authorization token. The reviewer accepts the
+marker only on a comment authored by GitHub Actions and independently checks
+that the issue, commit, workflow conclusion, and report agree.
 
 ## Review packet
 
@@ -58,6 +59,13 @@ Engines must emit JSON matching the per-pass shape in the rubric. Raw model
 outputs, normalized results, and the final report are retained in the review
 work directory. The synthesis output must validate against
 `schemas/review.schema.json`.
+
+Every submission-controlled input and every earlier model result is framed as
+untrusted evidence, with the binding instruction repeated after the evidence.
+Review engines run without write or shell tools, and their public prose is
+rendered inertly. A model result is still advisory: applying a decision never
+reruns the model and can post only the existing schema-validated `review.json`
+whose issue, source, mechanical report, and policy commit an operator inspected.
 
 ## Publication
 
@@ -103,9 +111,11 @@ when exactly one declaration is compared and the file is at most 100 lines and
 
 Arbitrary pinned Git dependencies are permitted in the proof project. The
 mechanical gate applies only to the transitive source closure of
-`Challenge.lean`; imported sources must resolve to Lean core, the allowlisted
-Mathlib/Tau Ceti closure, or a commit already recorded in Palomar. This is a
-source-provenance restriction, not a package-name or direct-lakefile heuristic.
+`Challenge.lean`; imported sources must resolve to Lean core or the allowlisted
+Mathlib/Tau Ceti closure. The Challenge is compiled independently of candidate
+Lake configuration against frozen trusted output. Palomar-indexed provenance
+remains representable in metadata but is not accepted as executable Challenge
+input until its earlier statement surface can be reconstructed independently.
 
 This prototype accepts only public GitHub repositories. Private-repository App
 tokens, source retention, DOI minting, rate limiting, and automatic dependency
