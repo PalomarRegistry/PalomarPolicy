@@ -61,6 +61,13 @@ Definition holes are intrinsically easier to game. If `definition_names` is
 nonempty, explain what values are intended and why the surrounding theorems
 constrain them. Review may reject a formally comparator-valid but vacuous hole.
 
+After acceptance, Palomar produces a Verso rendering of the pinned
+`Challenge.lean` inside its confined publication pipeline. The canonical source
+remains the commit-pinned GitHub file. Challenges with exactly one compared
+declaration and no more than 100 lines or 32 KiB are shown inline; larger ones
+open in a dedicated rendered view. Rendering failure delays publication but is
+not an editorial rejection.
+
 ## 3. Informal account and provenance
 
 Fill every required field in `formalization.yaml`, including:

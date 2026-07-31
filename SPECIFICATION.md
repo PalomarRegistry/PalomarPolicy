@@ -61,21 +61,45 @@ work directory. The synthesis output must validate against
 
 ## Publication
 
-On `accept`, the reviewer prepares (but does not merge) a pull request to
-`PalomarDatabase`. The record uses the submission issue for a new permanent ID.
+On `accept`, the reviewer renders the accepted `Challenge.lean` and prepares
+(but does not merge) a pull request to `PalomarDatabase`. Rendering is a
+required publication step, but an infrastructure or renderer failure does not
+reverse the editorial decision: publication remains pending and may be retried.
+The record uses the submission issue for a new permanent ID.
 For an update, it verifies the requested existing ID and chooses one more than
 the greatest registered version. Database CI verifies the schema, filename, and
 exact `index.json` projection.
 
-Merging the database PR is the publication event. Closing or labeling the
-submission issue is a separate explicit operator action.
+The database record includes a required `challenge_render` object binding the
+content-addressed bundle, entrypoint, Verso commit, renderer commit, Landrun
+commit, and render time. The immutable bundle is retained under `renders/` in
+the database repository. Merging the database PR is the publication event.
+Closing or labeling the submission issue is a separate explicit operator
+action.
 
 ## Security boundary
 
-Submission source is hostile. No credential is present in the verification job.
+Submission source is hostile. No credential is present in the verification or
+render execution environment.
 The trusted reporting job has an issue-scoped token but never executes source or
 source-derived shell text. Comparator performs Lean elaboration under landrun.
 Mutable third-party action selectors are forbidden.
+
+Rendering uses a trusted synthetic Lake workspace and an exact Verso revision
+selected for the accepted Lean toolchain. It must not run a submitted Lakefile,
+`lake update`, package post-update hooks, or source-derived commands outside
+Landrun. Every Lake, Lean, Verso, and source-derived executable runs inside
+Landrun without network access or credentials and with bounded time, memory,
+process, file, and output limits. Fixed-host cache downloads are performed by
+trusted code outside source-derived execution and unpacked inside Landrun.
+
+Published render HTML is sanitized, carries a restrictive CSP, and is served
+from the PalomarDatabase GitHub Pages site. PalomarWeb treats the database as
+the sole source of truth and embeds eligible Challenges in an iframe with
+`sandbox="allow-scripts"` and no `allow-same-origin`. It always links to the
+commit-pinned `Challenge.lean`; a Challenge is eligible for inline display only
+when exactly one declaration is compared and the file is at most 100 lines and
+32 KiB. Other entries link to a dedicated wrapper with the same sandbox.
 
 Arbitrary pinned Git dependencies are permitted in the proof project. The
 mechanical gate applies only to the transitive source closure of
