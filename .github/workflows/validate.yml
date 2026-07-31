@@ -30,9 +30,47 @@ jobs:
           ids = [step["id"] for step in rubric["steps"]]
           assert len(ids) == len(set(ids)), "duplicate rubric step"
           assert ids[-1] == "synthesis", "synthesis must be last"
+          assert rubric["schema_version"] == 2
+          minimum = rubric["minimum_accept_score"]
+          assert isinstance(minimum, int) and not isinstance(minimum, bool) and 1 <= minimum <= 5
+          registry_scores = rubric["registry_scores"]
+          assert len(registry_scores) == len(set(registry_scores))
+          expected_registry_scores = {
+              "statement_alignment",
+              "definition_fidelity",
+              "notability",
+              "literature",
+              "clarity",
+          }
+          assert set(registry_scores) == expected_registry_scores
+          allowed_scores = expected_registry_scores | {
+              "provenance",
+              "auditability",
+              "proof_alignment",
+          }
+          mandatory_reject = rubric.get("mandatory_reject_below_minimum", [])
+          assert len(mandatory_reject) == len(set(mandatory_reject))
+          assert set(mandatory_reject) <= set(registry_scores)
+          owned_scores = []
+          owners = {}
           for step in rubric["steps"]:
               path = root / step["prompt"]
               assert path.is_file(), f"missing prompt: {path}"
               assert path.read_text().strip(), f"empty prompt: {path}"
+              if step["id"] != "synthesis":
+                  score_keys = step["score_keys"]
+                  assert score_keys and len(score_keys) == len(set(score_keys))
+                  assert set(score_keys) <= allowed_scores
+                  assert "policy:CONTRIBUTING.md" in step["inputs"]
+                  assert "policy:rubric.json" in step["inputs"]
+                  owned_scores.extend(score_keys)
+                  owners.update({key: step for key in score_keys})
+              for input_name in step.get("inputs", []):
+                  if input_name.startswith("policy:"):
+                      policy_path = root / input_name.removeprefix("policy:")
+                      assert policy_path.is_file(), f"missing policy input: {policy_path}"
+          assert len(owned_scores) == len(set(owned_scores)), "duplicate score owner"
+          assert set(registry_scores) <= set(owned_scores)
+          assert all(owners[key]["required"] for key in registry_scores)
           print(f"validated {len(ids)} review steps")
           PY

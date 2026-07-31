@@ -5,8 +5,10 @@ well-described Lean project contains proofs of the human-auditable statements in
 `Challenge.lean`, as checked by Comparator, and an editorial review found the
 mathematical description responsible enough to index.
 
-It is a registry, not a journal. Acceptance does not assert novelty, importance,
-correctness of an informal proof, or endorsement by a human expert.
+It is a registry, not a journal. Acceptance is not publication, does not assert
+novelty or correctness of an informal proof, and is not endorsement by a human
+expert. It does assert that the submission cleared the substantive editorial
+floor below.
 
 ## 1. Required repository shape
 
@@ -25,6 +27,21 @@ repository root must contain:
 `lakefile.lean` and local/path dependencies are not accepted by the prototype.
 The proof project may otherwise depend on arbitrary pinned Git repositories.
 Palomar does not require the whole development to be “Palomar-shaped.”
+
+Intake parses `formalization.yaml` with a safe YAML loader, rejects duplicate
+mapping keys, and requires one top-level mapping. As a mechanical minimum, the
+following current self-reporting fields must be present and nonempty:
+
+- `project.name`, `project.authors`, and `project.license`;
+- at least one `sources` entry, each with `title`, `authors`, and `id`;
+- at least one `automation.methods` entry with `method` (use `manual` when
+  appropriate);
+- `review.status`.
+
+Authors may be names or mappings containing a `name`. Unknown fields are
+allowed. Passing this structural check says nothing about the quality or
+accuracy of the metadata; the editorial review applies the fuller requirements
+in section 3.
 
 The restriction applies to the **transitive import closure of
 `Challenge.lean`**. Every non-core source file in that closure must come from
@@ -102,21 +119,73 @@ Mechanical correctness is necessary, not sufficient. Palomar does not index:
 - submissions whose mathematical content cannot be identified from the
   challenge and informal account.
 
-The bar is intentionally a minimum. A useful formalization of a known result,
-an independently checkable Lean companion to a paper, a careful counterexample,
-or a reusable verified construction can all qualify without being a journal
-article.
+The bar is a minimum, but it is a substantive research-interest minimum. The
+actual mathematical result as stated must satisfy both of these tests:
+
+1. it could plausibly warrant a research paper or serious research note; and
+2. the reviewer can identify a credible research area and a plausible kind of
+   mathematician in a research department who could reasonably find it
+   interesting or relevant.
+
+Both tests are required. Formal correctness, difficulty of the Lean work,
+polished prose, novelty, or sheer size does not substitute for them. A niche
+result may qualify when it has a credible specialist audience; a result so
+isolated that no plausible research audience can be identified does not. A
+confident failure of either test is a fundamental editorial failure and is
+`reject`, not `revise`. Use `escalate` when responsible application of a test
+genuinely needs specialist judgment.
 
 ## 5. Review outcomes
 
-Each review pass returns `pass`, `warn`, or `fail` with file-based evidence.
+Each review pass returns `pass`, `warn`, `fail`, or `escalate` with file-based
+evidence.
 
-- `accept`: every mandatory question passes; warnings are recorded publicly.
+Scores use the following common anchors. Reviewers must judge the submitted
+content, not the presence of keys, length of prose, or confidence of its tone.
+
+- `1`: unusable, materially incorrect, or misleading;
+- `2`: major errors or omissions prevent responsible reliance;
+- `3`: minimally adequate, but with meaningful limitations or unverified claims;
+- `4`: thorough, fair, evidence-supported, and correct apart from minor issues;
+- `5`: exceptionally complete and independently checkable, with no meaningful
+  gap found after a critical review.
+
+A `4` or `5` requires concrete positive evidence for the relevant dimension.
+It must not be awarded merely because Comparator passed, every field is
+populated, or no contradiction was immediately noticed. Acceptance requires
+every completed evidence score to meet the rubric minimum. Synthesis copies the
+five registry scores exactly from the responsible evidence passes.
+
+Notability uses a dimension-specific scale:
+
+- `1`: incoherent, manufactured, materially deceptive, or crackpot-style work
+  with no credible mathematical contribution;
+- `2`: identifiable but trivial, routine, lightly repackaged, or lacking a
+  plausible research audience;
+- `3`: borderline mathematical interest, where paper-worthiness or a credible
+  research audience is not affirmatively established;
+- `4`: plausibly paper-worthy, with a specifically identified credible research
+  audience;
+- `5`: an unusually consequential result with clear interest beyond a narrow
+  specialist audience.
+
+Only a notability score at or above the minimum recorded in `rubric.json`
+clears the floor. A reviewer should use plain, evidence-based descriptions such
+as `trivial`, `confusing`, `unclear`,
+`niche without an identifiable research audience`, or `crackpot-style framing`
+when they accurately describe the submission. Frankness is not permission for
+personal disparagement: assess the work and its framing, not the submitter.
+
+- `accept`: every mandatory question passes.
 - `revise`: the project may qualify after specific correctable changes.
 - `reject`: a mechanical failure, fundamental statement mismatch, deceptive
   metadata, or failure of the editorial floor.
 - `escalate`: the AI reviewer cannot responsibly resolve a material question.
   This is not acceptance; a human or specialist review is needed.
+
+The summary, warnings, requested changes, and machine-readable report are
+published for every decision. They must assess the work and its framing, never
+disparage the submitter.
 
 The final report, reviewer model identifiers, source commit, mechanical CI run,
 and exact policy commit are public. Submitting grants permission to quote the
