@@ -33,6 +33,9 @@ mapping keys, and requires one top-level mapping. As a mechanical minimum, the
 following current self-reporting fields must be present and nonempty:
 
 - `project.name`, `project.authors`, and `project.license`;
+- `classification.arxiv`, containing one or two exact identifiers from the
+  [arXiv category taxonomy](https://arxiv.org/category_taxonomy), and
+  `classification.msc2020`, containing one to eight exact MSC2020 codes;
 - at least one `sources` entry, each with `title`, `authors`, and `id`;
 - at least one `automation.methods` entry with `method` (use `manual` when
   appropriate);
@@ -43,13 +46,36 @@ allowed. Passing this structural check says nothing about the quality or
 accuracy of the metadata; the editorial review applies the fuller requirements
 in section 3.
 
+For example:
+
+```yaml
+classification:
+  arxiv: [math.CO, math.NT]
+  msc2020: [05C10, 11N13]
+```
+
+Choose categories for the mathematical result itself. A category does not
+become apt merely because Lean or AI was used to formalize the result. The
+classification review asks whether each choice is plausible, not whether it is
+the best or most specific possible choice.
+
+An update to an existing Palomar ID must come from the same source repository
+as its current version. Repository transfers require explicit operator review
+and are not accepted by the automated publication path.
+
 The restriction applies to the **transitive import closure of
 `Challenge.lean`**. Every non-core source file in that closure must come from
-Mathlib or Tau Ceti, including their pinned infrastructure dependencies.
-Palomar-indexed Challenge dependencies are reserved for a future protocol that
-can reconstruct an earlier statement surface independently.
+Mathlib or Tau Ceti, including their pinned infrastructure dependencies, or an
+exact repository commit represented by a specific Palomar record version.
+Indexed sources are reconstructed independently and each reached module is
+compiled directly from a unique tracked source file by trusted Lean, without
+using the indexed project's Lake plan as a source-to-object authority. Their
+source bytes and versioned provenance are recorded, and their actual imported files are
+included in definition-fidelity review. A recursively reached unindexed source
+is not made acceptable merely because a parent project is indexed.
 
-Dependencies used only by `Solution.lean` may come from anywhere. The
+Dependencies used only by `Solution.lean` may use arbitrary pinned Git sources,
+subject to the ordinary full-commit and confinement requirements. The
 mechanical report records the full project dependency set separately from the
 smaller trusted challenge dependency set.
 
@@ -63,7 +89,9 @@ definition holes are not accepted.
 
 - Prefer imports from Mathlib alone. Tau Ceti imports are permitted but are
   prominently recorded as a larger trust surface. Palomar-indexed Challenge
-  imports are not yet executable inputs.
+  imports are supported and likewise recorded as `qualified`: indexing fixes a
+  reviewable source snapshot, but does not make all present or future contents
+  of that repository universally trusted.
 - Prefer theorem statements to new definitions.
 - Any definition needed to state a theorem must have a precise docstring and an
   ordinary mathematical meaning. Avoid encoding a desired answer into a
@@ -74,6 +102,10 @@ definition holes are not accepted.
   advertised theorem.
 - Keep the file small. The mechanical hard limit is 1,000 nonempty-or-comment
   lines and 100 KiB; review treats more than 300 lines or 32 KiB as a warning.
+- The automated definition-fidelity packet carries up to 8 MiB of exact indexed
+  Challenge-source text. A larger imported closure requires an expanded or
+  operator-assisted audit and is escalated, not rejected or treated as a
+  mechanical resource failure.
 
 Definition holes are intrinsically easier to game. If `definition_names` is
 nonempty, explain what values are intended and why the surrounding theorems
@@ -193,6 +225,7 @@ submitted metadata in that report and in the registry.
 
 ## 6. Versions
 
-A new result receives `PALOMAR-NNNNNN`, derived from its submission issue.
+A new result receives `PALOMAR-YYYY-MM-DD-NNNNNN`, using the acceptance date
+and its submission issue.
 Later corrections or dependency updates cite that identifier and become version
 2, 3, and so on. Old entry files and source pins remain unchanged.

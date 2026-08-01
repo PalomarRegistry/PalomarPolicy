@@ -1,5 +1,5 @@
 {
-  "schema_version": 2,
+  "schema_version": 4,
   "minimum_accept_score": 4,
   "registry_scores": [
     "statement_alignment",
@@ -12,6 +12,22 @@
     "notability"
   ],
   "steps": [
+    {
+      "id": "classification",
+      "prompt": "prompts/00-classification.md",
+      "required": true,
+      "score_keys": [
+        "classification"
+      ],
+      "inputs": [
+        "policy:CONTRIBUTING.md",
+        "policy:rubric.json",
+        "policy:taxonomies/classification-guide.md",
+        "formalization.yaml",
+        "Challenge.lean",
+        "mechanical_report"
+      ]
+    },
     {
       "id": "metadata",
       "prompt": "prompts/01-metadata.md",
@@ -58,6 +74,7 @@
         "policy:rubric.json",
         "formalization.yaml",
         "Challenge.lean",
+        "challenge_review_sources",
         "comparator.json",
         "mechanical_report"
       ]
