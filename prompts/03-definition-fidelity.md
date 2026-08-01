@@ -35,8 +35,12 @@ definitions used by the compared declarations. Use the common score anchors in
 whole material definition surface and a fair account of every limitation found.
 A spot check or an audit that merely reports the import provenance must score
 below the minimum recorded in `rubric.json`.
-If any material indexed source is missing or marked as truncated for model
-context, return `escalate`; do not infer fidelity from its Palomar identifier.
+Cross-check `challenge_review_sources` against the `challenge.dependencies` and
+`challenge.review_source_files` fields in `mechanical_report`. If the report
+lists a `palomar-indexed` dependency without corresponding imported source-file
+evidence, if any reported indexed source is absent, or if any source is marked
+as truncated for model context, return `escalate`; do not infer fidelity from a
+Palomar identifier.
 
 Return JSON only:
 

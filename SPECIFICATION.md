@@ -15,20 +15,22 @@
 ```text
 issue opened
   -> status:verifying
-  -> status:awaiting-review | status:changes-requested
+  -> status:awaiting-review | status:changes-requested | status:verification-error
   -> status:review-in-progress
   -> status:accepted | status:changes-requested | status:rejected | status:escalated
 ```
 
 Exactly one `status:*` label should be present. The mechanical report comment is
 identified by the marker `<!-- palomar-mechanical-report -->`; review reports use
-`<!-- palomar-editorial-review -->`.
+`<!-- palomar-editorial-review -->`. `status:verification-error` is a retryable
+infrastructure outcome, not a mathematical or editorial decision.
 
 ## Mechanical result
 
 The submission workflow publishes `mechanical-report.json` as a run artifact and
 as a human-readable fenced JSON copy in the issue comment. The trusted workflow
-artifact, not comment text, is the publication authority. A passing report binds:
+artifact, not comment text, is the authoritative verification report. A passing
+report binds:
 
 - the issue and submitter;
 - `owner/repo` and the resolved 40-character commit;
@@ -76,8 +78,10 @@ whose issue, source, mechanical report, and policy commit an operator inspected.
 
 `rubric.json` versions the engine contract. Version 2 declares score ownership
 per pass, requires strict evidence findings, and binds synthesis decisions to
-the evidence-pass scores. Reviewers must retain version 1 support for historical
-policy commits and reject unknown rubric versions.
+the evidence-pass scores. Version 3 additionally requires reconstructed indexed
+Challenge sources as definition-fidelity evidence. Reviewers must retain older
+version support for historical policy commits and reject unknown rubric
+versions.
 
 ## Publication
 
@@ -109,10 +113,12 @@ Rendering uses a trusted synthetic Lake workspace and an exact Verso revision
 selected for the accepted Lean toolchain. It must not run a submitted Lakefile,
 `lake update`, package post-update hooks, or source-derived commands outside
 Landrun. Every Lake, Lean, Verso, and source-derived executable runs inside
-Landrun without network access or credentials and with generous emergency
-ceilings for time, memory, processes, files, and output. Resource exhaustion is
-a retryable infrastructure result, never a mathematical rejection. Fixed-host cache downloads are performed by
-trusted code outside source-derived execution and unpacked inside Landrun.
+Landrun without network access or credentials and with enforced ceilings on
+time, memory, processes, files, and output, set as emergency host containment
+rather than acceptance criteria. Resource exhaustion is a retryable
+infrastructure result, never a mathematical rejection. Fixed-host cache
+downloads are performed by trusted code outside source-derived execution and
+unpacked inside Landrun.
 
 Published render HTML is sanitized, carries a restrictive CSP, and is served
 from the PalomarDatabase GitHub Pages site. PalomarWeb treats the database as
@@ -127,9 +133,11 @@ mechanical gate applies only to the transitive source closure of
 `Challenge.lean`; imported sources must resolve to Lean core, the allowlisted
 Mathlib/Tau Ceti closure, or an exact previously accepted Palomar record version.
 For an indexed import, the verifier independently checks out its recorded
-repository and commit, verifies its pinned nested manifest, rebuilds it with the
-network closed, freezes the output ahead of candidate paths, and verifies every
-imported source byte. An unindexed source reached recursively is still rejected.
+repository and commit, verifies its tracked pinned nested manifest, resolves
+every reached module to a unique tracked source file, and compiles that source
+closure directly with trusted Lean and the network closed. Only verifier-owned
+output is placed ahead of candidate paths, and every imported source byte is
+verified. An unindexed source reached recursively is still rejected.
 This makes the import reproducible and reviewable; it does not promote the
 earlier project to Mathlib-level trust, so the record remains `qualified`.
 Dependencies reached only by `Solution.lean` remain unrestricted apart from the

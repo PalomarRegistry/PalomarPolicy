@@ -1,5 +1,5 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "minimum_accept_score": 4,
   "registry_scores": [
     "statement_alignment",
@@ -41,7 +41,6 @@
         "policy:rubric.json",
         "formalization.yaml",
         "Challenge.lean",
-        "challenge_review_sources",
         "comparator.json",
         "lakefile.toml"
       ]

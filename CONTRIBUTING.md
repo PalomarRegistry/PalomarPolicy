@@ -47,12 +47,15 @@ The restriction applies to the **transitive import closure of
 `Challenge.lean`**. Every non-core source file in that closure must come from
 Mathlib or Tau Ceti, including their pinned infrastructure dependencies, or an
 exact repository commit represented by a specific Palomar record version.
-Indexed sources are reconstructed and built independently, their source bytes
-and versioned provenance are recorded, and their actual imported files are
+Indexed sources are reconstructed independently and each reached module is
+compiled directly from a unique tracked source file by trusted Lean, without
+using the indexed project's Lake plan as a source-to-object authority. Their
+source bytes and versioned provenance are recorded, and their actual imported files are
 included in definition-fidelity review. A recursively reached unindexed source
 is not made acceptable merely because a parent project is indexed.
 
-Dependencies used only by `Solution.lean` may come from anywhere. The
+Dependencies used only by `Solution.lean` may use arbitrary pinned Git sources,
+subject to the ordinary full-commit and confinement requirements. The
 mechanical report records the full project dependency set separately from the
 smaller trusted challenge dependency set.
 
@@ -79,6 +82,10 @@ definition holes are not accepted.
   advertised theorem.
 - Keep the file small. The mechanical hard limit is 1,000 nonempty-or-comment
   lines and 100 KiB; review treats more than 300 lines or 32 KiB as a warning.
+- The automated definition-fidelity packet carries up to 8 MiB of exact indexed
+  Challenge-source text. A larger imported closure requires an expanded or
+  operator-assisted audit and is escalated, not rejected or treated as a
+  mechanical resource failure.
 
 Definition holes are intrinsically easier to game. If `definition_names` is
 nonempty, explain what values are intended and why the surrounding theorems
