@@ -47,6 +47,7 @@ jobs:
               "provenance",
               "auditability",
               "proof_alignment",
+              "classification",
           }
           mandatory_reject = rubric.get("mandatory_reject_below_minimum", [])
           assert len(mandatory_reject) == len(set(mandatory_reject))

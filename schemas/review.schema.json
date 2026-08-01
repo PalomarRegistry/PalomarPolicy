@@ -119,7 +119,7 @@
     },
     "passes": {
       "type": "array",
-      "minItems": 4,
+      "minItems": 5,
       "items": {
         "type": "object"
       }

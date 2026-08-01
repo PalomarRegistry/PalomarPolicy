@@ -38,6 +38,7 @@ report binds:
   `comparator.json`;
 - the Lean toolchain;
 - compared theorem and definition names;
+- one or two arXiv subject classes and at least one MSC2020 code;
 - the full project dependency set, the transitive `Challenge.lean` source
   closure, its allowlist/Palomar provenance, exact indexed record versions and
   source hashes, and challenge size;
@@ -69,6 +70,10 @@ outputs, normalized results, and the final report are retained in the review
 work directory. The synthesis output must validate against
 `schemas/review.schema.json`.
 
+A required classification pass checks whether every submitted subject is
+plausible for the actual result. Intake establishes that the identifiers exist;
+the AI pass is deliberately not asked to find a unique or optimal category.
+
 Every submission-controlled input and every earlier model result is framed as
 untrusted evidence, with the binding instruction repeated after the evidence.
 Review engines run without write or shell tools, and their public prose is
@@ -79,8 +84,10 @@ whose issue, source, mechanical report, and policy commit an operator inspected.
 `rubric.json` versions the engine contract. Version 2 declares score ownership
 per pass, requires strict evidence findings, and binds synthesis decisions to
 the evidence-pass scores. Version 3 additionally requires reconstructed indexed
-Challenge sources as definition-fidelity evidence. Reviewers must retain older
-version support for historical policy commits and reject unknown rubric
+Challenge sources as definition-fidelity evidence. Version 4 adds the required
+subject-classification pass without changing the historical score shape.
+Reviewers must retain older version support for historical policy commits and
+reject unknown rubric
 versions.
 
 ## Publication
@@ -89,7 +96,7 @@ On `accept`, the reviewer renders the accepted `Challenge.lean` and prepares
 (but does not merge) a pull request to `PalomarDatabase`. Rendering is a
 required publication step, but an infrastructure or renderer failure does not
 reverse the editorial decision: publication remains pending and may be retried.
-The record uses the submission issue for a new permanent ID.
+The record uses the acceptance date and submission issue for a new permanent ID.
 For an update, it verifies the requested existing ID and chooses one more than
 the greatest registered version. Database CI verifies the schema, filename, and
 exact `index.json` projection.
