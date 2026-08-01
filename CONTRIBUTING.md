@@ -45,9 +45,12 @@ in section 3.
 
 The restriction applies to the **transitive import closure of
 `Challenge.lean`**. Every non-core source file in that closure must come from
-Mathlib or Tau Ceti, including their pinned infrastructure dependencies.
-Palomar-indexed Challenge dependencies are reserved for a future protocol that
-can reconstruct an earlier statement surface independently.
+Mathlib or Tau Ceti, including their pinned infrastructure dependencies, or an
+exact repository commit represented by a specific Palomar record version.
+Indexed sources are reconstructed and built independently, their source bytes
+and versioned provenance are recorded, and their actual imported files are
+included in definition-fidelity review. A recursively reached unindexed source
+is not made acceptable merely because a parent project is indexed.
 
 Dependencies used only by `Solution.lean` may come from anywhere. The
 mechanical report records the full project dependency set separately from the
@@ -63,7 +66,9 @@ definition holes are not accepted.
 
 - Prefer imports from Mathlib alone. Tau Ceti imports are permitted but are
   prominently recorded as a larger trust surface. Palomar-indexed Challenge
-  imports are not yet executable inputs.
+  imports are supported and likewise recorded as `qualified`: indexing fixes a
+  reviewable source snapshot, but does not make all present or future contents
+  of that repository universally trusted.
 - Prefer theorem statements to new definitions.
 - Any definition needed to state a theorem must have a precise docstring and an
   ordinary mathematical meaning. Avoid encoding a desired answer into a
@@ -193,6 +198,7 @@ submitted metadata in that report and in the registry.
 
 ## 6. Versions
 
-A new result receives `PALOMAR-NNNNNN`, derived from its submission issue.
+A new result receives `PALOMAR-YYYY-MM-DD-NNNNNN`, using the acceptance date
+and its submission issue.
 Later corrections or dependency updates cite that identifier and become version
 2, 3, and so on. Old entry files and source pins remain unchanged.

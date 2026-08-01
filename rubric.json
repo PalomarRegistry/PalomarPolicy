@@ -41,6 +41,7 @@
         "policy:rubric.json",
         "formalization.yaml",
         "Challenge.lean",
+        "challenge_review_sources",
         "comparator.json",
         "lakefile.toml"
       ]
@@ -58,6 +59,7 @@
         "policy:rubric.json",
         "formalization.yaml",
         "Challenge.lean",
+        "challenge_review_sources",
         "comparator.json",
         "mechanical_report"
       ]

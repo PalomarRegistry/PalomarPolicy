@@ -26,8 +26,9 @@ identified by the marker `<!-- palomar-mechanical-report -->`; review reports us
 
 ## Mechanical result
 
-The submission workflow publishes `mechanical-report.json` as an artifact and
-as a fenced JSON block in the issue comment. A passing report binds:
+The submission workflow publishes `mechanical-report.json` as a run artifact and
+as a human-readable fenced JSON copy in the issue comment. The trusted workflow
+artifact, not comment text, is the publication authority. A passing report binds:
 
 - the issue and submitter;
 - `owner/repo` and the resolved 40-character commit;
@@ -36,13 +37,15 @@ as a fenced JSON block in the issue comment. A passing report binds:
 - the Lean toolchain;
 - compared theorem and definition names;
 - the full project dependency set, the transitive `Challenge.lean` source
-  closure, its allowlist/Palomar provenance, and challenge size;
+  closure, its allowlist/Palomar provenance, exact indexed record versions and
+  source hashes, and challenge size;
 - pinned Comparator, lean4export, and landrun commits;
 - the workflow run URL and timestamp.
 
-The report is evidence, not an authorization token. The reviewer accepts the
-marker only on a comment authored by GitHub Actions and independently checks
-that the issue, commit, workflow conclusion, and report agree.
+The reviewer resolves the successful trusted workflow run, downloads its
+issue-scoped artifact, checks that the workflow revision remains in trusted
+history, and independently binds the artifact to the issue, source commit, and
+run URL. A missing, stale, ambiguous, or malformed artifact fails closed.
 
 ## Review packet
 
@@ -55,7 +58,9 @@ review pass receives:
 3. `formalization.yaml`, `Challenge.lean`, `Solution.lean`,
    `comparator.json`, `lakefile.toml`, and `lean-toolchain`;
 4. the issue metadata and mechanical report;
-5. earlier pass results when the rubric says so.
+5. every exact source file from a Palomar-indexed dependency that occurs in the
+   mechanically computed Challenge closure;
+6. earlier pass results when the rubric says so.
 
 Engines must emit JSON matching the per-pass shape in the rubric. Raw model
 outputs, normalized results, and the final report are retained in the review
@@ -104,8 +109,9 @@ Rendering uses a trusted synthetic Lake workspace and an exact Verso revision
 selected for the accepted Lean toolchain. It must not run a submitted Lakefile,
 `lake update`, package post-update hooks, or source-derived commands outside
 Landrun. Every Lake, Lean, Verso, and source-derived executable runs inside
-Landrun without network access or credentials and with bounded time, memory,
-process, file, and output limits. Fixed-host cache downloads are performed by
+Landrun without network access or credentials and with generous emergency
+ceilings for time, memory, processes, files, and output. Resource exhaustion is
+a retryable infrastructure result, never a mathematical rejection. Fixed-host cache downloads are performed by
 trusted code outside source-derived execution and unpacked inside Landrun.
 
 Published render HTML is sanitized, carries a restrictive CSP, and is served
@@ -118,11 +124,16 @@ when exactly one declaration is compared and the file is at most 100 lines and
 
 Arbitrary pinned Git dependencies are permitted in the proof project. The
 mechanical gate applies only to the transitive source closure of
-`Challenge.lean`; imported sources must resolve to Lean core or the allowlisted
-Mathlib/Tau Ceti closure. The Challenge is compiled independently of candidate
-Lake configuration against frozen trusted output. Palomar-indexed provenance
-remains representable in metadata but is not accepted as executable Challenge
-input until its earlier statement surface can be reconstructed independently.
+`Challenge.lean`; imported sources must resolve to Lean core, the allowlisted
+Mathlib/Tau Ceti closure, or an exact previously accepted Palomar record version.
+For an indexed import, the verifier independently checks out its recorded
+repository and commit, verifies its pinned nested manifest, rebuilds it with the
+network closed, freezes the output ahead of candidate paths, and verifies every
+imported source byte. An unindexed source reached recursively is still rejected.
+This makes the import reproducible and reviewable; it does not promote the
+earlier project to Mathlib-level trust, so the record remains `qualified`.
+Dependencies reached only by `Solution.lean` remain unrestricted apart from the
+ordinary full-commit and confinement requirements.
 
 This prototype accepts only public GitHub repositories. Private-repository App
 tokens, source retention, DOI minting, rate limiting, and automatic dependency
