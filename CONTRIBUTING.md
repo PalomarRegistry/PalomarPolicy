@@ -33,6 +33,9 @@ mapping keys, and requires one top-level mapping. As a mechanical minimum, the
 following current self-reporting fields must be present and nonempty:
 
 - `project.name`, `project.authors`, and `project.license`;
+- `classification.arxiv`, containing one or two exact identifiers from the
+  [arXiv category taxonomy](https://arxiv.org/category_taxonomy), and
+  `classification.msc2020`, containing one to eight exact MSC2020 codes;
 - at least one `sources` entry, each with `title`, `authors`, and `id`;
 - at least one `automation.methods` entry with `method` (use `manual` when
   appropriate);
@@ -42,6 +45,23 @@ Authors may be names or mappings containing a `name`. Unknown fields are
 allowed. Passing this structural check says nothing about the quality or
 accuracy of the metadata; the editorial review applies the fuller requirements
 in section 3.
+
+For example:
+
+```yaml
+classification:
+  arxiv: [math.CO, math.NT]
+  msc2020: [05C10, 11N13]
+```
+
+Choose categories for the mathematical result itself. A category does not
+become apt merely because Lean or AI was used to formalize the result. The
+classification review asks whether each choice is plausible, not whether it is
+the best or most specific possible choice.
+
+An update to an existing Palomar ID must come from the same source repository
+as its current version. Repository transfers require explicit operator review
+and are not accepted by the automated publication path.
 
 The restriction applies to the **transitive import closure of
 `Challenge.lean`**. Every non-core source file in that closure must come from
