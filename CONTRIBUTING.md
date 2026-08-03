@@ -22,7 +22,10 @@ repository root must contain:
   self-reporting standard;
 - `Challenge.lean`, the small, human-auditable statement surface;
 - `Solution.lean`, the proved version;
-- `comparator.json`, naming every theorem or definition to compare.
+- `comparator.json`, naming every theorem or definition to compare;
+- exactly one conventional root licence file: `LICENSE`, `LICENCE`, `COPYING`,
+  `UNLICENSE`, or `OFL`, case-insensitively and optionally followed by `.md`,
+  `.markdown`, or `.txt`.
 
 `lakefile.lean` and local/path dependencies are not accepted by the prototype.
 The proof project may otherwise depend on arbitrary pinned Git repositories.
@@ -45,6 +48,12 @@ following current self-reporting fields must be present and nonempty:
 - at least one `automation.methods` entry with `method` (use `manual` when
   appropriate);
 - `review.status`.
+
+The licence file must be an ordinary, nonempty UTF-8 file no larger than 1 MiB.
+Intake requires one unambiguous standard SPDX match and exact agreement between
+that identifier and `project.license`. Missing, multiple, custom, ambiguous, or
+mismatched licence terms are mechanical failures and do not enter editorial
+review.
 
 Authors may be names or mappings containing a `name`. Unknown fields are
 allowed. Passing this structural check says nothing about the quality or
@@ -147,6 +156,12 @@ Fill every required field in `formalization.yaml`, including:
 - authorship and AI involvement, including the human review performed;
 - known fidelity gaps, extra assumptions, axioms, and scope limitations;
 - the repository license.
+
+The repository licence declaration covers the submitted repository snapshot at
+the pinned commit. It does not relicense cited papers, reused formalizations,
+mathematical sources, or dependencies, which retain their own terms. Palomar
+records the declaration and detected licence but does not verify ownership or
+provide legal advice.
 
 Submitters must either be a responsible author or maintainer of the substantive
 formalization, or have approval from one. For a thin Comparator wrapper this
