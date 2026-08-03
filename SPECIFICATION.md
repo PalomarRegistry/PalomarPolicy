@@ -36,13 +36,15 @@ report binds:
 - `owner/repo` and the resolved 40-character commit;
 - hashes of `Challenge.lean`, `Solution.lean`, `formalization.yaml`, and
   `comparator.json`;
+- the root licence path and SHA-256, plus the agreeing declared and mechanically
+  detected SPDX identifiers;
 - the Lean toolchain;
 - compared theorem and definition names;
 - one or two arXiv subject classes and at least one MSC2020 code;
 - the full project dependency set, the transitive `Challenge.lean` source
   closure, its allowlist/Palomar provenance, exact indexed record versions and
   source hashes, and challenge size;
-- pinned Comparator, lean4export, and landrun commits;
+- pinned Comparator, lean4export, NanoDa, and landrun commits;
 - the workflow run URL and timestamp.
 
 The reviewer resolves the successful trusted workflow run, downloads its
