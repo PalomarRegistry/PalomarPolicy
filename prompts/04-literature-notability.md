@@ -27,6 +27,11 @@ Any notability score below the minimum recorded in `rubric.json` must carry a
 Check cited sources and the adequacy of the literature account. If browsing tools
 are available, verify important citations and search for obvious prior
 formalizations; record links used. Do not infer novelty from a missing citation.
+An original result may legitimately have no prior mathematical source, but that
+does not excuse unsupported novelty claims or remove the need to search for
+obvious prior results and formalizations. Sources may be books, journal articles,
+web discussions, folklore, or other identifiable mathematical communication;
+do not treat absence from arXiv as absence from the literature.
 Watch for crackpot framing, made-up theories whose definitions manufacture their
 conclusions, famous-open-problem claims that do not reach the standard statement,
 and duplicate work without meaningful provenance.
