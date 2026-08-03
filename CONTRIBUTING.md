@@ -33,10 +33,15 @@ mapping keys, and requires one top-level mapping. As a mechanical minimum, the
 following current self-reporting fields must be present and nonempty:
 
 - `project.name`, `project.authors`, and `project.license`;
+- `project.responsible_maintainers`, naming at least one person responsible for
+  the submitted formalization;
+- `provenance.result_origin`, either `original` or `source-based`, and
+  `repository.role`, either `substantive-development` or `thin-wrapper`;
 - `classification.arxiv`, containing one or two exact identifiers from the
   [arXiv category taxonomy](https://arxiv.org/category_taxonomy), and
   `classification.msc2020`, containing one to eight exact MSC2020 codes;
-- at least one `sources` entry, each with `title`, `authors`, and `id`;
+- when the result is `source-based`, at least one `sources` entry related by
+  `formalizes`, `adapts`, or `independently-proves`;
 - at least one `automation.methods` entry with `method` (use `manual` when
   appropriate);
 - `review.status`.
@@ -45,6 +50,19 @@ Authors may be names or mappings containing a `name`. Unknown fields are
 allowed. Passing this structural check says nothing about the quality or
 accuracy of the metadata; the editorial review applies the fuller requirements
 in section 3.
+
+A source is not necessarily an arXiv paper. It may be a book, journal article,
+web page, MathOverflow or other discussion, private communication, or a
+folklore result. Give the most stable identifier or location available. Authors
+and identifiers may be omitted when they genuinely do not exist or are not
+known. A formalization that is the first presentation of a new result has
+`result_origin: original` and may omit `sources` entirely; background sources
+may still be listed with relationship `background` or `other`.
+
+If the submitted repository exists only to expose another project through
+Comparator, set `repository.role: thin-wrapper` and identify the substantive
+formalization repository at an immutable full commit. This makes the registry
+link to the mathematical work rather than treating its packaging as the work.
 
 For example:
 
@@ -123,11 +141,25 @@ not an editorial rejection.
 Fill every required field in `formalization.yaml`, including:
 
 - a plain-language account of each compared theorem;
-- the source result and exact bibliographic references;
+- every mathematical source actually used, with the most precise available
+  reference and its relationship to the formalization;
 - what is original, translated, adapted, or still missing;
 - authorship and AI involvement, including the human review performed;
 - known fidelity gaps, extra assumptions, axioms, and scope limitations;
 - the repository license.
+
+Submitters must either be a responsible author or maintainer of the substantive
+formalization, or have approval from one. For a thin Comparator wrapper this
+means approval from someone responsible for the underlying formalization
+repository, not merely the wrapper. The submission form records which basis
+applies. A link or short note documenting approval is welcome but optional.
+
+For each source, distinguish `formalizes`, `adapts`,
+`independently-proves`, `background`, and `other`. Record prior formalizations
+separately, including whether this work extends, reimplements, ports, compares
+with, or otherwise relates to them. Source contact or endorsement is useful
+context when known, but neither is required and neither substitutes for the
+submitter-authorization rule above.
 
 Write for a mathematically literate reader outside the immediate project. A
 claim of novelty requires a credible literature search; otherwise say that
