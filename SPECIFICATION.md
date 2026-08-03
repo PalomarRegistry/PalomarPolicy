@@ -108,6 +108,14 @@ the database repository. Merging the database PR is the publication event.
 Closing or labeling the submission issue is a separate explicit operator
 action.
 
+For schema-v5 records, publication also preserves the exact downloaded
+`mechanical-report.json` and normalized workflow-run/job provenance in a small,
+content-addressed bundle under `evidence/`. The entry records the report digest,
+bundle digest, workflow commit, and run attempt. Database validation checks that
+the archived report and provenance agree with the entry, and the append-only
+gate freezes the bundle with the published record. GitHub Actions logs remain
+temporary supporting material and are not archived.
+
 ## Security boundary
 
 Submission source is hostile. No credential is present in the verification or
