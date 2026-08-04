@@ -24,7 +24,7 @@ registry today is an accident to be preserved, not tidied away.
 
 ## What GitHub does and does not redirect
 
-- Repository, issue, comment, blob and raw URLs redirect after a transfer.
+- Repository, blob, tree, pull-request and raw URLs redirect after a transfer.
 - **GitHub Pages URLs do not redirect.** `kim-em.github.io/PalomarDatabase/`
   simply stops resolving.
 - **Recreating a repository at an old name destroys that name's redirects
@@ -129,7 +129,6 @@ validator was written in.
 | `PalomarReviewer/src/palomar_reviewer/cli.py` | submission, policy, database repositories |
 | `PalomarReviewer/{README.md,.github/workflows/ci.yml,tests/test_cli.py}` | |
 | `PalomarSubmission/README.md`, `docs/launch-security-review.md` | |
-| `PalomarSubmission/.github/ISSUE_TEMPLATE/{config.yml,submit.yml}` | policy links |
 | `PalomarSubmission/.github/ISSUE_TEMPLATE/{config,submit}.yml` | policy and website links |
 | `PalomarPolicy/README.md` | reviewer link |
 | `PalomarTemplate/README.md` | CI badge, policy and submission links |
@@ -150,13 +149,19 @@ into published records as `submission.repository`, so moving it produces records
 that no schema accepts. It moves in the same change that introduces `schema-v7`,
 not before. GitHub's redirects make every API call work meanwhile.
 
-**Authorising an editorial review is not the repository owner's name.**
-`matching_review_comment` compared a comment author's login to the submission
-repository's owner. That worked only because the owner was a person, and that
-person was the operator. Under an organisation the owner authors nothing, so the
-check silently rejects every genuine review. It now reads GitHub's author
-association instead: the operator is `MEMBER`, and was `OWNER` before the move,
-while a submitter or `github-actions` is `NONE`.
+**Authorising an editorial review is not the repository owner's name, and it is
+not organisation membership either.** `matching_review_comment` compared a
+comment author's login to the submission repository's owner. That worked only
+because the owner was a person, and that person was the operator. Under an
+organisation the owner authors nothing, so the check silently matches nothing.
+
+The first replacement attempted here was `authorAssociation in {OWNER, MEMBER}`,
+and it was wrong in a way worth recording: `MEMBER` means any member of the
+organisation, and this document sets the base member permission to `read`, which
+is enough to comment. That would have let a read-only member's comment be adopted
+as the official editorial record, making the check weaker than the single-account
+test it replaced. It now uses `viewerDidAuthor`, which asks whether the account
+running the tool posted the comment.
 
 The general lesson: before repointing a `kim-em` string, ask what it is actually
 standing for. If the answer is anything other than "the location of a repository
