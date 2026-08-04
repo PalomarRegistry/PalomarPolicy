@@ -43,8 +43,7 @@ report binds:
 - compared theorem and definition names;
 - one or two arXiv subject classes and at least one MSC2020 code;
 - the full project dependency set, the transitive Challenge-source
-  closure, its allowlist/Palomar provenance, exact indexed record versions and
-  source hashes, and challenge size;
+  closure, its allowlist provenance, and challenge size;
 - pinned Comparator, lean4export, NanoDa, and landrun commits;
 - the workflow run URL and timestamp.
 
@@ -71,9 +70,7 @@ review pass receives:
    README (falling back to the repository README, with the resolved path named
    in the evidence envelope);
 4. the issue metadata and mechanical report;
-5. every exact source file from a Palomar-indexed dependency that occurs in the
-   mechanically computed Challenge closure;
-6. earlier pass results when the rubric says so.
+5. earlier pass results when the rubric says so.
 
 Engines must emit JSON matching the per-pass shape in the rubric. Raw model
 outputs, normalized results, and the final report are retained in the review
@@ -93,14 +90,17 @@ whose issue, source, mechanical report, and policy commit an operator inspected.
 
 `rubric.json` versions the engine contract. Version 2 declares score ownership
 per pass, requires strict evidence findings, and binds synthesis decisions to
-the evidence-pass scores. Version 3 additionally requires reconstructed indexed
-Challenge sources as definition-fidelity evidence. Version 4 adds the required
-subject-classification pass without changing the historical score shape.
-Version 5 names review inputs by semantic role so nested projects and
-non-default filenames receive exactly the same review packet.
+the evidence-pass scores. Version 3 additionally required reconstructed
+Palomar-indexed Challenge sources as definition-fidelity evidence. Version 4
+adds the required subject-classification pass without changing the historical
+score shape. Version 5 names review inputs by semantic role so nested projects
+and non-default filenames receive exactly the same review packet.
 Reviewers must retain older version support for historical policy commits and
-reject unknown rubric
-versions.
+reject unknown rubric versions, with one deliberate exception: withdrawing
+Palomar-indexed imports removed the `challenge_review_sources` evidence input
+altogether, so rubric version 3 and the version 4 commits that request it can no
+longer be executed. Reviewers must reject those rubrics outright rather than
+accept the input and silently render nothing, which would fail open.
 
 ## Publication
 
@@ -164,16 +164,12 @@ Arbitrary pinned Git dependencies and contained repository-local path
 dependencies are permitted in the proof project. A nested project is selected
 without changing the repository-level source or licence boundary. The
 mechanical gate applies only to the transitive source closure of the recorded
-Challenge source; imported sources must resolve to Lean core, the allowlisted
-Mathlib/Tau Ceti closure, or an exact previously accepted Palomar record version.
-For an indexed import, the verifier independently checks out its recorded
-repository and commit, verifies its tracked pinned nested manifest, resolves
-every reached module to a unique tracked source file, and compiles that source
-closure directly with trusted Lean and the network closed. Only verifier-owned
-output is placed ahead of candidate paths, and every imported source byte is
-verified. An unindexed source reached recursively is still rejected.
-This makes the import reproducible and reviewable; it does not promote the
-earlier project to Mathlib-level trust, so the record remains `qualified`.
+Challenge source; imported sources must resolve to Lean core or the allowlisted
+Mathlib/Tau Ceti closure. Every other source reached from the Challenge is
+rejected, including a source reached only recursively and a source belonging to
+a project Palomar has already accepted. Being indexed by Palomar confers no
+import privilege: an earlier accepted record fixes a reviewable snapshot of its
+own statement, not a trusted library for later ones.
 Dependencies reached only by the recorded Solution source remain unrestricted apart from the
 ordinary full-commit and confinement requirements.
 
