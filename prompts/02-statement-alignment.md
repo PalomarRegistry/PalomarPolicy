@@ -1,7 +1,8 @@
 # Informal-to-Lean statement review
 
-Determine whether each theorem named in `comparator.json` actually expresses the
-corresponding informal claim in `formalization.yaml`. Read quantifiers,
+Determine whether each theorem named in the recorded Comparator configuration
+actually expresses the corresponding informal claim in the recorded
+formalization metadata. Read quantifiers,
 hypotheses, definitions, namespaces, coercions, degenerate cases, and claimed
 scope closely. Check that the metadata does not silently generalize beyond or
 market a weaker surrogate for the Lean statement.

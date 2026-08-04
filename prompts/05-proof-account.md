@@ -1,7 +1,7 @@
 # Optional informal-proof alignment review
 
 Run this pass only when the submitter supplies an informal proof account. Compare
-that account with the actual architecture of `Solution.lean` and its imported
+that account with the actual architecture of the recorded Solution source and its imported
 proof. The account may omit implementation detail, but it must not describe an
 unrelated plausible proof, conceal a decisive computational oracle or assumption,
 or attribute reasoning that is absent.

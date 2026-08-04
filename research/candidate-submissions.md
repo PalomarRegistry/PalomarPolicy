@@ -19,11 +19,27 @@ was unavailable on this host, so the Zulip portion used its authenticated
 read-only server-search helper. GitHub code search is relevance-ranked and capped
 at 100 results per query; this is deliberately a candidate set, not a census.
 
-Readiness below applies to Palomar's prototype contract: root `lakefile.toml`,
-`formalization.yaml`, `Challenge.lean`, `Solution.lean`, and `comparator.json`,
-with the **transitive Challenge source closure** restricted to Mathlib, Tau Ceti,
-or already indexed Palomar commits. The rest of the proof project may have
-arbitrary pinned dependencies.
+Readiness notes below were written against the former root-only prototype
+contract. Palomar now accepts a repository-relative project directory,
+`lakefile.toml` or `lakefile.lean`, alternate Comparator configuration paths,
+and dotted Challenge/Solution modules. Defaults remain the repository root and
+the conventional filenames. The **transitive Challenge source closure** is
+still restricted to Mathlib, Tau Ceti, or already indexed Palomar commits. The
+rest of the proof project may have arbitrary pinned Git dependencies and
+contained repository-local path dependencies.
+
+## Nested-layout compatibility corpus
+
+The path-aware intake is intended to cover the observed nested layouts in
+`Solarys431/agrawal-r5`, `chdarcy/MarkowitzFormalization`,
+`empath-nirvana/polyclone`, `ianklatzco/odd-order-lean`,
+`jaumededios/sharp_smoothing`, `mrdouglasny/jacobian-challenge`,
+`random-fields/percolation`, `rkirov/jacobian-claude`, `rkirov/jordan_pick`,
+`scottnarmstrong/CoarseGraining`, `shalliso/KnightModel`,
+`willmfeldman/aleksandrov-differentiability`, and `yuma-mizuno/markoff-modp`.
+This is a packaging compatibility corpus, not an acceptance or endorsement
+list; each pinned submission still has to satisfy the Challenge trust rule and
+editorial policy.
 
 ## A. Best smoke-test candidates
 

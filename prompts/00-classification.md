@@ -1,8 +1,8 @@
 # Subject-classification review
 
 Check whether each submitted arXiv subject class and MSC2020 code is a
-plausible description of the actual mathematical result in `Challenge.lean` and
-`formalization.yaml`. Intake has already checked that the identifiers exist in
+plausible description of the actual mathematical result in the recorded
+Challenge source and formalization metadata. Intake has already checked that the identifiers exist in
 the official taxonomies. Use the binding classification guide to interpret the
 codes.
 

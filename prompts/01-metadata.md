@@ -14,7 +14,7 @@ substantively identifies the mathematical result, its origin, responsible
 maintainers, any mathematical sources and prior formalizations, repository
 role, authors, license, AI involvement, human review, scope, known gaps, and the
 exact claim to be indexed. Compare each material claim with the issue and
-repository README. If the submitted repository is a thin wrapper, check that it
+selected-project README (or repository-root fallback). If the submitted repository is a thin wrapper, check that it
 identifies the substantive formalization at an immutable revision. Check that
 the submission's authorization relationship concerns that substantive project.
 Do not demand a source for a result explicitly and credibly recorded as first

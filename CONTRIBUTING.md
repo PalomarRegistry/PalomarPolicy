@@ -1,8 +1,8 @@
 # Submitting to Palomar
 
 Palomar records a modest but meaningful claim: at a permanent Git commit, a
-well-described Lean project contains proofs of the human-auditable statements in
-`Challenge.lean`, as checked by Comparator, and an editorial review found the
+well-described Lean project contains proofs of its recorded human-auditable
+Challenge statements, as checked by Comparator, and an editorial review found the
 mathematical description responsible enough to index.
 
 It is a registry, not a journal. Acceptance is not publication, does not assert
@@ -12,24 +12,48 @@ floor below.
 
 ## 1. Required repository shape
 
-Submit a public GitHub repository at a full 40-character commit SHA. The
-repository root must contain:
+Submit a public GitHub repository at a full 40-character commit SHA. The common
+case needs no path configuration: Palomar treats the repository root as the Lean
+project directory and uses the conventional filenames below. A submission whose
+Lean project is nested selects one repository-relative project directory in the
+submission form. Paths use `/`, may not be absolute, contain `.` or `..`
+components, or pass through symbolic links.
 
-- `lean-toolchain`, pinned to a supported `leanprover/lean4:<version>`;
-- `lakefile.toml` and, preferably, a committed `lake-manifest.json`;
-- `formalization.yaml`, following the current
+The selected project directory must contain:
+
+- exactly one of `lakefile.toml` or `lakefile.lean`; a committed
+  `lake-manifest.json` is preferred and is required for `lakefile.lean`;
+- `lean-toolchain`, pinned to a supported `leanprover/lean4:<version>`, either
+  there or, for a nested project, at repository root;
+- by default, `formalization.yaml`, following the current
   [`mathlib-initiative/formalization.yaml`](https://github.com/mathlib-initiative/formalization.yaml)
   self-reporting standard;
-- `Challenge.lean`, the small, human-auditable statement surface;
-- `Solution.lean`, the proved version;
-- `comparator.json`, naming every theorem or definition to compare;
-- exactly one conventional root licence file: `LICENSE`, `LICENCE`, `COPYING`,
-  `UNLICENSE`, or `OFL`, case-insensitively and optionally followed by `.md`,
-  `.markdown`, or `.txt`.
+- a Comparator JSON configuration, `comparator.json` by default. Its
+  `challenge` and `solution` values may be safe dotted Lean module names; Palomar
+  resolves the corresponding source files through the selected project's Lake
+  environment rather than requiring the names `Challenge` and `Solution`.
 
-`lakefile.lean` and local/path dependencies are not accepted by the prototype.
-The proof project may otherwise depend on arbitrary pinned Git repositories.
-Palomar does not require the whole development to be “Palomar-shaped.”
+The metadata path and Comparator configuration path may be supplied explicitly
+in the form; omitted values use the natural defaults in the selected project
+directory. The metadata file itself remains named `formalization.yaml`.
+`enable_nanoda` in submitted Comparator configuration is ignored and NanoDa is
+always enabled by trusted configuration.
+
+Exactly one conventional licence file must remain at **repository root**:
+`LICENSE`, `LICENCE`, `COPYING`, `UNLICENSE`, or `OFL`, case-insensitively and
+optionally followed by `.md`, `.markdown`, or `.txt`. This repository-level rule
+does not move with the selected project directory.
+
+Contained local/path dependencies are accepted when their targets stay within
+the same pinned repository checkout. The proof project may otherwise depend on
+arbitrary pinned Git repositories. Palomar does not require the whole
+development to be “Palomar-shaped.”
+
+For a `lakefile.toml` project without its own manifest, intake can synthesize a
+trusted manifest only when every requirement is a contained path dependency
+whose target has a committed manifest and no further path dependency. Commit
+the selected project's manifest for all other layouts, including direct Git
+requirements.
 
 Intake parses `formalization.yaml` with a safe YAML loader, rejects duplicate
 mapping keys, and requires one top-level mapping. As a mechanical minimum, the
@@ -90,8 +114,8 @@ An update to an existing Palomar ID must come from the same source repository
 as its current version. Repository transfers require explicit operator review
 and are not accepted by the automated publication path.
 
-The restriction applies to the **transitive import closure of
-`Challenge.lean`**. Every non-core source file in that closure must come from
+The restriction applies to the **transitive import closure of the recorded
+Challenge source**. Every non-core source file in that closure must come from
 Mathlib or Tau Ceti, including their pinned infrastructure dependencies, or an
 exact repository commit represented by a specific Palomar record version.
 Indexed sources are reconstructed independently and each reached module is
@@ -101,7 +125,7 @@ source bytes and versioned provenance are recorded, and their actual imported fi
 included in definition-fidelity review. A recursively reached unindexed source
 is not made acceptable merely because a parent project is indexed.
 
-Dependencies used only by `Solution.lean` may use arbitrary pinned Git sources,
+Dependencies used only by the recorded Solution source may use arbitrary pinned Git sources,
 subject to the ordinary full-commit and confinement requirements. The
 mechanical report records the full project dependency set separately from the
 smaller trusted challenge dependency set.
@@ -112,7 +136,8 @@ definition holes are not accepted.
 
 ## 2. The challenge surface
 
-`Challenge.lean` is the part a mathematical reader is expected to audit.
+The recorded Challenge source is the part a mathematical reader is expected to
+audit. `Challenge.lean` is the conventional default, not a required filename.
 
 - Prefer imports from Mathlib alone. Tau Ceti imports are permitted but are
   prominently recorded as a larger trust surface. Palomar-indexed Challenge
@@ -139,7 +164,7 @@ nonempty, explain what values are intended and why the surrounding theorems
 constrain them. Review may reject a formally comparator-valid but vacuous hole.
 
 After acceptance, Palomar produces a Verso rendering of the pinned
-`Challenge.lean` inside its confined publication pipeline. The canonical source
+Challenge source inside its confined publication pipeline. The canonical source
 remains the commit-pinned GitHub file. Challenges with exactly one compared
 declaration and no more than 100 lines or 32 KiB are shown inline; larger ones
 open in a dedicated rendered view. Rendering failure delays publication but is

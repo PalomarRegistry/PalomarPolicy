@@ -30,7 +30,7 @@ jobs:
           ids = [step["id"] for step in rubric["steps"]]
           assert len(ids) == len(set(ids)), "duplicate rubric step"
           assert ids[-1] == "synthesis", "synthesis must be last"
-          assert rubric["schema_version"] == 4
+          assert rubric["schema_version"] == 5
           minimum = rubric["minimum_accept_score"]
           assert isinstance(minimum, int) and not isinstance(minimum, bool) and 1 <= minimum <= 5
           registry_scores = rubric["registry_scores"]
