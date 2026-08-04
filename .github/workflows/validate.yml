@@ -49,6 +49,19 @@ jobs:
               "proof_alignment",
               "classification",
           }
+          allowed_inputs = {
+              "all_previous_results",
+              "challenge_review_sources",
+              "challenge_source",
+              "comparator_config",
+              "formalization_metadata",
+              "issue",
+              "lakefile",
+              "lean_toolchain",
+              "mechanical_report",
+              "project_readme",
+              "solution_source",
+          }
           mandatory_reject = rubric.get("mandatory_reject_below_minimum", [])
           assert len(mandatory_reject) == len(set(mandatory_reject))
           assert set(mandatory_reject) <= set(registry_scores)
@@ -70,6 +83,8 @@ jobs:
                   if input_name.startswith("policy:"):
                       policy_path = root / input_name.removeprefix("policy:")
                       assert policy_path.is_file(), f"missing policy input: {policy_path}"
+                  else:
+                      assert input_name in allowed_inputs, f"unknown rubric input: {input_name}"
           assert len(owned_scores) == len(set(owned_scores)), "duplicate score owner"
           assert set(registry_scores) <= set(owned_scores)
           assert all(owners[key]["required"] for key in registry_scores)

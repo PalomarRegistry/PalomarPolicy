@@ -48,6 +48,11 @@ report binds:
 - pinned Comparator, lean4export, NanoDa, and landrun commits;
 - the workflow run URL and timestamp.
 
+The configured Challenge and Solution modules must be distinct and resolve
+uniquely to regular tracked files inside the selected project. Resolution into
+`.lake`, a dependency checkout, an out-of-project source root, or through a
+symbolic link is a mechanical failure.
+
 The reviewer resolves the successful trusted workflow run, downloads its
 issue-scoped artifact, checks that the workflow revision remains in trusted
 history, and independently binds the artifact to the issue, source commit, and
@@ -63,7 +68,8 @@ review pass receives:
    editorial floor and score threshold for notability and synthesis;
 3. the recorded formalization metadata, Challenge source, Solution source,
    Comparator configuration, Lakefile, Lean toolchain, and selected-project
-   README (falling back to the repository README);
+   README (falling back to the repository README, with the resolved path named
+   in the evidence envelope);
 4. the issue metadata and mechanical report;
 5. every exact source file from a Palomar-indexed dependency that occurs in the
    mechanically computed Challenge closure;
@@ -114,7 +120,7 @@ the database repository. Merging the database PR is the publication event.
 Closing or labeling the submission issue is a separate explicit operator
 action.
 
-For schema-v5 and later records, publication also preserves the exact downloaded
+For database schema v5 and later records, publication also preserves the exact downloaded
 `mechanical-report.json` and normalized workflow-run/job provenance in a small,
 content-addressed bundle under `evidence/`. The entry records the report digest,
 bundle digest, workflow commit, and run attempt. Database validation checks that
@@ -129,6 +135,11 @@ render execution environment.
 The trusted reporting job has an issue-scoped token but never executes source or
 source-derived shell text. Comparator performs Lean elaboration under landrun.
 Mutable third-party action selectors are forbidden.
+
+Verification may elaborate a submitted `lakefile.lean` only inside Landrun with
+the network and credentials absent. It never runs `lake update` or package
+post-update hooks; the committed or trusted-synthesized manifest is the sole
+dependency-resolution authority.
 
 Rendering uses a trusted synthetic Lake workspace and an exact Verso revision
 selected for the accepted Lean toolchain. It must not run a submitted Lakefile,
@@ -163,7 +174,7 @@ output is placed ahead of candidate paths, and every imported source byte is
 verified. An unindexed source reached recursively is still rejected.
 This makes the import reproducible and reviewable; it does not promote the
 earlier project to Mathlib-level trust, so the record remains `qualified`.
-Dependencies reached only by `Solution.lean` remain unrestricted apart from the
+Dependencies reached only by the recorded Solution source remain unrestricted apart from the
 ordinary full-commit and confinement requirements.
 
 This prototype accepts only public GitHub repositories. Private-repository App

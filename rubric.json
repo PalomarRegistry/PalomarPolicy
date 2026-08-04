@@ -40,7 +40,7 @@
         "policy:CONTRIBUTING.md",
         "policy:rubric.json",
         "formalization_metadata",
-        "repository_readme",
+        "project_readme",
         "issue",
         "mechanical_report"
       ]
@@ -92,7 +92,7 @@
         "policy:CONTRIBUTING.md",
         "policy:rubric.json",
         "formalization_metadata",
-        "repository_readme",
+        "project_readme",
         "issue"
       ]
     },

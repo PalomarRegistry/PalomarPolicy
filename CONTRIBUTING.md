@@ -17,27 +17,37 @@ case needs no path configuration: Palomar treats the repository root as the Lean
 project directory and uses the conventional filenames below. A submission whose
 Lean project is nested selects one repository-relative project directory in the
 submission form. Paths use `/`, may not be absolute, contain `.` or `..`
-components, or pass through symbolic links.
+components, empty components, backslashes, query/fragment characters, control
+characters, or pass through symbolic links. Each supplied path must resolve
+inside the pinned repository checkout; the selected project must be a tracked
+directory and its source/configuration files must be regular tracked files.
 
 The selected project directory must contain:
 
 - exactly one of `lakefile.toml` or `lakefile.lean`; a committed
   `lake-manifest.json` is preferred and is required for `lakefile.lean`;
 - `lean-toolchain`, pinned to a supported `leanprover/lean4:<version>`, either
-  there or, for a nested project, at repository root;
+  there or, for a nested project, at repository root. A project-local file takes
+  precedence when both exist;
 - by default, `formalization.yaml`, following the current
   [`mathlib-initiative/formalization.yaml`](https://github.com/mathlib-initiative/formalization.yaml)
   self-reporting standard;
 - a Comparator JSON configuration, `comparator.json` by default. Its
-  `challenge` and `solution` values may be safe dotted Lean module names; Palomar
-  resolves the corresponding source files through the selected project's Lake
-  environment rather than requiring the names `Challenge` and `Solution`.
+  `challenge_module` and `solution_module` values may be dotted Lean module
+  names rather than the conventional `Challenge` and `Solution`. Each component
+  must match `[A-Za-z_][A-Za-z0-9_']*`. The names must be distinct, and both must
+  resolve uniquely to regular tracked source files inside the selected project,
+  never to `.lake`, a dependency checkout, or a symlink target.
 
 The metadata path and Comparator configuration path may be supplied explicitly
 in the form; omitted values use the natural defaults in the selected project
-directory. The metadata file itself remains named `formalization.yaml`.
-`enable_nanoda` in submitted Comparator configuration is ignored and NanoDa is
-always enabled by trusted configuration.
+directory. The metadata file itself remains named `formalization.yaml`, and an
+explicit Comparator configuration path must end in `.json`. The
+Comparator configuration uses the closed key set `challenge_module`,
+`solution_module`, `theorem_names`, `definition_names`, `permitted_axioms`, and
+optional `enable_nanoda`. Submitted `permitted_axioms` may only select from
+`propext`, `Quot.sound`, and `Classical.choice`; `enable_nanoda` is ignored and
+NanoDa is always enabled by trusted configuration.
 
 Exactly one conventional licence file must remain at **repository root**:
 `LICENSE`, `LICENCE`, `COPYING`, `UNLICENSE`, or `OFL`, case-insensitively and
@@ -49,11 +59,15 @@ the same pinned repository checkout. The proof project may otherwise depend on
 arbitrary pinned Git repositories. Palomar does not require the whole
 development to be “Palomar-shaped.”
 
+Published path dependencies are normalized to repository-root-relative
+directories; `.` denotes the repository root, regardless of the relative path
+spelling used in the selected Lakefile.
+
 For a `lakefile.toml` project without its own manifest, intake can synthesize a
 trusted manifest only when every requirement is a contained path dependency
 whose target has a committed manifest and no further path dependency. Commit
 the selected project's manifest for all other layouts, including direct Git
-requirements.
+requirements or overlapping package names in the contributing manifests.
 
 Intake parses `formalization.yaml` with a safe YAML loader, rejects duplicate
 mapping keys, and requires one top-level mapping. As a mechanical minimum, the
