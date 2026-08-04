@@ -6,7 +6,7 @@ The versioned editorial contract for the Palomar registry.
 - [`SPECIFICATION.md`](SPECIFICATION.md) defines the repository and review contract.
 - [`rubric.json`](rubric.json) defines the ordered AI review passes.
 - [`prompts/`](prompts/) contains the prompt text used by
-  [`PalomarReviewer`](https://github.com/kim-em/PalomarReviewer).
+  [`PalomarReviewer`](https://github.com/PalomarRegistry/PalomarReviewer).
 - [`schemas/review.schema.json`](schemas/review.schema.json) defines the
   auditable review report.
 
