@@ -51,7 +51,6 @@ jobs:
           }
           allowed_inputs = {
               "all_previous_results",
-              "challenge_review_sources",
               "challenge_source",
               "comparator_config",
               "formalization_metadata",

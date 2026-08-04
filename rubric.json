@@ -75,7 +75,6 @@
         "policy:rubric.json",
         "formalization_metadata",
         "challenge_source",
-        "challenge_review_sources",
         "comparator_config",
         "mechanical_report"
       ]

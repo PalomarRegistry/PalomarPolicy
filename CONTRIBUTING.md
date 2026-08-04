@@ -130,14 +130,10 @@ and are not accepted by the automated publication path.
 
 The restriction applies to the **transitive import closure of the recorded
 Challenge source**. Every non-core source file in that closure must come from
-Mathlib or Tau Ceti, including their pinned infrastructure dependencies, or an
-exact repository commit represented by a specific Palomar record version.
-Indexed sources are reconstructed independently and each reached module is
-compiled directly from a unique tracked source file by trusted Lean, without
-using the indexed project's Lake plan as a source-to-object authority. Their
-source bytes and versioned provenance are recorded, and their actual imported files are
-included in definition-fidelity review. A recursively reached unindexed source
-is not made acceptable merely because a parent project is indexed.
+Mathlib or Tau Ceti, including their pinned infrastructure dependencies. There
+is no third category: a repository is not importable because Palomar has
+already accepted a record from it, and a source is not made acceptable by being
+reached only recursively.
 
 Dependencies used only by the recorded Solution source may use arbitrary pinned Git sources,
 subject to the ordinary full-commit and confinement requirements. The
@@ -154,10 +150,7 @@ The recorded Challenge source is the part a mathematical reader is expected to
 audit. `Challenge.lean` is the conventional default, not a required filename.
 
 - Prefer imports from Mathlib alone. Tau Ceti imports are permitted but are
-  prominently recorded as a larger trust surface. Palomar-indexed Challenge
-  imports are supported and likewise recorded as `qualified`: indexing fixes a
-  reviewable source snapshot, but does not make all present or future contents
-  of that repository universally trusted.
+  prominently recorded as a larger trust surface.
 - Prefer theorem statements to new definitions.
 - Any definition needed to state a theorem must have a precise docstring and an
   ordinary mathematical meaning. Avoid encoding a desired answer into a
@@ -168,10 +161,6 @@ audit. `Challenge.lean` is the conventional default, not a required filename.
   advertised theorem.
 - Keep the file small. The mechanical hard limit is 1,000 nonempty-or-comment
   lines and 100 KiB; review treats more than 300 lines or 32 KiB as a warning.
-- The automated definition-fidelity packet carries up to 8 MiB of exact indexed
-  Challenge-source text. A larger imported closure requires an expanded or
-  operator-assisted audit and is escalated, not rejected or treated as a
-  mechanical resource failure.
 
 Definition holes are intrinsically easier to game. If `definition_names` is
 nonempty, explain what values are intended and why the surrounding theorems
