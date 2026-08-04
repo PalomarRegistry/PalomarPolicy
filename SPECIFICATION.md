@@ -34,18 +34,24 @@ report binds:
 
 - the issue and submitter;
 - `owner/repo` and the resolved 40-character commit;
-- hashes of `Challenge.lean`, `Solution.lean`, `formalization.yaml`, and
-  `comparator.json`;
+- the selected project directory and the repository-relative paths and hashes
+  of the resolved Challenge source, Solution source, `formalization.yaml`,
+  Comparator configuration, and Lakefile;
 - the root licence path and SHA-256, plus the agreeing declared and mechanically
   detected SPDX identifiers;
 - the Lean toolchain;
 - compared theorem and definition names;
 - one or two arXiv subject classes and at least one MSC2020 code;
-- the full project dependency set, the transitive `Challenge.lean` source
+- the full project dependency set, the transitive Challenge-source
   closure, its allowlist/Palomar provenance, exact indexed record versions and
   source hashes, and challenge size;
 - pinned Comparator, lean4export, NanoDa, and landrun commits;
 - the workflow run URL and timestamp.
+
+The configured Challenge and Solution modules must be distinct and resolve
+uniquely to regular tracked files inside the selected project. Resolution into
+`.lake`, a dependency checkout, an out-of-project source root, or through a
+symbolic link is a mechanical failure.
 
 The reviewer resolves the successful trusted workflow run, downloads its
 issue-scoped artifact, checks that the workflow revision remains in trusted
@@ -60,8 +66,10 @@ review pass receives:
 1. the pass prompt at the recorded policy commit;
 2. any binding policy documents named by that rubric step, including the
    editorial floor and score threshold for notability and synthesis;
-3. `formalization.yaml`, `Challenge.lean`, `Solution.lean`,
-   `comparator.json`, `lakefile.toml`, and `lean-toolchain`;
+3. the recorded formalization metadata, Challenge source, Solution source,
+   Comparator configuration, Lakefile, Lean toolchain, and selected-project
+   README (falling back to the repository README, with the resolved path named
+   in the evidence envelope);
 4. the issue metadata and mechanical report;
 5. every exact source file from a Palomar-indexed dependency that occurs in the
    mechanically computed Challenge closure;
@@ -88,13 +96,15 @@ per pass, requires strict evidence findings, and binds synthesis decisions to
 the evidence-pass scores. Version 3 additionally requires reconstructed indexed
 Challenge sources as definition-fidelity evidence. Version 4 adds the required
 subject-classification pass without changing the historical score shape.
+Version 5 names review inputs by semantic role so nested projects and
+non-default filenames receive exactly the same review packet.
 Reviewers must retain older version support for historical policy commits and
 reject unknown rubric
 versions.
 
 ## Publication
 
-On `accept`, the reviewer renders the accepted `Challenge.lean` and prepares
+On `accept`, the reviewer renders the accepted Challenge source and prepares
 (but does not merge) a pull request to `PalomarDatabase`. Rendering is a
 required publication step, but an infrastructure or renderer failure does not
 reverse the editorial decision: publication remains pending and may be retried.
@@ -110,7 +120,7 @@ the database repository. Merging the database PR is the publication event.
 Closing or labeling the submission issue is a separate explicit operator
 action.
 
-For schema-v5 records, publication also preserves the exact downloaded
+For database schema v5 and later records, publication also preserves the exact downloaded
 `mechanical-report.json` and normalized workflow-run/job provenance in a small,
 content-addressed bundle under `evidence/`. The entry records the report digest,
 bundle digest, workflow commit, and run attempt. Database validation checks that
@@ -125,6 +135,11 @@ render execution environment.
 The trusted reporting job has an issue-scoped token but never executes source or
 source-derived shell text. Comparator performs Lean elaboration under landrun.
 Mutable third-party action selectors are forbidden.
+
+Verification may elaborate a submitted `lakefile.lean` only inside Landrun with
+the network and credentials absent. It never runs `lake update` or package
+post-update hooks; the committed or trusted-synthesized manifest is the sole
+dependency-resolution authority.
 
 Rendering uses a trusted synthetic Lake workspace and an exact Verso revision
 selected for the accepted Lean toolchain. It must not run a submitted Lakefile,
@@ -141,13 +156,15 @@ Published render HTML is sanitized, carries a restrictive CSP, and is served
 from the PalomarDatabase GitHub Pages site. PalomarWeb treats the database as
 the sole source of truth and embeds eligible Challenges in an iframe with
 `sandbox="allow-scripts"` and no `allow-same-origin`. It always links to the
-commit-pinned `Challenge.lean`; a Challenge is eligible for inline display only
+commit-pinned recorded Challenge source; a Challenge is eligible for inline display only
 when exactly one declaration is compared and the file is at most 100 lines and
 32 KiB. Other entries link to a dedicated wrapper with the same sandbox.
 
-Arbitrary pinned Git dependencies are permitted in the proof project. The
-mechanical gate applies only to the transitive source closure of
-`Challenge.lean`; imported sources must resolve to Lean core, the allowlisted
+Arbitrary pinned Git dependencies and contained repository-local path
+dependencies are permitted in the proof project. A nested project is selected
+without changing the repository-level source or licence boundary. The
+mechanical gate applies only to the transitive source closure of the recorded
+Challenge source; imported sources must resolve to Lean core, the allowlisted
 Mathlib/Tau Ceti closure, or an exact previously accepted Palomar record version.
 For an indexed import, the verifier independently checks out its recorded
 repository and commit, verifies its tracked pinned nested manifest, resolves
@@ -157,7 +174,7 @@ output is placed ahead of candidate paths, and every imported source byte is
 verified. An unindexed source reached recursively is still rejected.
 This makes the import reproducible and reviewable; it does not promote the
 earlier project to Mathlib-level trust, so the record remains `qualified`.
-Dependencies reached only by `Solution.lean` remain unrestricted apart from the
+Dependencies reached only by the recorded Solution source remain unrestricted apart from the
 ordinary full-commit and confinement requirements.
 
 This prototype accepts only public GitHub repositories. Private-repository App

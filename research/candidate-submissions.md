@@ -19,11 +19,27 @@ was unavailable on this host, so the Zulip portion used its authenticated
 read-only server-search helper. GitHub code search is relevance-ranked and capped
 at 100 results per query; this is deliberately a candidate set, not a census.
 
-Readiness below applies to Palomar's prototype contract: root `lakefile.toml`,
-`formalization.yaml`, `Challenge.lean`, `Solution.lean`, and `comparator.json`,
-with the **transitive Challenge source closure** restricted to Mathlib, Tau Ceti,
-or already indexed Palomar commits. The rest of the proof project may have
-arbitrary pinned dependencies.
+Readiness notes below were written against the former root-only prototype
+contract. Palomar now accepts a repository-relative project directory,
+`lakefile.toml` or `lakefile.lean`, alternate Comparator configuration paths,
+and dotted Challenge/Solution modules. Defaults remain the repository root and
+the conventional filenames. The **transitive Challenge source closure** is
+still restricted to Mathlib, Tau Ceti, or already indexed Palomar commits. The
+rest of the proof project may have arbitrary pinned Git dependencies and
+contained repository-local path dependencies.
+
+## Nested-layout compatibility corpus
+
+The path-aware intake is intended to cover the observed nested layouts in
+`Solarys431/agrawal-r5`, `chdarcy/MarkowitzFormalization`,
+`empath-nirvana/polyclone`, `ianklatzco/odd-order-lean`,
+`jaumededios/sharp_smoothing`, `mrdouglasny/jacobian-challenge`,
+`random-fields/percolation`, `rkirov/jacobian-claude`, `rkirov/jordan_pick`,
+`scottnarmstrong/CoarseGraining`, `shalliso/KnightModel`,
+`willmfeldman/aleksandrov-differentiability`, and `yuma-mizuno/markoff-modp`.
+This is a packaging compatibility corpus, not an acceptance or endorsement
+list; each pinned submission still has to satisfy the Challenge trust rule and
+editorial policy.
 
 ## A. Best smoke-test candidates
 
@@ -37,7 +53,7 @@ contract.
 | 3 | [`Joeyxyxyz/sturm-liouville-comparator-run`](https://github.com/Joeyxyxyz/sturm-liouville-comparator-run) | Root `Challenge.lean` imports only Mathlib; root `Solution.lean`, `lakefile.toml`, and `config.json`. [Zulip discussion](https://leanprover.zulipchat.com/#narrow/channel/441057/topic/Sturm-Liouville%20eigenvalue%20simplicity%20formalization%20Pot.Con./near/593673945). | Add `formalization.yaml`; rename `config.json` to `comparator.json`. | Metadata/provenance review of a compact AI-assisted analysis result. |
 | 4 | [`ElVec1o/five-distance-sharp`](https://github.com/ElVec1o/five-distance-sharp) | Root `formalization.yaml`; `comparator/` contains Mathlib-only `Challenge.lean`, `Solution.lean`, and config. [Zulip review request](https://leanprover.zulipchat.com/#narrow/channel/441057/topic/Review%20wanted%3A%20Lean%20formalizations%20%28non-expert%20%2B%20LLM%29/near/599896742). | Copy the three comparator files to root and rename the config. | Positive path plus careful provenance and literature review. |
 | 5 | [`MichaelStollBayreuth/EllipticCurves`](https://github.com/MichaelStollBayreuth/EllipticCurves) | `comparator/` contains Mathlib-only `Challenge.lean`, `Solution.lean`, and `challenges.json`. Michael Stoll describes the Mordell–Weil setup and its status in the [Zulip thread](https://leanprover.zulipchat.com/#narrow/channel/116395/topic/thoughts%20on%20elliptic%20curves/near/612117156). | Add `formalization.yaml`; copy/rename comparator files to root. | Human-expert/AI collaboration, ongoing-project scoping, multiple compared declarations. |
-| 6 | [`yuma-mizuno/markoff-modp`](https://github.com/yuma-mizuno/markoff-modp) | Root `formalization.yaml`; `Comparator/Challenge.lean` imports only Mathlib and has a paired Solution/config. | Extract a `lakefile.toml` comparator workspace at root or a small submission repository. | Significant theorem, nested comparator packaging, current `lakefile.lean` migration. |
+| 6 | [`yuma-mizuno/markoff-modp`](https://github.com/yuma-mizuno/markoff-modp) | Root `formalization.yaml`; `Comparator/Challenge.lean` imports only Mathlib and has a paired Solution/config. | Submit the root Lake project and explicitly select `Comparator/config.json`; no file relocation is needed. | Significant theorem, dotted Comparator modules, and `lakefile.lean` support. |
 
 ## B. Valuable packaging and policy tests
 
@@ -51,9 +67,9 @@ Palomar boundary.
 | [`Solarys431/lean-eval-platonic-classification`](https://github.com/Solarys431/lean-eval-platonic-classification) | Root Challenge/Solution/config, but Challenge imports local `ChallengeDeps`; no `formalization.yaml`. The broader metadata is in [`unico-lean-proofs`](https://github.com/Solarys431/unico-lean-proofs). [Zulip post](https://leanprover.zulipchat.com/#narrow/channel/441057/topic/The%20classification%20of%20regular%20polytopes%20%28lean-eval%29/near/611939475). | Large-scale stress test and expected challenge-provenance rejection until the dependency surface is trusted. Also tests strong claims, prior art, and nonexpert human provenance. |
 | [`Vilin97/lean-pool`](https://github.com/Vilin97/lean-pool) | Root Challenge/Solution, but the Challenge aggregates candidate-local `Challenge.*` modules and represents many results rather than one record. | Tests multi-result granularity, challenge-size/import rejection, and whether a registry-of-results should submit individual snapshots rather than its aggregator. |
 | [`PhillipKerger/zero-order-bounds-lean-verification`](https://github.com/PhillipKerger/zero-order-bounds-lean-verification) | Root metadata and Solution; challenge is named `Challenge-d-3-accuracy.lean`, imports candidate-local `ZeroOrderBounds.Statement`, and config is nested. | Normalize filenames, then expect provenance rejection unless the statement is made self-contained or its source becomes indexed. Useful definition-fidelity test. |
-| [`plby/Erdos1196`](https://github.com/plby/Erdos1196) | Root Mathlib-only Challenge and metadata; config is nested and names `Erdos1196` directly as the solution module; repository uses `lakefile.lean`. | Add a root `Solution.lean` bridge, normalize config, and make a small TOML submission workspace. Promising positive test after packaging. |
-| [`rkirov/jacobian-claude`](https://github.com/rkirov/jacobian-claude) | Root metadata and extensive comparator material; comparator Challenge imports only Mathlib, but the main repo uses `lakefile.lean`. README explicitly says the owner does not understand or review the mathematics. | Extract a small TOML workspace. High-value test of escalation, famous-problem framing, statement alignment, and honest-but-insufficient human review. |
-| [`Solarys431/unico-lean-proofs`](https://github.com/Solarys431/unico-lean-proofs) | Root metadata with multiple comparator workspaces such as Feuerbach and Sylvester–Gallai; the individual comparator Challenges import only Mathlib. | Submit one result per extracted root workspace. Tests whether per-result metadata is specific enough instead of inheriting project-wide marketing. |
+| [`plby/Erdos1196`](https://github.com/plby/Erdos1196) | Root Mathlib-only Challenge and metadata; config is nested and names `Erdos1196` directly as the solution module; repository uses `lakefile.lean`. | Explicitly select the nested config and recorded module names; no filename bridge is inherently required. Promising positive test if the resolved sources remain inside the selected project. |
+| [`rkirov/jacobian-claude`](https://github.com/rkirov/jacobian-claude) | Root metadata and extensive comparator material; `comparator/` is a self-contained Lake workspace whose Challenge imports only Mathlib. README explicitly says the owner does not understand or review the mathematics. | Select `comparator/` as the project and root `formalization.yaml` as metadata. High-value test of escalation, famous-problem framing, statement alignment, and honest-but-insufficient human review. |
+| [`Solarys431/unico-lean-proofs`](https://github.com/Solarys431/unico-lean-proofs) | Root metadata with multiple comparator workspaces such as Feuerbach and Sylvester–Gallai; the individual comparator Challenges import only Mathlib. | Submit one result per selected comparator workspace. Tests whether per-result metadata is specific enough instead of inheriting project-wide marketing. |
 
 ## C. Projects found on Zulip that need a Comparator wrapper
 

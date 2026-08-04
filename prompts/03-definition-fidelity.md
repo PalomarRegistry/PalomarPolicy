@@ -8,7 +8,7 @@ well-formedness conditions, collapse degenerate cases, or make a definition hole
 vacuous.
 
 Use the mechanically computed transitive challenge-source closure and challenge
-size to assess auditability. Dependencies used only by `Solution.lean` are not
+size to assess auditability. Dependencies used only by the recorded Solution source are not
 part of the statement trust surface and must not be penalized. Mathlib-only
 challenge imports support a `high` trust level. Tau Ceti challenge imports may
 still pass, but must be identified as a qualified trust surface with useful
@@ -54,7 +54,7 @@ Return JSON only:
   ],
   "scores": {"definition_fidelity": 1, "auditability": 1},
   "trust_level": "high|qualified",
-  "sources_checked": ["Challenge.lean", "repository@commit:path"]
+  "sources_checked": ["challenge_source", "repository@commit:path"]
 }
 ```
 

@@ -1,5 +1,5 @@
 {
-  "schema_version": 4,
+  "schema_version": 5,
   "minimum_accept_score": 4,
   "registry_scores": [
     "statement_alignment",
@@ -23,8 +23,8 @@
         "policy:CONTRIBUTING.md",
         "policy:rubric.json",
         "policy:taxonomies/classification-guide.md",
-        "formalization.yaml",
-        "Challenge.lean",
+        "formalization_metadata",
+        "challenge_source",
         "mechanical_report"
       ]
     },
@@ -39,8 +39,8 @@
       "inputs": [
         "policy:CONTRIBUTING.md",
         "policy:rubric.json",
-        "formalization.yaml",
-        "README.md",
+        "formalization_metadata",
+        "project_readme",
         "issue",
         "mechanical_report"
       ]
@@ -55,10 +55,11 @@
       "inputs": [
         "policy:CONTRIBUTING.md",
         "policy:rubric.json",
-        "formalization.yaml",
-        "Challenge.lean",
-        "comparator.json",
-        "lakefile.toml"
+        "formalization_metadata",
+        "challenge_source",
+        "comparator_config",
+        "lakefile",
+        "lean_toolchain"
       ]
     },
     {
@@ -72,10 +73,10 @@
       "inputs": [
         "policy:CONTRIBUTING.md",
         "policy:rubric.json",
-        "formalization.yaml",
-        "Challenge.lean",
+        "formalization_metadata",
+        "challenge_source",
         "challenge_review_sources",
-        "comparator.json",
+        "comparator_config",
         "mechanical_report"
       ]
     },
@@ -90,8 +91,8 @@
       "inputs": [
         "policy:CONTRIBUTING.md",
         "policy:rubric.json",
-        "formalization.yaml",
-        "README.md",
+        "formalization_metadata",
+        "project_readme",
         "issue"
       ]
     },
@@ -106,8 +107,8 @@
       "inputs": [
         "policy:CONTRIBUTING.md",
         "policy:rubric.json",
-        "formalization.yaml",
-        "Solution.lean"
+        "formalization_metadata",
+        "solution_source"
       ]
     },
     {
