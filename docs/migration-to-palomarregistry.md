@@ -31,8 +31,14 @@ registry today is an accident to be preserved, not tidied away.
   permanently.** The old `kim-em/Palomar*` names must therefore be reserved and
   never reused, for as long as any published record cites them. Three published
   records do.
-- Actions run URLs have not been confirmed to redirect. Verify before relying on
-  them; the mitigation is already in place either way, below.
+- **Actions run URLs do redirect.** Verified after the move, which matters
+  because `verification.workflow_url` in every published record depends on it.
+- **Issue deep links are unreliable.** They flap: the same URL returned 404 on
+  two of eight consecutive requests shortly after the transfer, and some issues
+  were still 404ing twenty minutes later while others redirected. The issues
+  *list* redirects consistently. So `review.report_url` resolves most of the
+  time and cannot be depended on, which is why the review comments are archived
+  rather than merely linked.
 
 ## The publication freeze
 
@@ -124,8 +130,7 @@ validator was written in.
 | `PalomarReviewer/{README.md,.github/workflows/ci.yml,tests/test_cli.py}` | |
 | `PalomarSubmission/README.md`, `docs/launch-security-review.md` | |
 | `PalomarSubmission/.github/ISSUE_TEMPLATE/{config.yml,submit.yml}` | policy links |
-| `PalomarSubmission/.github/workflows/{submission,compatibility}.yml` | database references |
-| `PalomarSubmission/allowed-challenge-repositories.json` | database reference |
+| `PalomarSubmission/.github/ISSUE_TEMPLATE/{config,submit}.yml` | policy and website links |
 | `PalomarPolicy/README.md` | reviewer link |
 | `PalomarTemplate/README.md` | CI badge, policy and submission links |
 | `PalomarDatabase/tests/{conftest.py,test_validate.py}` | fixtures follow the code |
@@ -133,6 +138,29 @@ validator was written in.
 `kim-em.github.io` references move to `palomarregistry.github.io` first, and then
 to `palomar-registry.org` when DNS is in place. Doing it in that order keeps a
 migration failure distinguishable from a DNS failure.
+
+## References that must not simply be repointed
+
+Two of these were found the hard way. Both are cases where a `kim-em` string was
+not a reference to a repository at all, but a proxy for something else that
+happened to coincide with it under a personal account.
+
+**`PalomarReviewer`'s `SUBMISSION_REPO` stays at the old name.** It is written
+into published records as `submission.repository`, so moving it produces records
+that no schema accepts. It moves in the same change that introduces `schema-v7`,
+not before. GitHub's redirects make every API call work meanwhile.
+
+**Authorising an editorial review is not the repository owner's name.**
+`matching_review_comment` compared a comment author's login to the submission
+repository's owner. That worked only because the owner was a person, and that
+person was the operator. Under an organisation the owner authors nothing, so the
+check silently rejects every genuine review. It now reads GitHub's author
+association instead: the operator is `MEMBER`, and was `OWNER` before the move,
+while a submitter or `github-actions` is `NONE`.
+
+The general lesson: before repointing a `kim-em` string, ask what it is actually
+standing for. If the answer is anything other than "the location of a repository
+we control", repointing it is a behaviour change.
 
 ## Not in the working tree
 
