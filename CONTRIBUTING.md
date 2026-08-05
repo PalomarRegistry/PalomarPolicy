@@ -290,17 +290,30 @@ personal disparagement: assess the work and its framing, not the submitter.
 - `escalate`: the AI reviewer cannot responsibly resolve a material question.
   This is not acceptance; a human or specialist review is needed.
 
-The summary, warnings, requested changes, and machine-readable report are
-published for every decision. They must assess the work and its framing, never
+Every decision produces a summary, warnings, requested changes, and a
+machine-readable report. They must assess the work and its framing, never
 disparage the submitter.
 
-The final report, reviewer model identifiers, source commit, mechanical CI run,
-and exact policy commit are public. Submitting grants permission to quote the
+The review is delivered to the submitter and to nobody else. Only the submitter
+decides whether it becomes public, by choosing to publish; a decision that is
+not published leaves no public trace of itself. What is public from the moment
+of submission is the mechanical verification: the repository, the commit, and
+the GitHub Actions run that checked them, because that run is a public workflow
+with public logs. Whether a submission was reviewed, what the review said, and
+who submitted it are not public unless the submitter publishes.
+
+"Private" here means not public, not confidential. Reviews are readable by
+Palomar operators, by GitHub, and by the model provider, and are retained
+indefinitely for audit. On publication the review is archived beside the record,
+and the reviewer model identifiers, source commit, mechanical CI run, and exact
+policy commit become public with it. Submitting grants permission to quote the
 submitted metadata in that report and in the registry.
 
 ## 6. Versions
 
 A new result receives `PALOMAR-YYYY-MM-DD-NNNNNN`, using the acceptance date
-and its submission issue.
+and a serial drawn at random from the six-digit range. The serial is random
+rather than sequential because a sequential one would publish the ordering and
+approximate count of accepted private submissions.
 Later corrections or dependency updates cite that identifier and become version
 2, 3, and so on. Old entry files and source pins remain unchanged.
