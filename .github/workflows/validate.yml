@@ -54,7 +54,7 @@ jobs:
               "challenge_source",
               "comparator_config",
               "formalization_metadata",
-              "issue",
+              "submission",
               "lakefile",
               "lean_toolchain",
               "mechanical_report",
