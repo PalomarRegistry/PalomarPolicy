@@ -20,3 +20,8 @@ stored report rather than rerunning a model at publication time.
 
 The policy and prompts are released under CC0 1.0 so other registries and review
 tools can reuse them.
+
+[`docs/infrastructure.md`](docs/infrastructure.md) records where Palomar runs
+and what a domain move would involve.
+[`docs/migration-to-palomarregistry.md`](docs/migration-to-palomarregistry.md)
+records the move from a personal account to the organisation.
