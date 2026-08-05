@@ -41,7 +41,7 @@
         "policy:rubric.json",
         "formalization_metadata",
         "project_readme",
-        "issue",
+        "submission",
         "mechanical_report"
       ]
     },
@@ -92,7 +92,7 @@
         "policy:rubric.json",
         "formalization_metadata",
         "project_readme",
-        "issue"
+        "submission"
       ]
     },
     {
@@ -119,7 +119,7 @@
         "policy:rubric.json",
         "all_previous_results",
         "mechanical_report",
-        "issue"
+        "submission"
       ]
     }
   ],
