@@ -108,7 +108,8 @@ On `accept`, the reviewer renders the accepted Challenge source and prepares
 (but does not merge) a pull request to `PalomarDatabase`. Rendering is a
 required publication step, but an infrastructure or renderer failure does not
 reverse the editorial decision: publication remains pending and may be retried.
-The record uses the acceptance date and submission issue for a new permanent ID.
+The record uses the acceptance date and a random six-digit serial for a new
+permanent ID, retried against the identifiers already published.
 For an update, it verifies the requested existing ID and chooses one more than
 the greatest registered version. Database CI verifies the schema, filename, and
 exact `index.json` projection.
@@ -117,8 +118,8 @@ The database record includes a required `challenge_render` object binding the
 content-addressed bundle, entrypoint, Verso commit, renderer commit, Landrun
 commit, and render time. The immutable bundle is retained under `renders/` in
 the database repository. Merging the database PR is the publication event.
-Closing or labeling the submission issue is a separate explicit operator
-action.
+Recording it against the private submission record is a separate explicit
+operator action.
 
 For database schema v5 and later records, publication also preserves the exact downloaded
 `mechanical-report.json` and normalized workflow-run/job provenance in a small,

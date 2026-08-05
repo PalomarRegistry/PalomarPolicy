@@ -5,7 +5,7 @@
   "additionalProperties": false,
   "required": [
     "schema_version",
-    "submission_issue",
+    "submission_id",
     "source",
     "mechanical_report",
     "policy_commit",
@@ -22,9 +22,9 @@
     "schema_version": {
       "const": 1
     },
-    "submission_issue": {
-      "type": "integer",
-      "minimum": 1
+    "submission_id": {
+      "type": "string",
+      "pattern": "^[0-9a-z]{12}$"
     },
     "source": {
       "type": "object",
