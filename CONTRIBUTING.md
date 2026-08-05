@@ -4,6 +4,28 @@ Palomar is a registry of machine-checked formal proofs in Lean 4. It records an
 exact commit of a public GitHub repository together with a small set of Lean
 declarations that state the mathematical result.
 
+The Lean evidence is organised as a Challenge/Solution pair. The Challenge
+contains the declarations that state the result and is deliberately kept small
+so that a mathematical reader can audit it. The Solution contains corresponding
+declarations with the same types and supplies the proofs or definition values.
+
+[Comparator](https://github.com/leanprover/comparator#comparator) checks that
+the declarations in the Solution really are proofs, or definitions, of the
+declarations stated in the Challenge, with the same types, using only the
+permitted axioms. Palomar needs this comparison because the Challenge is the
+small, human-auditable statement of record. Comparator makes it a mechanical
+fact, rather than a claim, that the proof proves the stated thing.
+
+A submission also has a structured informal account. Palomar uses the upstream
+community
+[formalization.yaml](https://github.com/mathlib-initiative/formalization.yaml)
+self-reporting standard for formalisation projects; this is not a format
+invented by Palomar. The formal statement alone does not say what result the
+project claims to formalise, where that result came from, who did the work,
+what was automated, or where the formalisation falls short of its sources. The
+metadata records this context, and the editorial review reads it against the
+Lean.
+
 An accepted submission has passed two kinds of assessment:
 
 1. Mechanical verification found that Comparator accepts the recorded Solution
@@ -17,8 +39,8 @@ An accepted submission has passed two kinds of assessment:
 
 Palomar is a registry, not a journal. Acceptance does not claim novelty,
 validate an informal proof independently, or constitute endorsement by a human
-expert. Acceptance is also not publication. The submitter sees the review first
-and decides whether to publish it with the registry record.
+expert. Acceptance is also not registration. The submitter sees the review
+first and decides whether to register it with the registry record.
 
 ## 1. Decide whether the result is suitable
 
@@ -55,7 +77,10 @@ A clear failure of either research-interest test leads to `reject`, not
 ## 2. Prepare an ordinary submission
 
 The simplest submission is a public GitHub repository whose root is the Lean
-project. Use these conventional files:
+project. In the ordinary layout, the Challenge, Solution, Comparator
+configuration and formalisation metadata sit alongside the files that fix the
+Lean toolchain and describe the Lake build and dependencies, plus a licence for
+the submitted repository snapshot. Use these conventional files:
 
 ```text
 lean-toolchain
@@ -75,8 +100,8 @@ symbolic links, must be no larger than 500 MiB.
 
 In this ordinary layout:
 
-- `Challenge.lean` contains the declarations that state the result. This is the
-  small statement file that a mathematical reader is expected to audit.
+- `Challenge.lean` contains the declarations that state the result: the small
+  statement file that a mathematical reader is expected to audit.
 - `Solution.lean` contains declarations with the same types and supplies the
   proofs or definition values.
 - `comparator.json` tells Comparator which Challenge and Solution modules and
@@ -91,33 +116,37 @@ section 6, after the ordinary case.
 
 ### 2.1 Lean and Lake files
 
-The project root must contain exactly one of `lakefile.toml` and
-`lakefile.lean`. The Lakefile must be a regular file no larger than 1 MiB. A
-TOML Lakefile must be valid TOML.
+The Lean and Lake files fix the environment in which the submission is built.
+The toolchain selects Lean, the Lakefile describes the project, and the
+manifest records its exact dependencies. Together they allow the verifier to
+reconstruct the submitted development at the pinned commit.
 
-Commit `lake-manifest.json`. It is mandatory for a `lakefile.lean` project. The
-reason for the difference is that `lakefile.toml` is declarative and can be
-parsed without executing submitted configuration, whereas `lakefile.lean` is
-executable Lean code. Without a committed manifest, the verifier cannot
-determine a `lakefile.lean` project's exact dependencies before running
-submitted code. The narrow exception for a TOML project without a manifest is
-in section 6.3.
+A TOML Lakefile is declarative and can be parsed without executing submitted
+configuration. A `lakefile.lean` is executable Lean code, so without a
+committed manifest the verifier cannot determine its exact dependencies before
+running submitted code. This is why a Lean Lakefile always needs a committed
+manifest.
 
-The `lean-toolchain` file must select an entry in Palomar's current [supported
-toolchain
-list](https://github.com/PalomarRegistry/PalomarSubmission/blob/main/toolchains.json),
-using the form `leanprover/lean4:<version>`.
+#### Mechanical requirements
+
+- The `lean-toolchain` file must name a Lean release, in the form
+  `leanprover/lean4:<version>`, no older than the minimum recorded in
+  `toolchains.json` in the [PalomarSubmission repository][submission-repo].
+  There is no list of accepted versions to keep current: Palomar builds
+  against the lean4export and Verso releases matching the toolchain, and
+  records the exact revisions it used.
+- The project root must contain exactly one of `lakefile.toml` and
+  `lakefile.lean`. The Lakefile must be a regular file no larger than 1 MiB. A
+  TOML Lakefile must be valid TOML.
+- Commit `lake-manifest.json`. It is mandatory for a `lakefile.lean` project.
+  The narrow exception for a TOML project without a manifest is in section 6.3.
 
 ### 2.2 Challenge and Solution modules
 
-The Challenge and Solution modules must be distinct dotted Lean module names.
-Every component must match `[A-Za-z_][A-Za-z0-9_']*`.
-
-Palomar asks Lake for its ordered source paths and selects the first regular,
-non-symlink source file matching each module. Each selected file must lie
-inside the Lean project. Keep the modules unambiguous and keep their source
-files in the committed project source tree. Submitted `.lake` directories are
-discarded before verification and must not be used to hold these files.
+The Challenge is the small statement file that a mathematical reader is
+expected to audit. The Solution supplies the proofs or definition values. A
+reader should be able to identify the exact mathematical result from the
+Challenge without having to disentangle the proof development.
 
 The Challenge should be short and readable:
 
@@ -132,11 +161,34 @@ The Challenge should be short and readable:
   convenient surrogate, or present a merely supporting lemma as the advertised
   theorem.
 
-The hard limit is 100 KiB and 1,000 physical lines, including blank and
-comment-only lines. A Challenge over 32 KiB or 300 physical lines receives a
-mechanical warning because it is harder to audit.
+Choose module names that remain unambiguous, and keep their source files in the
+committed project source tree. Submitted `.lake` directories are discarded
+before verification and must not be used to hold these files.
+
+#### Mechanical requirements
+
+- The Challenge and Solution modules must be distinct dotted Lean module
+  names. Every component must match `[A-Za-z_][A-Za-z0-9_']*`.
+- Palomar asks Lake for its ordered source paths and selects the first regular,
+  non-symlink source file matching each module. Each selected file must lie
+  inside the Lean project.
+- The Challenge has a hard limit of 100 KiB and 1,000 physical lines, including
+  blank and comment-only lines. A Challenge over 32 KiB or 300 physical lines
+  receives a mechanical warning because it is harder to audit.
 
 ### 2.3 Comparator configuration
+
+`comparator.json` identifies the Challenge and Solution modules, the
+declarations to compare, and the axioms that the comparison may use. It
+therefore fixes the exact formal claims tested by mechanical verification.
+
+A name in `definition_names` identifies a definition whose value is left
+unspecified in the Challenge and supplied by the Solution. If you use this
+feature, explain the intended value and why the compared theorems constrain it.
+Editorial review may reject a definition that makes the result vacuous even
+when Comparator accepts it.
+
+#### Mechanical requirements
 
 `comparator.json` must be a regular JSON file containing one object and must be
 no larger than 1 MiB. It has four required keys:
@@ -150,33 +202,25 @@ no larger than 1 MiB. It has four required keys:
 }
 ```
 
-`theorem_names` must be a nonempty array. The optional `definition_names` array
-defaults to empty. Every entry in either array must be a nonempty string. The
-optional `enable_nanoda` key is accepted for Comparator compatibility, but its
-submitted value is ignored. Palomar always enables NanoDa in a separate trusted
-configuration.
-
-No other keys are accepted. `permitted_axioms` may contain only `propext`,
-`Quot.sound`, and `Classical.choice`. Comparator must accept every named
-declaration without `sorryAx`, `Lean.ofReduceBool`, a custom axiom, or an
-unnamed missing definition.
-
-A name in `definition_names` identifies a definition whose value is left
-unspecified in the Challenge and supplied by the Solution. If you use this
-feature, explain the intended value and why the compared theorems constrain it.
-Editorial review may reject a definition that makes the result vacuous even
-when Comparator accepts it.
+- `theorem_names` must be a nonempty array. The optional `definition_names`
+  array defaults to empty. Every entry in either array must be a nonempty
+  string.
+- No other keys are accepted, apart from the optional `definition_names` and
+  `enable_nanoda` keys.
+- `permitted_axioms` may contain only `propext`, `Quot.sound`, and
+  `Classical.choice`.
+- The optional `enable_nanoda` key is accepted for Comparator compatibility,
+  but its submitted value is ignored. Palomar always enables NanoDa in a
+  separate trusted configuration.
+- Comparator must accept every named declaration without `sorryAx`,
+  `Lean.ofReduceBool`, a custom axiom, or an unnamed missing definition.
 
 ### 2.4 Dependencies
 
-The project may use Git dependencies for its proofs. Every Git package in
-`lake-manifest.json` must use a credential-free HTTPS URL without a query or
-fragment, and must be pinned to a full 40-character lowercase commit SHA.
-
-The Challenge has a stricter rule because it is the statement a reader must
-trust. Its **transitive import closure** means the Challenge source and every
-Lean source file reached by following its imports recursively. Every file in
-that closure must be one of:
+The Challenge has a stricter dependency rule than the Solution because it is
+the statement a reader must trust. Its **transitive import closure** means the
+Challenge source and every Lean source file reached by following its imports
+recursively. Every file in that closure must be one of:
 
 - Lean core;
 - Mathlib at a verified revision in its canonical repository, together with the
@@ -190,16 +234,33 @@ acceptance by Palomar does not make a repository an approved Challenge
 dependency.
 
 Dependencies reached only from the Solution may come from any Git repository
-that satisfies the HTTPS and full-commit rules above. The mechanical report
-records the whole project dependency set separately from the smaller set used
-by the Challenge.
+that satisfies the requirements below. This permits a proof to use a broader
+development without making that development part of the statement a reader
+must audit. The mechanical report records the whole project dependency set
+separately from the smaller set used by the Challenge.
 
-Do not commit compiled Lean or native build output outside `.lake`. The
-verifier rejects files with compiled-artifact suffixes including `.olean`,
-`.ilean`, `.a`, `.bc`, `.dll`, `.dylib`, `.o`, `.obj`, `.so`, and `.trace`, and
-it replaces submitted `.lake` state with fresh build directories.
+#### Mechanical requirements
+
+- The project may use Git dependencies for its proofs. Every Git package in
+  `lake-manifest.json` must use a credential-free HTTPS URL without a query or
+  fragment, and must be pinned to a full 40-character lowercase commit SHA.
+- Do not commit compiled Lean or native build output outside `.lake`. The
+  verifier rejects files with compiled-artifact suffixes including `.olean`,
+  `.ilean`, `.a`, `.bc`, `.dll`, `.dylib`, `.o`, `.obj`, `.so`, and `.trace`,
+  and it replaces submitted `.lake` state with fresh build directories.
 
 ### 2.5 Repository licence
+
+The repository licence declares the licence for the submitted repository
+snapshot at the pinned commit. It does not change the licence of cited papers,
+mathematical sources, reused formalisations, or dependencies. Palomar records
+the declared and detected identifier, but does not verify ownership or provide
+legal advice.
+
+The licence file and `project.license` in `formalization.yaml` must identify
+the same unambiguous standard SPDX licence.
+
+#### Mechanical requirements
 
 The repository root must contain exactly one conventional licence file. Its
 name is case-insensitive and must be one of:
@@ -211,15 +272,15 @@ The file must be a regular, non-symlink, nonempty UTF-8 text file no larger
 than 1 MiB. Palomar's licence detector must find exactly one unambiguous
 standard SPDX identifier, such as `Apache-2.0`, and that identifier must match
 `project.license` in `formalization.yaml` exactly. A missing, multiple, custom,
-ambiguous, or mismatched licence fails mechanical verification before editorial
-review.
-
-This declaration covers only the submitted repository snapshot at the pinned
-commit. It does not relicense cited papers, mathematical sources, reused
-formalisations, or dependencies. Palomar records the declared and detected
-identifier but does not verify ownership or provide legal advice.
+ambiguous, or mismatched licence fails mechanical verification before
+editorial review.
 
 ## 3. Write `formalization.yaml`
+
+`formalization.yaml` is the informal mathematical and editorial account of the
+submission. It gives a reader the information needed to identify the exact
+claim, understand its provenance and limitations, and assess how the work was
+produced and reviewed.
 
 Palomar uses the [mathlib-initiative `formalization.yaml` v0.3
 format](https://github.com/mathlib-initiative/formalization.yaml) as a base and
@@ -228,35 +289,16 @@ role, subject classification, and responsible maintainers. The file may contain
 those additions at the same time as upstream fields such as `status`,
 `fidelity`, and `alignment`.
 
+#### File requirements
+
 The file must be UTF-8 YAML no larger than 256 KiB. It must contain one
 top-level mapping. Duplicate mapping keys and YAML merge keys are not accepted.
 
 ### 3.1 Fields checked mechanically
 
-These fields are hard mechanical requirements:
-
-- `project.name`: a nonempty string;
-- `project.authors`: a nonempty list whose entries are names or mappings with a
-  nonempty `name`;
-- `project.license`: the exact SPDX identifier detected from the root licence
-  file;
-- `classification.arxiv`: one or two distinct codes from Palomar's checked-in
-  [arXiv taxonomy
-  snapshot](https://github.com/PalomarRegistry/PalomarSubmission/blob/main/taxonomies/arxiv-categories.json);
-- `classification.msc2020`: one to eight distinct codes from Palomar's
-  checked-in [MSC2020
-  snapshot](https://github.com/PalomarRegistry/PalomarSubmission/blob/main/taxonomies/msc2020-codes.json);
-- `automation.methods`: a nonempty list of mappings, each with a nonempty
-  `method`;
-- `review.status`: a nonempty string.
-
-The `automation.methods` and `review.status` requirements come from the
-upstream v0.3 self-reporting format. For work performed without an automated
-system, use `method: manual`. `review.status` describes the review completed
-before submission, not the Palomar review that is about to occur. Upstream
-examples include `unchecked`, `agent-reviewed`, `self-assessed`,
-`peer-reviewed`, `author-verified`, and another accurately described free-form
-status. Use `review.reviewers` and `review.notes` to explain who checked what.
+The mechanically checked fields identify the project, classify the mathematics,
+and record how the formalisation was produced and reviewed. The values still
+require mathematical and editorial judgement.
 
 Classify the mathematical result itself, not the use of Lean or AI. Each code
 need only be a plausible description; it need not be the unique or most
@@ -268,9 +310,47 @@ classification:
   msc2020: [05C10, 11N13]
 ```
 
+The `automation.methods` and `review.status` fields come from the upstream v0.3
+self-reporting format. For work performed without an automated system, use
+`method: manual`. `review.status` describes the review completed before
+submission, not the Palomar review that is about to occur. Upstream examples
+include `unchecked`, `agent-reviewed`, `self-assessed`, `peer-reviewed`,
+`author-verified`, and another accurately described free-form status. Use
+`review.reviewers` and `review.notes` to explain who checked what.
+
+#### Mechanical requirements
+
+These fields are hard mechanical requirements:
+
+- `project.name`: a nonempty string;
+- `project.authors`: a nonempty list whose entries are names or mappings with a
+  nonempty `name`;
+- `project.license`: the exact SPDX identifier detected from the root licence
+  file;
+- `classification.arxiv`: one or two distinct codes from Palomar's checked-in
+  arXiv taxonomy snapshot, `taxonomies/arxiv-categories.json`, in the
+  [PalomarSubmission repository][submission-repo];
+- `classification.msc2020`: one to eight distinct codes from Palomar's
+  checked-in MSC2020 snapshot, `taxonomies/msc2020-codes.json`, in the
+  [PalomarSubmission repository][submission-repo];
+- `automation.methods`: a nonempty list of mappings, each with a nonempty
+  `method`;
+- `review.status`: a nonempty string.
+
 ### 3.2 Provenance required for editorial acceptance
 
-Palomar policy also requires the following information to be accurate and
+Provenance tells the reader where the result came from, whether this repository
+contains the substantive development, and who is responsible for the submitted
+formalisation. These questions affect how the mathematical claim and its
+relationship to earlier work should be assessed.
+
+Use `provenance.result_origin: original` only when the formalisation is the
+first presentation of the result. Such a submission may omit `sources`. It may
+still list background material with `relationship: background` or `other`. Use
+`provenance.result_origin: source-based` when the work formalises, adapts, or
+independently proves a result presented elsewhere.
+
+Palomar policy requires the following information to be accurate and
 informative:
 
 - `project.responsible_maintainers`: at least one person responsible for the
@@ -280,6 +360,8 @@ informative:
 - for a source-based result, at least one source whose `relationship` is
   `formalizes`, `adapts`, or `independently-proves`.
 
+#### Mechanical handling of missing provenance
+
 The current verifier records a warning and substitutes `unspecified` when the
 first three items are absent or unrecognised. It also warns when a source-based
 result has no substantively related source. These warnings do not stop the
@@ -287,18 +369,17 @@ mechanical run, but the editorial metadata and provenance review still assesses
 the missing information, and acceptance requires its score to meet the same
 threshold as every other completed review dimension.
 
-Use `result_origin: original` only when the formalisation is the first
-presentation of the result. Such a submission may omit `sources`. It may still
-list background material with `relationship: background` or `other`. Use
-`result_origin: source-based` when the work formalises, adapts, or
-independently proves a result presented elsewhere.
-
 ### 3.3 Mathematical sources and related formalisations
 
 A mathematical source may be a paper, book, web page, MathOverflow or another
 discussion, private communication, or a folklore result. It is not a Lean
-software dependency. Give every source a nonempty `title`, the most stable
-identifier or location available, and one of these relationships:
+software dependency. Record previous formalisations separately in
+`related_formalizations` so that a reader can distinguish mathematical sources
+from earlier Lean work.
+
+Give every source a nonempty `title` and the most stable identifier or location
+available. Choose the relationship that best describes how the submitted result
+uses the source:
 
 - `formalizes`: the Lean work formalises the source's result;
 - `adapts`: it changes or extends the source's result;
@@ -307,17 +388,21 @@ identifier or location available, and one of these relationships:
 - `other`: another relationship, which should be explained.
 
 Source authors and identifiers may be omitted when they genuinely do not exist
-or are unknown. When contact information is supplied, `author_contacted`
-accepts `yes`, `no`, or `n/a`; `author_endorsement` accepts `participated`,
-`endorsed`, `no-response`, `not-contacted`, `declined`, or `n/a`. Contact and
-endorsement are useful context but are not required and do not replace
-submitter authorisation.
+or are unknown. Contact and endorsement are useful context but are not required
+and do not replace submitter authorisation.
 
-Record previous formalisations separately in `related_formalizations`. Each
-entry must have an `id` and one of `builds-on`, `adapts`, `independent`,
-`supersedes`, or `other` as its `relationship`. Use `note` to explain whether
-the present work extends, reimplements, ports, compares with, or otherwise
-relates to the earlier work.
+For each previous formalisation, use `note` to explain whether the present
+work extends, reimplements, ports, compares with, or otherwise relates to the
+earlier work.
+
+#### Field constraints
+
+- When contact information is supplied, `author_contacted` accepts `yes`, `no`,
+  or `n/a`; `author_endorsement` accepts `participated`, `endorsed`,
+  `no-response`, `not-contacted`, `declined`, or `n/a`.
+- Each entry in `related_formalizations` must have an `id` and one of
+  `builds-on`, `adapts`, `independent`, `supersedes`, or `other` as its
+  `relationship`.
 
 ### 3.4 The informal account
 
@@ -326,14 +411,14 @@ metadata must make it possible to identify and assess the exact claim being
 submitted. Include:
 
 - a plain-language account of every compared theorem;
+- every known mismatch with the cited source, extra assumption, permitted
+  axiom, scope restriction, degenerate case, and other limitation;
 - the mathematical sources used to choose, state, adapt, or justify the result,
   with precise references and relationships;
 - what is original, translated, adapted, proved, or still missing;
+- the relation to previous formalisations;
 - the authorship and production process, including AI involvement and human
   review;
-- every known mismatch with the cited source, extra assumption, permitted
-  axiom, scope restriction, degenerate case, and other limitation;
-- the relation to previous formalisations;
 - the repository licence.
 
 Do not claim novelty without a credible literature search. If novelty has not
@@ -347,6 +432,8 @@ architecture and decisive steps of the Lean proof that is actually present,
 including important assumptions and computational components. The reviewer
 compares it with the Solution source; a plausible proof of the same theorem is
 not enough.
+
+[submission-repo]: https://github.com/PalomarRegistry/PalomarSubmission
 
 ## 4. Confirm that you are authorised to submit
 
@@ -444,7 +531,7 @@ checkout. Its manifest's `packagesDir` must identify a contained directory
 named `.lake/packages` owned by the selected project or a contained path
 dependency.
 
-The published record normalises each path dependency to a
+The registered record normalises each path dependency to a
 repository-root-relative directory. `.` in that record means the repository
 root, regardless of how the Lakefile spelled the relative path.
 
@@ -519,7 +606,7 @@ concrete positive evidence, not merely successful compilation, populated
 fields, familiar terminology, or the absence of an obvious contradiction. Every
 score from every completed pass must reach 4. This includes classification,
 provenance, auditability, and optional proof alignment as well as the five
-scores published in the registry: statement alignment, definition fidelity,
+scores registered in the registry: statement alignment, definition fidelity,
 notability, literature, and clarity.
 
 Notability has its own anchors:
@@ -556,17 +643,17 @@ submitter.
 
 `escalate` is not acceptance and is not an appeal. Palomar has no appeals route
 and no human sign-off on decisions: an escalated submission is simply one the
-automated review declined to decide, and nothing about it is published. A
+automated review declined to decide, and nothing about it is registered. A
 submitter who believes the reading is wrong should correct the submission and
 submit the corrected commit.
 
 Every decision includes a summary, warnings, requested changes, pass findings,
 scores, and a machine-readable report.
 
-## 8. Privacy, publication, and rendering
+## 8. Privacy, registration, and rendering
 
 The review and the decision are not public unless the submitter chooses to
-publish them. They are not secret either: they may be audited and acted on by
+register them. They are not secret either: they may be audited and acted on by
 the Palomar moderation team, they pass through GitHub and the model provider,
 and Palomar retains them indefinitely so that any decision can be examined
 later.
@@ -577,33 +664,33 @@ public from the moment of submission. That workflow does only the mechanical
 check. It runs before any editorial review, contains none of the review text,
 and shows no decision, so its public log reveals nothing about whether a review
 happened or what it found. The submitter's identity, the review, and the
-decision stay non-public unless the submitter publishes.
+decision stay non-public unless the submitter registers.
 
-On publication, Palomar archives the review beside the record. The reviewer
+On registration, Palomar archives the review beside the record. The reviewer
 model identifiers, exact source commit, mechanical workflow run, and exact
 policy commit also become public. Submitting grants Palomar permission to quote
 the submitted metadata in the review report and registry record.
 
-After acceptance and before publication, Palomar renders the pinned Challenge
+After acceptance and before registration, Palomar renders the pinned Challenge
 source with Verso for display. Rendering compiles submitted Lean, so it runs
 under the same restrictions as verification: no network access and no
 credentials. The commit-pinned GitHub file remains the authoritative source. A
 Challenge is eligible for inline display when exactly one declaration is
 compared and the file is no more than 100 physical lines and 32 KiB. Larger
 Challenges open in a dedicated rendered page. A rendering failure postpones
-publication but does not reverse the editorial decision.
+registration but does not reverse the editorial decision.
 
 ## 9. Updates and permanent identifiers
 
-When a new accepted result is prepared for publication, Palomar assigns an
+When a new accepted result is prepared for registration, Palomar assigns an
 identifier of the form `PALOMAR-YYYY-MM-DD-NNNNNN`. The date is the acceptance
 date. The six-digit serial is chosen randomly from `000001` through `999999`
 and checked against identifiers already in the registry. Random allocation
 avoids revealing the order and approximate number of accepted submissions that
-have not been published.
+have not been registered.
 
 A later correction or dependency update cites the existing identifier and
-becomes version 2, 3, and so on. Automated publication requires the same source
+becomes version 2, 3, and so on. Automated registration requires the same source
 repository and the same selected project path as the current version. A
 repository transfer needs explicit operator review. Earlier entry files and
 their source commits remain unchanged.
