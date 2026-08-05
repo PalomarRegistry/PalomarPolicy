@@ -18,7 +18,9 @@ hostname is written down.
 
 The old `kim-em/Palomar*` repository names **must stay reserved forever**.
 Recreating a repository at an old name permanently destroys that name's
-redirects, and three published records cite those names in immutable fields.
+redirects. No record cites those names today, because the registry is empty,
+but a record's URLs are immutable from the first one onwards, so the cost of
+losing a redirect only ever grows.
 
 ## Hostnames
 
@@ -96,16 +98,18 @@ console.
 
 ### 2. Things that must not change
 
-Published records under `PalomarDatabase/entries/`, their `evidence/` and
-`legacy-evidence/` bundles, and any frozen `schema-vN.json` are immutable byte
-for byte. They contain absolute URLs and they keep containing them, because
-they are historical statements that were true when made. Rewriting them is
+Registered records under `PalomarDatabase/entries/`, their `evidence/`
+bundles, and `schema-v1.json` are immutable byte for byte once written. They
+contain absolute URLs and they keep containing them, because they are
+historical statements that were true when made. Rewriting them is
 indistinguishable from fabricating them.
 
-This means **old hostnames must keep resolving, or the record links rot.**
-That is an argument for owning a domain rather than depending on a hosting
-provider's namespace, and it is the reason a domain move is not free even
-after the code is updated.
+The registry is empty today, so nothing has rotted yet and a move now is
+cheap. That stops being true with the first record. **From then on, old
+hostnames must keep resolving or the record links rot.** That is an argument
+for owning a domain rather than depending on a hosting provider's namespace,
+and it is the reason a domain move is not free even after the code is
+updated.
 
 ### 3. Feeds already published
 
