@@ -714,11 +714,13 @@ later.
 
 Mechanical verification runs in a public GitHub Actions workflow, so the
 repository, the commit, and the fact that they were mechanically checked are
-public from the moment of submission. That workflow does only the mechanical
-check. It runs before any editorial review, contains none of the review text,
-and shows no decision, so its public log reveals nothing about whether a review
-happened or what it found. The submitter's identity, the review, and the
-decision stay non-public unless the submitter registers.
+public from the moment of submission. The mechanical report also includes the
+declared authorization relationship and any optional approval evidence, so
+those are public too. That workflow does only the mechanical check. It runs
+before any editorial review, contains none of the review text, and shows no
+decision, so its public log reveals nothing about whether a review happened or
+what it found. The submitter's identity, the review, and the decision stay
+non-public unless the submitter registers.
 
 On registration, Palomar archives the review beside the record. The reviewer
 model identifiers, exact source commit, mechanical workflow run, and exact
