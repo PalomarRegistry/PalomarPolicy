@@ -26,11 +26,30 @@ losing a redirect only ever grows.
 
 | Host | Serves | Hosted by | Status |
 | --- | --- | --- | --- |
-| `palomarregistry.github.io/PalomarWeb/` | The website | GitHub Pages, `PalomarWeb` | Live |
-| `palomarregistry.github.io/PalomarDatabase/` | Render bundles and RSS feeds | GitHub Pages, `PalomarDatabase` | Live |
-| `renders.palomar-registry.org` | Render bundles, on their own origin | GitHub Pages, `PalomarDatabase` | DNS live, Pages custom domain not yet attached |
-| `palomar-registry.org`, `www` | The website | Planned: Cloudflare Workers Assets | Not built |
+| `palomar-registry.org` | The website | GitHub Pages, `PalomarWeb` | Live, HTTPS enforced |
+| `www.palomar-registry.org` | Redirects to the apex | Cloudflare, at the edge | Live, 301, path and query preserved |
+| `data.palomar-registry.org` | Render bundles and RSS feeds | GitHub Pages, `PalomarDatabase` | Live, HTTPS enforced |
 | `submit.palomar-registry.org` | The submission server | Cloudflare Worker, `PalomarServer` | Live |
+| `palomarregistry.org`, `www` | Redirects to `palomar-registry.org` | Cloudflare, at the edge | Live, 308, separate zone |
+| `palomarregistry.github.io/PalomarWeb/` | Nothing directly | GitHub Pages | 301 to `palomar-registry.org` |
+| `palomarregistry.github.io/PalomarDatabase/` | Nothing directly | GitHub Pages | 301 to `data.palomar-registry.org` |
+
+The website is served by GitHub Pages, not by Cloudflare Workers Assets. An
+earlier version of this document listed Workers as the plan for the apex; that
+was never built, and attaching the Pages custom domain made it unnecessary.
+
+Cloudflare is therefore not only registrar and DNS. It is registrar and DNS for
+the names GitHub serves, and it also hosts `submit` as a Worker and terminates
+TLS for the two redirect-only names, `www` and the whole `palomarregistry.org`
+zone. Only the apex and `data` reach GitHub at all.
+
+`palomarregistry.org`, without the hyphen, is a defensive registration held so
+the obvious misspelling of the real domain does not go somewhere else. It is a
+separate Cloudflare zone and serves nothing; every name in it redirects.
+
+The render origin is `data.palomar-registry.org`. It was called `renders.` while
+it was still being planned, and that name appears in older notes; it was never
+attached and no longer resolves.
 
 Raw record data is fetched from
 `raw.githubusercontent.com/PalomarRegistry/PalomarDatabase/main/index.json`,
@@ -41,12 +60,34 @@ read at its canonical location, while Pages serves only derived artifacts.
 
 | Type | Name | Target | Proxy |
 | --- | --- | --- | --- |
-| CNAME | `renders` | `palomarregistry.github.io` | **DNS only (grey cloud)** |
+| A | `@` | `185.199.108.153`, `.109.153`, `.110.153`, `.111.153` | **DNS only (grey cloud)** |
+| AAAA | `@` | `2606:50c0:8000::153` through `8003::153` | **DNS only (grey cloud)** |
+| CNAME | `data` | `palomarregistry.github.io` | **DNS only (grey cloud)** |
+| CNAME | `www` | `palomarregistry.github.io` | Proxied (orange cloud) |
+| AAAA | `submit` | `100::` | Proxied (orange cloud) |
+| TXT | `_github-pages-challenge-palomarregistry` | the org verification token | DNS only |
 
-The proxy setting is not cosmetic. Proxied, GitHub cannot complete its
-certificate challenge for the custom domain, and the result is certificate
-errors or a redirect loop rather than a clean failure. Any hostname delegated
-to GitHub Pages must be grey-clouded.
+The proxy setting is not cosmetic, but the rule is narrower than "always grey".
+**A name must be grey-clouded when GitHub has to receive the traffic and
+terminate TLS for it**, which is true of the apex and `data`. Proxy one of
+those and GitHub cannot complete its certificate challenge, and you get
+certificate errors or a redirect loop rather than a clean failure.
+
+The two proxied names are proxied precisely because GitHub is not involved.
+`submit` is a Cloudflare Worker; wrangler creates that record itself, and the
+`100::` placeholder target is normal and should not be edited by hand. `www`
+is answered by a Cloudflare Redirect Rule at the edge, so its CNAME target is
+vestigial: the origin is never contacted. See *Certificates and HTTPS*.
+
+The apex is eight address records rather than one alias because ordinary DNS
+cannot put a CNAME at a zone apex. Cloudflare could hide that with CNAME
+flattening, but this zone uses GitHub's published A and AAAA set explicitly,
+which is what GitHub documents. If GitHub ever changes that address set, these
+are the records that have to change.
+
+The `palomarregistry.org` zone holds two records, `@` and `www`, both
+`AAAA 100::` and both proxied, which is Cloudflare's documented shape for a
+zone that only redirects.
 
 ## Why renders get their own origin
 
@@ -59,10 +100,108 @@ the *only* thing separating them. A dedicated hostname makes it one layer
 among several rather than the whole defence.
 
 Consequence to remember: a GitHub Pages custom domain **drops the project path
-prefix**. Renders move from
+prefix**. Renders moved from
 `palomarregistry.github.io/PalomarDatabase/renders/...` to
-`renders.palomar-registry.org/renders/...`. The base and the CSP must change in
-the same window.
+`data.palomar-registry.org/renders/...`. The base and the CSP had to change in
+the same window, and would again for any future move.
+
+## Certificates and HTTPS
+
+Two certificate authorities are in play, and which one serves a name depends on
+whether that name is proxied. GitHub Pages issues from Let's Encrypt for the
+apex and `data`. Cloudflare's Universal SSL, currently from Google Trust
+Services, covers `palomar-registry.org` and `*.palomar-registry.org` and is what
+`www` and `submit` present. Neither needs installing or renewing by hand.
+
+Two things about this are worth knowing before they cost an afternoon.
+
+**Enforce HTTPS is a separate switch from having a certificate.** A host can
+have a valid, approved certificate and still serve plaintext on port 80 without
+redirecting. It is `https_enforced` on the Pages API, and it can only be turned
+on once the certificate is approved. It was `false` on both `PalomarWeb` and
+`PalomarDatabase` and had to be enabled explicitly:
+
+```
+gh api -X PUT repos/PalomarRegistry/<repo>/pages -F https_enforced=true
+```
+
+When checking whether it took effect, do not test `/`. Pages sits behind Fastly
+with `max-age=600`, so the root can serve a cached pre-enforcement `200` for ten
+minutes after the switch flips. Request a path that cannot be in the cache:
+
+```
+curl -sSI "http://palomar-registry.org/nonexistent-$RANDOM.html"   # expect 301
+```
+
+**`www` is redirected by Cloudflare, not served by GitHub.** This is worth
+understanding, because the obvious arrangement was tried first and did not work.
+
+`www` originally pointed at Pages as a grey-clouded CNAME. GitHub served it the
+default `*.github.io` wildcard certificate, which does not match the name, so
+every HTTPS request produced a browser interstitial. The apex certificate,
+issued on 2026-08-04, covers only `palomar-registry.org`; the `www` DNS record
+was created afterwards. GitHub's own health check agreed the name was fine and
+merely unsecured:
+
+```
+$ gh api repos/PalomarRegistry/PalomarWeb/pages/health
+alt_domain: host=www.palomar-registry.org dns_resolves=true
+            is_https_eligible=true responds_to_https=false
+            https_error=peer_failed_verification
+```
+
+Detach and reattach of the custom domain is GitHub's documented retry for this,
+and it was tried twice, with gaps of five seconds and one minute. Neither
+produced a certificate covering `www`; the reported state returned to `approved`
+with `domains: [palomar-registry.org]` each time. That is an observation, not a
+documented mechanism, so do not build expectations on why. What matters is the
+practical conclusion: **there is no reliable, zero-downtime way to force GitHub
+to reissue a certificate for an added name.** The one lever that would force it,
+pointing the custom domain at `www` and back, takes the main site down for the
+duration and is not worth it.
+
+So `www` was moved off GitHub entirely. It is now a proxied record answered by a
+Cloudflare Redirect Rule in the `http_request_dynamic_redirect` phase:
+
+```
+expression:  http.host eq "www.palomar-registry.org"
+target:      concat("https://palomar-registry.org", http.request.uri.path)
+status:      301, preserve_query_string: true
+```
+
+The rule fires at the edge, so the origin is never contacted and GitHub is out
+of the `www` path completely. Cloudflare's existing wildcard covers the name, so
+there was no certificate to wait for. Create the rule *before* flipping the
+record to proxied; in that order there is no window where `www` is proxied with
+no redirect behind it. Use a dynamic target rather than a static one, or every
+deep link collapses to the front page, and record URLs are permanent.
+
+`palomarregistry.org` uses the same pattern in its own zone.
+
+Two consequences to keep in mind. GitHub's health check now reports `www` with
+`is_pointed_to_github_pages_ip: false`, `is_non_github_pages_ip_present: true`
+and `is_https_eligible: false`, alongside `responds_to_https: true` and no
+error. That combination is correct and expected, not a fault: it is GitHub
+observing that a name it used to serve is now answered by Cloudflare. And if CAA
+records are ever added to the zone, they must permit Cloudflare's CA as well as
+Let's Encrypt, or `www` and `submit` will fail to renew.
+
+To check what a name actually presents, ask the connection rather than any API:
+
+```
+curl -sS -o /dev/null -w '%{http_code} %{ssl_verify_result}\n' https://www.palomar-registry.org/
+python3 -c "import ssl,socket;c=ssl.create_default_context();c.check_hostname=False;s=c.wrap_socket(socket.create_connection(('www.palomar-registry.org',443)),server_hostname='www.palomar-registry.org');print([v for _,v in s.getpeercert()['subjectAltName']])"
+```
+
+Expect a lag after any change of this kind. The old grey-cloud address stays in
+resolver caches for its TTL, and during that window a fraction of requests still
+reach GitHub and fail verification. It clears on its own; measure with repeated
+requests rather than one.
+
+The lesson for any future Pages host: **create the DNS record first, then attach
+the custom domain.** Doing it in the other order produces a certificate that is
+correct for what was configured and wrong for what people will type, and that is
+much harder to undo than to avoid.
 
 ## Credentials
 
@@ -119,18 +258,31 @@ anything a subscriber already fetched keeps the old links.
 
 ### 4. Ordering
 
-1. Create the DNS record, grey-clouded, and confirm it resolves.
-2. Verify the domain for the GitHub organisation, at
-   Settings → Pages → verified domains, before attaching it. Without
-   verification, someone else can attach an unclaimed subdomain of a domain
-   you own to *their* Pages site.
+1. Verify the domain for the GitHub organisation **first**, at
+   Settings → Pages → verified domains. Do this before any DNS points at
+   Pages. Without verification, someone else can attach an unclaimed subdomain
+   of a domain you own to *their* Pages site, and publishing the DNS first is
+   what makes such a takeover work rather than merely possible.
+2. Then create **every** DNS record the domain needs, grey-clouded, and confirm
+   each resolves, including any name you want covered by the certificate.
 3. Attach the custom domain in the repository's Pages settings and wait for
-   the certificate. Enforce HTTPS becomes available only once it is issued.
+   the certificate. Enforce HTTPS becomes available only once it is issued,
+   and is a separate switch that has to be turned on deliberately.
 4. Ship the code changes from the table above.
+
+Steps 1 to 3 are ordered the way they are for two different reasons that pull
+in the same direction: verification first closes the takeover window, and
+complete DNS before attaching is what gets every name into the certificate.
+A name that only ever redirects does not need to be in this sequence at all,
+and is simpler as a Cloudflare Redirect Rule.
 
 Steps 3 and 4 cannot be simultaneous, so plan for a window where renders do
 not display. It is short and pre-launch it does not matter; after launch,
 land the code change behind a fallback that tries both origins instead.
+
+For `palomar-registry.org` itself, steps 1 and 2 are done: the organisation is
+verified, and both `PalomarWeb` and `PalomarDatabase` report
+`protected_domain_state: verified`.
 
 ## What is deliberately not automated
 
