@@ -30,7 +30,9 @@ Structural completeness, mechanical success, or confident prose is not a
 substitute.
 
 Warnings must be specific and suitable for permanent public display. Give a
-compact rationale and actionable requested changes. Return JSON only, matching
-`schemas/review.schema.json`. Do not wrap JSON in a code fence.
+compact rationale and actionable requested changes. Return JSON only with
+exactly `decision`, `summary`, `scores`, `warnings`, and `requested_changes`;
+the runner wraps that synthesis in the final review report. Do not wrap JSON in
+a code fence.
 Assess the work and its framing, never the submitter; frankness is not permission
 for personal disparagement.

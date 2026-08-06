@@ -697,6 +697,10 @@ Palomar has no appeals route and no human sign-off on decisions. A submitter
 who believes the reading is wrong should correct or strengthen the submission
 and submit the corrected commit.
 
+If an operator or tool failure prevents the automated review from completing,
+the submission is marked `review-failed`. That is an operational state, not a
+decision about the submission; Palomar may investigate and rerun it.
+
 Every decision includes a summary, warnings, requested changes, pass findings,
 scores, and a machine-readable report.
 
