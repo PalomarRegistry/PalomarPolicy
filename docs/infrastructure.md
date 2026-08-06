@@ -57,7 +57,7 @@ read at its canonical location, while Pages serves only derived artifacts.
 | A | `@` | `185.199.108.153`, `.109.153`, `.110.153`, `.111.153` | **DNS only (grey cloud)** |
 | AAAA | `@` | `2606:50c0:8000::153` through `8003::153` | **DNS only (grey cloud)** |
 | CNAME | `data` | `palomarregistry.github.io` | **DNS only (grey cloud)** |
-| CNAME | `www` | `palomarregistry.github.io` | Proxied (orange cloud) |
+| AAAA | `www` | `100::` | Proxied (orange cloud) |
 | AAAA | `submit` | `100::` | Proxied (orange cloud) |
 | TXT | `_github-pages-challenge-palomarregistry` | the org verification token | DNS only |
 
@@ -67,11 +67,13 @@ terminate TLS for it**, which is true of the apex and `data`. Proxy one of
 those and GitHub cannot complete its certificate challenge, and you get
 certificate errors or a redirect loop rather than a clean failure.
 
-The two proxied names are proxied precisely because GitHub is not involved.
-`submit` is a Cloudflare Worker; wrangler creates that record itself, and the
-`100::` placeholder target is normal and should not be edited by hand. `www`
-is answered by a Cloudflare Redirect Rule at the edge, so its CNAME target is
-vestigial: the origin is never contacted. See *Certificates and HTTPS*.
+The two proxied names are proxied precisely because GitHub is not involved, and
+neither has a real origin. `100::` is the IPv6 discard prefix, used here as a
+placeholder: Cloudflare answers on its own addresses and never forwards. For
+`submit` the traffic goes to a Worker, and wrangler creates that record itself,
+so it should not be edited by hand. For `www` a Redirect Rule replies at the
+edge. Pointing either at a real host would be misleading, since nothing would
+ever reach it. See *Certificates and HTTPS*.
 
 The apex is eight address records rather than one alias because ordinary DNS
 cannot put a CNAME at a zone apex. Cloudflare could hide that with CNAME
@@ -80,8 +82,7 @@ which is what GitHub documents. If GitHub ever changes that address set, these
 are the records that have to change.
 
 The `palomarregistry.org` zone holds two records, `@` and `www`, both
-`AAAA 100::` and both proxied, which is Cloudflare's documented shape for a
-zone that only redirects.
+`AAAA 100::` and both proxied, the same shape for the same reason.
 
 ## Why renders get their own origin
 
