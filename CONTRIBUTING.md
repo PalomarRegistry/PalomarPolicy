@@ -444,10 +444,21 @@ Across the eligible narrative locations, include:
 - the repository licence.
 
 Do not claim novelty without a credible literature search. If novelty has not
-been established, say that it is unknown. Editorial review independently checks
-important citations and searches for obvious prior results and formalisations.
-Its literature score cannot reach the acceptance threshold if important claims
-or citations remain unverified.
+been established, say that it is unknown.
+
+A source does not have to be archivable. Mathematics is communicated in
+preprints, talks, social media posts, private correspondence and folklore, and
+review judges the account you give, not the medium. Where a source cannot be
+independently confirmed, say so, give the most stable identifier that exists,
+and claim no more than it supports; you will not be asked to produce an archive
+that does not exist.
+
+Such a source is not evidence, though. Palomar records it as your account of
+where the result came from, and it counts towards nothing else: novelty,
+priority and notability have to stand on the result and on what can be checked.
+What is marked down is a material citation that is wrong or
+misattributed, a material claim resting on a source you do not identify, or
+novelty claimed with no search behind it.
 
 An informal account of the proof is optional and may be supplied in any of the
 eligible narrative locations. If supplied, it must describe the architecture
@@ -467,8 +478,15 @@ You must either:
 The submission form records which basis applies. A link or short note
 documenting approval is optional. For a thin wrapper, the relevant person is
 responsible for the underlying formalisation repository, not merely the wrapper
-repository. Source-author contact or endorsement does not replace this
-authorisation.
+repository.
+
+Answering that you are a responsible author or maintainer is itself the basis,
+and review will not ask you to document approval from yourself. Write access,
+a shared owner, organisation membership, a fork, and a transferred repository
+are none of them that answer: they say what you can do, not what the work is
+or whose it is. Answering falsely is a material misrepresentation.
+
+Source-author contact or endorsement does not replace this authorisation.
 
 ## 5. What mechanical verification establishes
 
@@ -631,6 +649,11 @@ score from every completed pass must reach 4. This includes classification,
 provenance, auditability, and optional proof alignment as well as the five
 scores registered in the registry: statement alignment, definition fidelity,
 notability, literature, and clarity.
+
+One exception, or these anchors would forbid what section 3 permits: a source
+disclosed as unconfirmable, precisely stated, is not an "unverified claim" for
+the `3` anchor, and does not by itself hold literature below 4. It cannot
+support a `5`, which requires an account somebody else can check.
 
 Notability has its own anchors:
 

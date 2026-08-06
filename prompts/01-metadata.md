@@ -31,8 +31,16 @@ exact claim to be indexed. Compare each material claim with the Challenge
 source, the rest of the submission, and the selected-project README or
 repository-root fallback. If the submitted repository is a thin wrapper, check
 that it identifies the substantive formalisation at an immutable revision.
-Check that the submission's authorisation relationship concerns that
-substantive project. Do not demand a source for a result explicitly and
+
+Check that the submission's authorisation relationship concerns the substantive
+project. Where the submitter has answered that they are a responsible author or
+maintainer of it, that answer is the basis; do not ask them to document approval
+from themselves, and do not treat a missing link or note as a deficiency, since
+both are optional. Flag an authorisation basis that is missing, or that is
+contradicted by the submission's own provenance, repository role or declared
+maintainers.
+
+Do not demand a source for a result explicitly and
 credibly recorded as first presented by the formalisation.
 
 Flag promotional language, hidden limitations, unsupported novelty claims,
