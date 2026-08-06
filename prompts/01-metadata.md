@@ -71,7 +71,7 @@ Return JSON only:
 ```json
 {
   "step": "metadata",
-  "verdict": "pass|warn|fail|escalate",
+  "verdict": "pass|warn|fail",
   "summary": "short conclusion",
   "findings": [
     {"severity": "info|warning|error", "evidence": "file and exact fact", "message": "finding"}
@@ -80,6 +80,7 @@ Return JSON only:
 }
 ```
 
-Scores are integers 1–5. A material misrepresentation is `fail`; an unresolved
-claim needing a specialist is `escalate`. Return at least one evidence-based
-finding even when the verdict is `pass`.
+Scores are integers 1–5. A material misrepresentation or unresolved material
+claim is `fail`. When more precise submitted evidence could resolve the claim,
+identify that evidence as a specific correction. Return at least one
+evidence-based finding even when the verdict is `pass`.

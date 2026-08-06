@@ -26,11 +26,15 @@ jobs:
 
           root = pathlib.Path(".")
           rubric = json.loads((root / "rubric.json").read_text())
-          json.loads((root / "schemas/review.schema.json").read_text())
+          review_schema = json.loads((root / "schemas/review.schema.json").read_text())
           ids = [step["id"] for step in rubric["steps"]]
           assert len(ids) == len(set(ids)), "duplicate rubric step"
           assert ids[-1] == "synthesis", "synthesis must be last"
-          assert rubric["schema_version"] == 5
+          assert rubric["schema_version"] == 6
+          assert rubric["step_result"]["verdicts"] == ["pass", "warn", "fail"]
+          assert review_schema["properties"]["schema_version"]["const"] == 2
+          assert review_schema["properties"]["decision"]["enum"] == ["accept", "revise", "reject"]
+          assert review_schema["properties"]["passes"]["items"]["properties"]["verdict"]["enum"] == ["pass", "warn", "fail"]
           minimum = rubric["minimum_accept_score"]
           assert isinstance(minimum, int) and not isinstance(minimum, bool) and 1 <= minimum <= 5
           registry_scores = rubric["registry_scores"]

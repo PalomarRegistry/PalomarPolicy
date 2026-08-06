@@ -20,7 +20,7 @@
   ],
   "properties": {
     "schema_version": {
-      "const": 1
+      "const": 2
     },
     "submission_id": {
       "type": "string",
@@ -67,8 +67,7 @@
       "enum": [
         "accept",
         "revise",
-        "reject",
-        "escalate"
+        "reject"
       ]
     },
     "summary": {
@@ -121,7 +120,19 @@
       "type": "array",
       "minItems": 5,
       "items": {
-        "type": "object"
+        "type": "object",
+        "required": [
+          "verdict"
+        ],
+        "properties": {
+          "verdict": {
+            "enum": [
+              "pass",
+              "warn",
+              "fail"
+            ]
+          }
+        }
       }
     }
   },

@@ -48,7 +48,7 @@ Return JSON only:
 ```json
 {
   "step": "proof_account",
-  "verdict": "pass|warn|fail|escalate",
+  "verdict": "pass|warn|fail",
   "summary": "short conclusion",
   "findings": [
     {"severity": "info|warning|error", "evidence": "prose and Lean location", "message": "finding"}

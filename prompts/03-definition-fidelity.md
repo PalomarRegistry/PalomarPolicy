@@ -57,15 +57,15 @@ merely reports import provenance must score below the minimum recorded in
 inspected before awarding `4` or `5`.
 
 Check the `challenge.dependencies` field in `mechanical_report`. Every entry
-must carry `allowlisted` provenance. If any entry claims another provenance,
-return `escalate`; do not infer fidelity from a Palomar identifier.
+must carry `allowlisted` provenance. The reviewer validates this trusted input
+before the pass runs; do not infer fidelity from a Palomar identifier.
 
 Return JSON only:
 
 ```json
 {
   "step": "definition_fidelity",
-  "verdict": "pass|warn|fail|escalate",
+  "verdict": "pass|warn|fail",
   "summary": "short conclusion",
   "findings": [
     {"severity": "info|warning|error", "evidence": "file/declaration/import", "message": "finding"}

@@ -53,7 +53,7 @@ Return JSON only:
 ```json
 {
   "step": "statement_alignment",
-  "verdict": "pass|warn|fail|escalate",
+  "verdict": "pass|warn|fail",
   "summary": "short conclusion",
   "findings": [
     {"severity": "info|warning|error", "evidence": "file/declaration", "message": "finding"}

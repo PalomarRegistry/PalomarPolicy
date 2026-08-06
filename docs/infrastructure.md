@@ -1,6 +1,6 @@
 # Palomar infrastructure
 
-Last updated 2026-08-04.
+Last updated 2026-08-06.
 
 This is the durable record of where Palomar runs, so that moving it is a
 checklist rather than an excavation. If you are changing the domain, read the
@@ -30,7 +30,7 @@ losing a redirect only ever grows.
 | `palomarregistry.github.io/PalomarDatabase/` | Render bundles and RSS feeds | GitHub Pages, `PalomarDatabase` | Live |
 | `renders.palomar-registry.org` | Render bundles, on their own origin | GitHub Pages, `PalomarDatabase` | DNS live, Pages custom domain not yet attached |
 | `palomar-registry.org`, `www` | The website | Planned: Cloudflare Workers Assets | Not built |
-| `submit.palomar-registry.org` | The submission server | Planned: Worker custom domain | Not built |
+| `submit.palomar-registry.org` | The submission server | Cloudflare Worker, `PalomarServer` | Live |
 
 Raw record data is fetched from
 `raw.githubusercontent.com/PalomarRegistry/PalomarDatabase/main/index.json`,
