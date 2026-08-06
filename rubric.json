@@ -40,6 +40,7 @@
         "policy:CONTRIBUTING.md",
         "policy:rubric.json",
         "formalization_metadata",
+        "challenge_source",
         "project_readme",
         "submission",
         "mechanical_report"
@@ -57,6 +58,7 @@
         "policy:rubric.json",
         "formalization_metadata",
         "challenge_source",
+        "project_readme",
         "comparator_config",
         "lakefile",
         "lean_toolchain"
@@ -75,6 +77,7 @@
         "policy:rubric.json",
         "formalization_metadata",
         "challenge_source",
+        "project_readme",
         "comparator_config",
         "mechanical_report"
       ]
@@ -91,7 +94,9 @@
         "policy:CONTRIBUTING.md",
         "policy:rubric.json",
         "formalization_metadata",
+        "challenge_source",
         "project_readme",
+        "comparator_config",
         "submission"
       ]
     },
@@ -99,7 +104,7 @@
       "id": "proof_account",
       "prompt": "prompts/05-proof-account.md",
       "required": false,
-      "when": "formalization metadata contains an informal proof account",
+      "when": "an informal proof account appears in the Challenge documentation, a compared declaration docstring, the project README, or formalization metadata",
       "score_keys": [
         "proof_alignment"
       ],
@@ -107,6 +112,9 @@
         "policy:CONTRIBUTING.md",
         "policy:rubric.json",
         "formalization_metadata",
+        "challenge_source",
+        "project_readme",
+        "comparator_config",
         "solution_source"
       ]
     },
