@@ -355,30 +355,34 @@ contains the substantive development, and who is responsible for the submitted
 formalisation. These questions affect how the mathematical claim and its
 relationship to earlier work should be assessed.
 
-Use `provenance.result_origin: original` only when the formalisation is the
-first presentation of the result. Such a submission may omit `sources`. It may
-still list background material with `relationship: background` or `other`. Use
-`provenance.result_origin: source-based` when the work formalises, adapts, or
-independently proves a result presented elsewhere.
+The required `sources` list records the result's origin. Use a source entry with
+`type: original-proof` only when the formalisation is the first presentation of
+the result; its title should identify the result in human-readable terms. An
+original result may list additional background material with `relationship:
+background` or `other`. Otherwise, record the work presented elsewhere with a
+relationship of `formalizes`, `adapts`, or `independently-proves`.
 
 Palomar policy requires the following information to be accurate and
 informative:
 
 - `project.responsible_maintainers`: at least one person responsible for the
   submitted formalisation;
-- `provenance.result_origin`: `original` or `source-based`;
+- `sources`: a nonempty list, using `type: original-proof` for a result first
+  presented by the formalisation;
 - `repository.role`: `substantive-development` or `thin-wrapper`;
 - for a source-based result, at least one source whose `relationship` is
   `formalizes`, `adapts`, or `independently-proves`.
 
 #### Mechanical handling of missing provenance
 
-The current verifier records a warning and substitutes `unspecified` when the
-first three items are absent or unrecognised. It also warns when a source-based
-result has no substantively related source. These warnings do not stop the
-mechanical run, but the editorial metadata and provenance review still assesses
-the missing information, and acceptance requires its score to meet the same
-threshold as every other completed review dimension.
+The current verifier derives result origin from the required source entries. It
+records a warning and substitutes `unspecified` when sources do not declare an
+origin, and it does the same for a missing or unrecognised repository role or
+responsible maintainer. It also warns when a source-based result has no
+substantively related source. These warnings do not stop the mechanical run,
+but the editorial metadata and provenance review still assesses the missing
+information, and acceptance requires its score to meet the same threshold as
+every other completed review dimension.
 
 ### 3.3 Mathematical sources and related formalisations
 
@@ -408,9 +412,9 @@ earlier work.
 
 #### Field constraints
 
-- When contact information is supplied, `author_contacted` accepts `yes`, `no`,
-  or `n/a`; `author_endorsement` accepts `participated`, `endorsed`,
-  `no-response`, `not-contacted`, `declined`, or `n/a`.
+- When contact information is supplied, `author_endorsement` accepts
+  `participated`, `endorsed`, `no-response`, `not-contacted`, `declined`, or
+  `n/a`.
 - Each entry in `related_formalizations` must have an `id` and one of
   `builds-on`, `adapts`, `independent`, `supersedes`, or `other` as its
   `relationship`.

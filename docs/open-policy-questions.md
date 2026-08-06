@@ -28,7 +28,7 @@ enforced.
 
 ## 3. Provenance minima are documented as editorial, enforced as warnings
 
-`project.responsible_maintainers`, `provenance.result_origin`,
+`project.responsible_maintainers`, source entries that declare result origin,
 `repository.role`, and a substantively related source for source-based work were
 described as mechanical minima. The verifier records a warning and substitutes
 `unspecified` instead, deliberately, so that incomplete provenance does not stop
