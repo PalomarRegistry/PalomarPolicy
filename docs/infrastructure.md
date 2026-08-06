@@ -208,11 +208,36 @@ much harder to undo than to avoid.
 | Credential | Scope | Held where |
 | --- | --- | --- |
 | wrangler OAuth login | workers, workers_kv, workers_routes, workers_scripts, workers_tail, account read, user read | `~/.config/.wrangler/config/default.toml` |
-| Cloudflare API token | Zone · DNS · Edit, and Zone · Zone · Read, on `palomar-registry.org` only | `~/.palomar-cf-token`, mode 600 |
+| Cloudflare API token | Zone · DNS · Edit, Zone · Zone · Read, and Zone · Single Redirect · Edit, on **both** `palomar-registry.org` and `palomarregistry.org` | `~/.palomar-cf-token`, mode 600 |
 
 The wrangler login deliberately cannot touch DNS. The separate token
 deliberately cannot touch Workers. Neither can spend money or transfer the
 domain.
+
+The token began narrower, as DNS Edit and Zone Read on `palomar-registry.org`
+alone. It was widened twice, on 2026-08-06: to the second zone when
+`palomarregistry.org` was registered, and to Single Redirect Edit so the `www`
+redirect rule could be created through the API rather than by hand. That is a
+real increase in authority and is recorded here rather than left to be
+rediscovered. The holder of this token can now repoint any hostname in either
+zone and can rewrite the redirect rules that both zones depend on.
+
+Note that Single Redirect is the current dashboard name for what the API calls
+the `http_request_dynamic_redirect` phase. The permission appears under the
+older name in some places.
+
+What it still cannot do, verified rather than assumed: read or change zone
+SSL/TLS settings, touch Worker routes or scripts, reach account-level rulesets
+such as Bulk Redirects, or reach the registrar or billing. So it cannot disable
+Universal SSL, cannot take down `submit`, and cannot transfer or renew a domain.
+The blast radius is DNS and redirects, in two zones, and nothing else.
+
+A quick way to tell a missing permission from a malformed request, since
+Cloudflare returns both as failures: a permission problem gives
+`Authentication error` or `Unauthorized to access requested resource`, while a
+request the token is allowed to make fails validation instead, naming the
+offending field. Probing with a deliberately invalid payload therefore tests
+authority without changing anything.
 
 ## Moving to a different domain
 
