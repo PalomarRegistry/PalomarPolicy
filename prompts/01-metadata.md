@@ -31,8 +31,13 @@ exact claim to be indexed. Compare each material claim with the Challenge
 source, the rest of the submission, and the selected-project README or
 repository-root fallback. If the submitted repository is a thin wrapper, check
 that it identifies the substantive formalisation at an immutable revision.
-Check that the submission's authorisation relationship concerns that
-substantive project. Do not demand a source for a result explicitly and
+
+Authorisation is already established: the submitter proved write access to the
+submitted repository. Where the substantive formalisation is under the same
+owner, that proof covers it, and no statement of approval should be asked for.
+Ask only where it belongs to somebody else, and a short note is enough.
+
+Do not demand a source for a result explicitly and
 credibly recorded as first presented by the formalisation.
 
 Flag promotional language, hidden limitations, unsupported novelty claims,

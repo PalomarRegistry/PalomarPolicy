@@ -444,10 +444,16 @@ Across the eligible narrative locations, include:
 - the repository licence.
 
 Do not claim novelty without a credible literature search. If novelty has not
-been established, say that it is unknown. Editorial review independently checks
-important citations and searches for obvious prior results and formalisations.
-Its literature score cannot reach the acceptance threshold if important claims
-or citations remain unverified.
+been established, say that it is unknown.
+
+A source does not have to be archivable. Mathematics is communicated in
+preprints, talks, social media posts, private correspondence and folklore, and
+review judges the account you give, not the medium. Where a source cannot be
+independently confirmed, say so, give the most stable identifier that exists,
+and claim no more than it supports; nothing further will be asked. What is
+marked down is a citation that is wrong or misattributed, a material claim
+resting on a source you do not identify, or novelty claimed with no search
+behind it.
 
 An informal account of the proof is optional and may be supplied in any of the
 eligible narrative locations. If supplied, it must describe the architecture
@@ -467,8 +473,13 @@ You must either:
 The submission form records which basis applies. A link or short note
 documenting approval is optional. For a thin wrapper, the relevant person is
 responsible for the underlying formalisation repository, not merely the wrapper
-repository. Source-author contact or endorsement does not replace this
-authorisation.
+repository.
+
+Where the underlying repository has the same owner as the one you are
+submitting, proving write access proves it for both. Review will not ask you to
+document approval from yourself.
+
+Source-author contact or endorsement does not replace this authorisation.
 
 ## 5. What mechanical verification establishes
 

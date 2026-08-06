@@ -77,9 +77,19 @@ better prose alone would make the mathematical result acceptable.
 Judge the actual coverage and accuracy of the literature account, not its
 length or citation count. Use the common score anchors in `CONTRIBUTING.md`.
 A literature score of `4` or `5` requires a thorough, fair, and correct account
-supported by checked sources and an explicit search for obvious prior
-formalisations. If important claims or citations could not be verified, say so
-and score literature below the minimum recorded in `rubric.json`. Never turn
+and an explicit search for obvious prior formalisations.
+
+Judge the account, not the medium. Mathematics is communicated in preprints,
+talks, social media posts, private correspondence and folklore, and a source
+that cannot be archived or independently confirmed is not thereby a defect. It
+is enough that the submission says so, gives the most stable identifier that
+exists, and claims no more than the source supports.
+
+Score below the minimum recorded in `rubric.json` when a citation is wrong,
+misattributed or misdescribed, when a material claim rests on a source the
+submission does not identify, or when novelty is claimed without a credible
+search. Not merely because a source could not be confirmed, where the
+submission was honest about that. Never turn
 lack of browsing access into a high literature score. Score notability
 separately from browsing availability, using the actual result and the evidence
 available; do not lower it merely because external source verification was
