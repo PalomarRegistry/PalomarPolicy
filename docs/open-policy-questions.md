@@ -52,3 +52,32 @@ Repository, metadata, Lakefile and Comparator size caps, committed build output,
 `packagesDir` ownership, YAML merge keys, and the exact Git URL rules can all
 stop a submission and appeared only in verifier code. They are documented now.
 Anything that can reject a submission belongs in the contributor guide.
+
+## 6. A rejected review can be re-rolled, leaving no trace
+
+A review returning `reject` leaves the submission at `review-ready`, which is not
+terminal, so the submitter can withdraw from there, and withdrawal is designed to
+leave no public trace of the review or the decision. Intake consults nothing about
+earlier submissions: it checks that the repository is public and the commit
+exists, and stops. There is no dedupe on repository and commit, no cooldown, and
+no count of prior attempts recorded against anyone.
+
+The same commit can therefore be submitted again for a fresh review. Because the
+notability and literature passes are sampled model calls, repeated attempts
+resample the decision rather than repeat it, and the effective floor becomes the
+best of N attempts rather than the judgment the rubric describes. The submissions
+with the most reason to retry are the ones the floor exists to catch.
+
+What deters this today is cost, not policy. Each attempt spends a full
+verification run and a full review, and the reviewer records what a review costs,
+so the spend is at least visible afterwards. The admission cap helps less than it
+looks: `MAX_INFLIGHT_PER_OWNER` is keyed on the repository owner, which a
+submitter can multiply for free by pushing the same commit under another account
+or organization. Keying it on the authenticated submitter would make it bite.
+
+Issue-based intake needed no rule here, because repeated attempts were visible to
+anyone reading the tracker. Private review removes that without replacing it.
+Options: require a new commit for a new review, record attempts against the
+submitter and show the count to the reviewer, apply a cooldown after a reject, or
+accept the re-roll and say so plainly. The server already notes in code that
+per-submitter quotas and backoff do not exist yet.
