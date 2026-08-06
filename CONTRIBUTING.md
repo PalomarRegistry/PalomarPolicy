@@ -180,9 +180,9 @@ before verification and must not be used to hold these files.
 - Palomar asks Lake for its ordered source paths and selects the first regular,
   non-symlink source file matching each module. Each selected file must lie
   inside the Lean project.
-- The Challenge has a hard limit of 100 KiB and 1,000 physical lines, including
-  blank and comment-only lines. A Challenge over 32 KiB or 300 physical lines
-  receives a mechanical warning because it is harder to audit.
+- The Challenge has a hard limit of 100 KiB and 1,000 lines. A Challenge over
+  32 KiB or 300 lines receives a mechanical warning because it is harder to
+  audit.
 
 ### 2.3 Comparator configuration
 
@@ -220,7 +220,8 @@ no larger than 1 MiB. It has four required keys:
 - The optional `enable_nanoda` key is accepted for Comparator compatibility,
   but its submitted value is ignored. Palomar always enables NanoDa in a
   separate trusted configuration.
-- Comparator must accept every named declaration without `sorryAx`,
+- Deliberate holes in Challenge declarations are allowed. Comparator must
+  confirm that every proved Solution declaration does not depend on `sorryAx`,
   `Lean.ofReduceBool`, a custom axiom, or an unnamed missing definition.
 
 ### 2.4 Dependencies
@@ -622,14 +623,18 @@ The required passes examine:
 If an informal proof account is present in any eligible narrative location, an
 additional pass compares it with the actual Solution proof and its imports.
 
-Each pass uses one of four verdicts:
+Each pass uses one of three verdicts:
 
 - `pass`: the pass found no material problem;
-- `warn`: the pass found a specific warning but did not fail or require
-  specialist review;
-- `fail`: the pass found a material deficiency or contradiction;
-- `escalate`: the pass cannot responsibly settle a material question on its
-  own.
+- `warn`: the pass found a specific warning but did not fail;
+- `fail`: the pass found a material deficiency or contradiction, or could not
+  affirmatively establish a mandatory criterion from the available evidence.
+
+A failed pass does not by itself choose the final decision. Synthesis returns
+`revise` when a specific, realistically correctable evidence or presentation
+gap could make the submission qualify, and `reject` for a fundamental failure.
+The report should describe uncertainty as an evidence limitation rather than
+making a stronger negative claim than the evidence supports.
 
 Scores run from 1 to 5:
 
@@ -670,28 +675,31 @@ Notability has its own anchors:
   audience.
 
 A notability score below 4 is a fundamental editorial failure and leads to
-`reject`, or to `escalate` when the question genuinely cannot be settled
-automatically. Findings may say plainly that work is `trivial`, `confusing`,
-`unclear`, or `niche without an identifiable research audience` where the
-evidence supports it. They assess the work and its presentation, never the
-submitter.
+`reject`, including when a credible research audience or plausible
+paper-worthiness has not been affirmatively established. Findings may say
+plainly that work is `trivial`, `confusing`, `unclear`, or `niche without an
+identifiable research audience` where the evidence supports it. When the
+evidence establishes only that the requirement was not demonstrated, the
+finding should say that instead. Findings assess the work and its presentation,
+never the submitter.
 
 ### Final decisions
 
-- `accept`: the mechanical report passes, no completed pass has verdict `fail`
-  or `escalate`, and every completed score is at least 4;
+- `accept`: the mechanical report passes, no completed pass has verdict `fail`,
+  and every completed score is at least 4;
 - `revise`: the result may qualify after specific, realistically correctable
   changes;
-- `reject`: there is a fundamental mechanical, semantic, provenance, or
-  editorial failure, including a clear failure of the research-interest
-  requirement;
-- `escalate`: a material question cannot be settled automatically.
+- `reject`: there is a fundamental semantic, provenance, or editorial failure,
+  including failure to affirmatively establish the research-interest
+  requirement.
 
-`escalate` is not acceptance and is not an appeal. Palomar has no appeals route
-and no human sign-off on decisions: an escalated submission is simply one the
-automated review declined to decide, and nothing about it is registered. A
-submitter who believes the reading is wrong should correct the submission and
-submit the corrected commit.
+Palomar has no appeals route and no human sign-off on decisions. A submitter
+who believes the reading is wrong should correct or strengthen the submission
+and submit the corrected commit.
+
+If an operator or tool failure prevents the automated review from completing,
+the submission is marked `review-failed`. That is an operational state, not a
+decision about the submission; Palomar may investigate and rerun it.
 
 Every decision includes a summary, warnings, requested changes, pass findings,
 scores, and a machine-readable report.
@@ -706,11 +714,13 @@ later.
 
 Mechanical verification runs in a public GitHub Actions workflow, so the
 repository, the commit, and the fact that they were mechanically checked are
-public from the moment of submission. That workflow does only the mechanical
-check. It runs before any editorial review, contains none of the review text,
-and shows no decision, so its public log reveals nothing about whether a review
-happened or what it found. The submitter's identity, the review, and the
-decision stay non-public unless the submitter registers.
+public from the moment of submission. The mechanical report also includes the
+declared authorization relationship and any optional approval evidence, so
+those are public too. That workflow does only the mechanical check. It runs
+before any editorial review, contains none of the review text, and shows no
+decision, so its public log reveals nothing about whether a review happened or
+what it found. The submitter's identity, the review, and the decision stay
+non-public unless the submitter registers.
 
 On registration, Palomar archives the review beside the record. The reviewer
 model identifiers, exact source commit, mechanical workflow run, and exact
@@ -722,7 +732,7 @@ source with Verso for display. Rendering compiles submitted Lean, so it runs
 under the same restrictions as verification: no network access and no
 credentials. The commit-pinned GitHub file remains the authoritative source. A
 Challenge is eligible for inline display when exactly one declaration is
-compared and the file is no more than 100 physical lines and 32 KiB. Larger
+compared and the file is no more than 100 lines and 32 KiB. Larger
 Challenges open in a dedicated rendered page. A rendering failure postpones
 registration but does not reverse the editorial decision.
 

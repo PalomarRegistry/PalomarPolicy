@@ -26,11 +26,13 @@ that is not supported by the submission and literature. A niche result may pass
 when you can identify its credible specialist audience. If either answer is
 confidently no, notability must score below the minimum recorded in
 `rubric.json`, the step verdict is `fail`, and the proper final outcome is
-`reject`, not `revise`. If specialist judgment is truly needed to answer, use
-`escalate` rather than passing a borderline submission.
+`reject`, not `revise`. If the available evidence does not affirmatively
+establish either answer, score notability below the minimum and use `fail`
+rather than passing a borderline submission. Describe the evidentiary limit;
+do not turn it into a categorical claim that the result is uninteresting.
 Any notability score below the minimum recorded in `rubric.json` must carry a
-`fail` verdict, or `escalate` when specialist judgment is genuinely needed. A
-`pass` or `warn` with below-minimum notability is not a valid result.
+`fail` verdict. A `pass` or `warn` with below-minimum notability is not a valid
+result.
 
 Check cited sources and the adequacy of the literature account wherever its
 narrative appears. Use the required structured source facts in
@@ -124,7 +126,7 @@ Return JSON only:
 ```json
 {
   "step": "literature_notability",
-  "verdict": "pass|warn|fail|escalate",
+  "verdict": "pass|warn|fail",
   "summary": "short conclusion",
   "findings": [
     {"severity": "info|warning|error", "evidence": "citation, URL, or metadata section", "message": "finding"}
@@ -134,6 +136,7 @@ Return JSON only:
 }
 ```
 
-Scores are integers 1–5. Use `escalate` when specialist judgment is genuinely
-needed; do not disguise uncertainty as a pass. Return at least one
-evidence-based finding even when the verdict is `pass`.
+Scores are integers 1–5. Do not disguise uncertainty as a pass: a mandatory
+criterion that is not affirmatively established scores below the threshold and
+uses `fail`. Return at least one evidence-based finding even when the verdict
+is `pass`.

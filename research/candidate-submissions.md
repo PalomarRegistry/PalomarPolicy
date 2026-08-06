@@ -68,7 +68,7 @@ Palomar boundary.
 | [`Vilin97/lean-pool`](https://github.com/Vilin97/lean-pool) | Root Challenge/Solution, but the Challenge aggregates candidate-local `Challenge.*` modules and represents many results rather than one record. | Tests multi-result granularity, challenge-size/import rejection, and whether a registry-of-results should submit individual snapshots rather than its aggregator. |
 | [`PhillipKerger/zero-order-bounds-lean-verification`](https://github.com/PhillipKerger/zero-order-bounds-lean-verification) | Root metadata and Solution; challenge is named `Challenge-d-3-accuracy.lean`, imports candidate-local `ZeroOrderBounds.Statement`, and config is nested. | Normalize filenames, then expect provenance rejection unless the statement is made self-contained. Useful definition-fidelity test. |
 | [`plby/Erdos1196`](https://github.com/plby/Erdos1196) | Root Mathlib-only Challenge and metadata; config is nested and names `Erdos1196` directly as the solution module; repository uses `lakefile.lean`. | Explicitly select the nested config and recorded module names; no filename bridge is inherently required. Promising positive test if the resolved sources remain inside the selected project. |
-| [`rkirov/jacobian-claude`](https://github.com/rkirov/jacobian-claude) | Root metadata and extensive comparator material; `comparator/` is a self-contained Lake workspace whose Challenge imports only Mathlib. README explicitly says the owner does not understand or review the mathematics. | Select `comparator/` as the project and root `formalization.yaml` as metadata. High-value test of escalation, famous-problem framing, statement alignment, and honest-but-insufficient human review. |
+| [`rkirov/jacobian-claude`](https://github.com/rkirov/jacobian-claude) | Root metadata and extensive comparator material; `comparator/` is a self-contained Lake workspace whose Challenge imports only Mathlib. README explicitly says the owner does not understand or review the mathematics. | Select `comparator/` as the project and root `formalization.yaml` as metadata. High-value test of famous-problem framing, statement alignment, and honest-but-insufficient human review. |
 | [`Solarys431/unico-lean-proofs`](https://github.com/Solarys431/unico-lean-proofs) | Root metadata with multiple comparator workspaces such as Feuerbach and Sylvester–Gallai; the individual comparator Challenges import only Mathlib. | Submit one result per selected comparator workspace. Tests whether per-result metadata is specific enough instead of inheriting project-wide marketing. |
 
 ## C. Projects found on Zulip that need a Comparator wrapper
@@ -88,7 +88,7 @@ For a small but discriminating dry run, ask permission to package:
 2. **erdos-unit-distance-comparator** — expected clean path with split metadata;
 3. **KTV swap** — expected mechanical rejection for a candidate-local Challenge import;
 4. **platonic classification** — scale and challenge-dependency rejection;
-5. **jacobian-claude** — editorial escalation/rejection test even if mechanics pass;
+5. **jacobian-claude** — editorial rejection test even if mechanics pass;
 6. **three-gap theorem** — test the from-scratch wrapper documentation.
 
 This set exercises positive publication, packaging friction, the corrected

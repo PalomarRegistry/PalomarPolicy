@@ -4,35 +4,48 @@
 
 | Repository | Responsibility | Must not do |
 | --- | --- | --- |
-| `PalomarDatabase` | Append-only accepted records and schemas | Intake, execute Lean, review, render UI |
-| `PalomarSubmission` | Issue intake and mechanical verification | Run AI reviewers, decide editorial policy |
-| `PalomarPolicy` | Style guide, rubric, prompts, review schema | Hold accepted records or credentials |
+| `PalomarDatabase` | Append-only registered records and schemas | Intake, execute Lean, review, render UI |
+| `PalomarServer` | Private intake, authorization, submission state, and registration consent | Execute submitted source, run AI reviewers, write registry records |
+| `PalomarSubmission` | Public mechanical verification | Hold private identity or review data, decide editorial policy |
+| `PalomarPolicy` | Contributor guide, rubric, prompts, and review schema | Hold registered records or credentials |
 | `PalomarReviewer` | Operator-run AI review and database-PR preparation | Run in submission CI or merge its own PR |
 | `PalomarWeb` | Read-only human presentation | Become a second source of registry truth |
 
 ## Submission state machine
 
 ```text
-issue opened
-  -> status:verifying
-  -> status:awaiting-review | status:changes-requested | status:verification-error
-  -> status:review-in-progress
-  -> status:accepted | status:changes-requested | status:rejected | status:escalated
+form submitted and GitHub push access confirmed
+  -> verifying
+     -> verification-failed
+     -> awaiting-review
+        -> reviewing
+           -> review-failed
+           -> review-ready
+              -> registered | withdrawn
 ```
 
-Exactly one `status:*` label should be present. The mechanical report comment is
-identified by the marker `<!-- palomar-mechanical-report -->`; review reports use
-`<!-- palomar-editorial-review -->`. `status:verification-error` is a retryable
-infrastructure outcome, not a mathematical or editorial decision.
+The submitter may withdraw from any non-terminal state. `verification-failed`
+means that mechanical verification did not pass. `review-failed` is an
+operational or tool failure, not an editorial decision. `review-ready` means
+that the submitter can privately read an `accept`, `revise`, or `reject`
+decision. Only an accepted review can proceed to registration, and only after
+the submitter explicitly consents to registering the exact review bytes they
+were shown. Withdrawing leaves no public review or decision.
+
+Durable private state is a directory of JSON files in the private
+`PalomarSubmissionState` repository. Every state transition is a commit. The
+public verification workflow contains the source repository, commit, and
+mechanical result, but no submitter identity, review text, or editorial
+decision.
 
 ## Mechanical result
 
-The submission workflow publishes `mechanical-report.json` as a run artifact and
-as a human-readable fenced JSON copy in the issue comment. The trusted workflow
-artifact, not comment text, is the authoritative verification report. A passing
-report binds:
+The submission server dispatches the public verification workflow and pins the
+matching workflow run the first time it is observed. The workflow publishes
+`mechanical-report.json` as a run artifact. That trusted artifact is the
+authoritative verification report. A passing report binds:
 
-- the issue and submitter;
+- the private submission identifier and public workflow run;
 - `owner/repo` and the resolved 40-character commit;
 - the selected project directory and the repository-relative paths and hashes
   of the resolved Challenge source, Solution source, `formalization.yaml`,
@@ -42,25 +55,26 @@ report binds:
 - the Lean toolchain;
 - compared theorem and definition names;
 - one or two arXiv subject classes and at least one MSC2020 code;
-- the full project dependency set, the transitive Challenge-source
-  closure, its allowlist provenance, and challenge size;
-- pinned Comparator, lean4export, NanoDa, and landrun commits;
+- the full project dependency set, the transitive Challenge-source closure,
+  its allowlist provenance, and Challenge size;
+- pinned Comparator, lean4export, NanoDa, and Landrun commits;
 - the workflow run URL and timestamp.
 
-The configured Challenge and Solution modules must be distinct and resolve
-uniquely to regular tracked files inside the selected project. Resolution into
-`.lake`, a dependency checkout, an out-of-project source root, or through a
-symbolic link is a mechanical failure.
+The configured Challenge and Solution modules must be distinct and resolve to
+regular tracked files inside the selected project. Resolution into `.lake`, a
+dependency checkout, an out-of-project source root, or through a symbolic link
+is a mechanical failure.
 
-The reviewer resolves the successful trusted workflow run, downloads its
-issue-scoped artifact, checks that the workflow revision remains in trusted
-history, and independently binds the artifact to the issue, source commit, and
-run URL. A missing, stale, ambiguous, or malformed artifact fails closed.
+The reviewer resolves the successful pinned workflow run, downloads its
+submission-scoped artifact, checks that the workflow revision remains in
+trusted history, and independently binds the artifact to the private submission
+record, source commit, and run URL. A missing, stale, ambiguous, or malformed
+artifact fails closed.
 
 ## Review packet
 
-The reviewer checks out source and policy into read-only local directories. Each
-review pass receives:
+The reviewer checks out source and policy into read-only local directories.
+Each review pass receives:
 
 1. the pass prompt at the recorded policy commit;
 2. any binding policy documents named by that rubric step, including the
@@ -69,12 +83,12 @@ review pass receives:
    Comparator configuration, Lakefile, Lean toolchain, and selected-project
    README (falling back to the repository README, with the resolved path named
    in the evidence envelope);
-4. the issue metadata and mechanical report;
+4. the private submission metadata and mechanical report;
 5. earlier pass results when the rubric says so.
 
 Engines must emit JSON matching the per-pass shape in the rubric. Raw model
-outputs, normalized results, and the final report are retained in the review
-work directory. The synthesis output must validate against
+outputs, normalized results, and the final report are retained in the private
+review work directory. The synthesis output must validate against
 `schemas/review.schema.json`.
 
 A required classification pass checks whether every submitted subject is
@@ -83,59 +97,47 @@ the AI pass is deliberately not asked to find a unique or optimal category.
 
 Every submission-controlled input and every earlier model result is framed as
 untrusted evidence, with the binding instruction repeated after the evidence.
-Review engines run without write or shell tools, and their public prose is
-rendered inertly. A model result is still advisory: applying a decision never
-reruns the model and can post only the existing schema-validated `review.json`
-whose issue, source, mechanical report, and policy commit an operator inspected.
+Review engines run without write or shell tools, and their prose is rendered
+inertly. Applying a decision never reruns the model and can deliver only the
+existing schema-validated `review.json` whose submission, source, mechanical
+report, and policy commit an operator inspected.
 
-`rubric.json` versions the engine contract. Version 2 declares score ownership
-per pass, requires strict evidence findings, and binds synthesis decisions to
-the evidence-pass scores. Version 3 additionally required reconstructed
-Palomar-indexed Challenge sources as definition-fidelity evidence. Version 4
-adds the required subject-classification pass without changing the historical
-score shape. Version 5 names review inputs by semantic role so nested projects
-and non-default filenames receive exactly the same review packet.
-Reviewers must retain older version support for historical policy commits and
-reject unknown rubric versions, with one deliberate exception: withdrawing
-Palomar-indexed imports removed the `challenge_review_sources` evidence input
-altogether, so rubric version 3 and the version 4 commits that request it can no
-longer be executed. Reviewers must reject those rubrics outright rather than
-accept the input and silently render nothing, which would fail open.
+`rubric.json` versions the engine contract. Version 6 has exactly three pass
+verdicts: `pass`, `warn`, and `fail`. A mandatory criterion that cannot be
+affirmatively established receives `fail`; synthesis then chooses `revise` for
+a specific correctable gap or `reject` for a fundamental failure. Review schema
+version 2 has exactly three decisions: `accept`, `revise`, and `reject`.
+Reviews created under an older contract must be rerun before delivery. An
+already registered database record is immutable and is not migrated.
 
-## Publication
+## Registration
 
-On `accept`, the reviewer renders the accepted Challenge source and prepares
-(but does not merge) a pull request to `PalomarDatabase`. Rendering is a
-required publication step, but an infrastructure or renderer failure does not
-reverse the editorial decision: publication remains pending and may be retried.
-The record uses the acceptance date and a random six-digit serial for a new
-permanent ID, retried against the identifiers already published.
-For an update, it verifies the requested existing ID and chooses one more than
-the greatest registered version. Database CI verifies the schema, filename, and
-exact `index.json` projection.
+An accepted review does not itself register anything. The server first records
+the submitter's explicit consent together with the digest of the exact review
+shown. The reviewer verifies that digest, renders the accepted Challenge source,
+and prepares—but does not merge—a pull request to `PalomarDatabase`. A changed
+review requires new consent. A renderer or infrastructure failure postpones
+registration and may be retried without changing the editorial decision.
+
+For a new result, the record uses the acceptance date and a random six-digit
+serial for a new permanent ID, retried against identifiers already registered.
+A correction or dependency update may create the next version of the same ID;
+a new mathematical result receives a new ID. Database CI verifies the schema,
+filename, and exact `index.json` projection.
 
 The database record includes a required `challenge_render` object binding the
 content-addressed bundle, entrypoint, Verso commit, renderer commit, Landrun
-commit, and render time. The immutable bundle is retained under `renders/` in
-the database repository. Merging the database PR is the publication event.
-Recording it against the private submission record is a separate explicit
-operator action.
-
-For database schema v5 and later records, publication also preserves the exact downloaded
-`mechanical-report.json` and normalized workflow-run/job provenance in a small,
-content-addressed bundle under `evidence/`. The entry records the report digest,
-bundle digest, workflow commit, and run attempt. Database validation checks that
-the archived report and provenance agree with the entry, and the append-only
-gate freezes the bundle with the published record. GitHub Actions logs remain
-temporary supporting material and are not archived.
+commit, and render time. It also preserves the exact downloaded mechanical
+report and normalized workflow provenance in a content-addressed evidence
+bundle. Merging the database PR is the registration event. Recording the result
+against the private submission state is a separate explicit operator action.
 
 ## Security boundary
 
-Submission source is hostile. No credential is present in the verification or
-render execution environment.
-The trusted reporting job has an issue-scoped token but never executes source or
-source-derived shell text. Comparator performs Lean elaboration under landrun.
-Mutable third-party action selectors are forbidden.
+Submission source is hostile. No credential is present in verification or
+render execution. The internet-facing server uses separate least-privilege
+tokens for private state and public workflow dispatch so compromise of the
+server cannot modify verification code or forge a mechanical result.
 
 Verification may elaborate a submitted `lakefile.lean` only inside Landrun with
 the network and credentials absent. It never runs `lake update` or package
@@ -147,19 +149,17 @@ selected for the accepted Lean toolchain. It must not run a submitted Lakefile,
 `lake update`, package post-update hooks, or source-derived commands outside
 Landrun. Every Lake, Lean, Verso, and source-derived executable runs inside
 Landrun without network access or credentials and with enforced ceilings on
-time, memory, processes, files, and output, set as emergency host containment
-rather than acceptance criteria. Resource exhaustion is a retryable
-infrastructure result, never a mathematical rejection. Fixed-host cache
-downloads are performed by trusted code outside source-derived execution and
-unpacked inside Landrun.
+time, memory, processes, files, and output. Resource exhaustion is a retryable
+infrastructure result, never a mathematical rejection.
 
-Published render HTML is sanitized, carries a restrictive CSP, and is served
+Registered render HTML is sanitized, carries a restrictive CSP, and is served
 from the PalomarDatabase GitHub Pages site. PalomarWeb treats the database as
 the sole source of truth and embeds eligible Challenges in an iframe with
 `sandbox="allow-scripts"` and no `allow-same-origin`. It always links to the
-commit-pinned recorded Challenge source; a Challenge is eligible for inline display only
-when exactly one declaration is compared and the file is at most 100 lines and
-32 KiB. Other entries link to a dedicated wrapper with the same sandbox.
+commit-pinned recorded Challenge source. A Challenge is eligible for inline
+display only when exactly one declaration is compared and the file is at most
+100 lines and 32 KiB; other entries use a dedicated wrapper with the same
+sandbox.
 
 Arbitrary pinned Git dependencies and contained repository-local path
 dependencies are permitted in the proof project. A nested project is selected
@@ -167,11 +167,8 @@ without changing the repository-level source or licence boundary. The
 mechanical gate applies only to the transitive source closure of the recorded
 Challenge source; imported sources must resolve to Lean core or the allowlisted
 Mathlib/Tau Ceti closure. Every other source reached from the Challenge is
-rejected, including a source reached only recursively and a source belonging to
-a project Palomar has already accepted. Being indexed by Palomar confers no
-import privilege: an earlier accepted record fixes a reviewable snapshot of its
-own statement, not a trusted library for later ones.
-Dependencies reached only by the recorded Solution source remain unrestricted apart from the
+rejected. Being indexed by Palomar confers no import privilege. Dependencies
+reached only by the recorded Solution source remain unrestricted apart from the
 ordinary full-commit and confinement requirements.
 
 This prototype accepts only public GitHub repositories. Private-repository App

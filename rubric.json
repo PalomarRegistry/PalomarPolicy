@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "minimum_accept_score": 4,
   "registry_scores": [
     "statement_alignment",
@@ -142,8 +142,7 @@
     "verdicts": [
       "pass",
       "warn",
-      "fail",
-      "escalate"
+      "fail"
     ]
   }
 }
