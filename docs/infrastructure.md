@@ -12,8 +12,8 @@ hostname is written down.
 | Thing | Where | Notes |
 | --- | --- | --- |
 | Repositories | GitHub org [`PalomarRegistry`](https://github.com/PalomarRegistry) | Moved from the `kim-em` personal account on 2026-08-04. Base member permission is `read`. |
-| Domain | `palomar-registry.org`, registered at Cloudflare Registrar | Registrar and DNS are the same account. |
-| DNS and Workers | Cloudflare account `d789bf36d237e0cb313be59b927c82bd` | Zone `f05ebb1809990a5d27e6d6a7d0d1ae85`, nameservers `joyce`/`matias.ns.cloudflare.com`. |
+| Domains | `palomar-registry.org` and `palomarregistry.org`, both at Cloudflare Registrar | Registrar and DNS are the same account. |
+| DNS and Workers | Cloudflare account `d789bf36d237e0cb313be59b927c82bd` | Zones `f05ebb1809990a5d27e6d6a7d0d1ae85` for `palomar-registry.org` and `feea63b2ced3571a5ab5ce4ba516067f` for `palomarregistry.org`, nameservers `joyce`/`matias.ns.cloudflare.com`. |
 | Static hosting | GitHub Pages | Not Cloudflare, despite the domain being there. |
 
 The old `kim-em/Palomar*` repository names **must stay reserved forever**.
@@ -177,10 +177,14 @@ much harder to undo than to avoid.
 
 ## Credentials
 
-| Credential | Scope | Held where |
+| Credential | Scope | Held by |
 | --- | --- | --- |
-| wrangler OAuth login | workers, workers_kv, workers_routes, workers_scripts, workers_tail, account read, user read | `~/.config/.wrangler/config/default.toml` |
-| Cloudflare API token | Zone · DNS · Edit, Zone · Zone · Read, and Zone · Single Redirect · Edit, on **both** `palomar-registry.org` and `palomarregistry.org` | `~/.palomar-cf-token`, mode 600 |
+| wrangler OAuth login | workers, workers_kv, workers_routes, workers_scripts, workers_tail, account read, user read | kim@lean-fro.org |
+| Cloudflare API token | Zone · DNS · Edit, Zone · Zone · Read, and Zone · Single Redirect · Edit, on **both** `palomar-registry.org` and `palomarregistry.org` | kim@lean-fro.org |
+
+Who holds a credential is worth recording. Where it sits on disk is not: it
+would tell an attacker who got as far as running code exactly what to read, and
+tells a legitimate reader nothing they need.
 
 The wrangler login deliberately cannot touch DNS. The separate token
 deliberately cannot touch Workers. Neither can spend money or transfer the
@@ -276,3 +280,7 @@ verified, and both `PalomarWeb` and `PalomarDatabase` report
 Registrar operations, payment, and org-level GitHub Pages domain verification
 have no API path we use, and all three are rare enough that a documented
 manual step is better than a credential with the authority to perform them.
+
+The account is on the Workers free tier. Network wait does not count against
+Worker CPU time, so the free tier is likely sufficient for `submit`. Measure
+before paying.
