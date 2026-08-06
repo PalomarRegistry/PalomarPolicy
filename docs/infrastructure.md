@@ -34,22 +34,16 @@ losing a redirect only ever grows.
 | `palomarregistry.github.io/PalomarWeb/` | Nothing directly | GitHub Pages | 301 to `palomar-registry.org` |
 | `palomarregistry.github.io/PalomarDatabase/` | Nothing directly | GitHub Pages | 301 to `data.palomar-registry.org` |
 
-The website is served by GitHub Pages, not by Cloudflare Workers Assets. An
-earlier version of this document listed Workers as the plan for the apex; that
-was never built, and attaching the Pages custom domain made it unnecessary.
-
-Cloudflare is therefore not only registrar and DNS. It is registrar and DNS for
-the names GitHub serves, and it also hosts `submit` as a Worker and terminates
-TLS for the two redirect-only names, `www` and the whole `palomarregistry.org`
-zone. Only the apex and `data` reach GitHub at all.
+Cloudflare is registrar and DNS for the names GitHub serves, hosts `submit` as a
+Worker, and terminates TLS for the redirect-only names, `www` and the whole
+`palomarregistry.org` zone. Only the apex and `data` reach GitHub at all.
 
 `palomarregistry.org`, without the hyphen, is a defensive registration held so
 the obvious misspelling of the real domain does not go somewhere else. It is a
 separate Cloudflare zone and serves nothing; every name in it redirects.
 
-The render origin is `data.palomar-registry.org`. It was called `renders.` while
-it was still being planned, and that name appears in older notes; it was never
-attached and no longer resolves.
+The render origin is `data.palomar-registry.org`. Older notes call it
+`renders.`, which does not resolve.
 
 Raw record data is fetched from
 `raw.githubusercontent.com/PalomarRegistry/PalomarDatabase/main/index.json`,
@@ -113,13 +107,11 @@ apex and `data`. Cloudflare's Universal SSL, currently from Google Trust
 Services, covers `palomar-registry.org` and `*.palomar-registry.org` and is what
 `www` and `submit` present. Neither needs installing or renewing by hand.
 
-Two things about this are worth knowing before they cost an afternoon.
-
 **Enforce HTTPS is a separate switch from having a certificate.** A host can
 have a valid, approved certificate and still serve plaintext on port 80 without
-redirecting. It is `https_enforced` on the Pages API, and it can only be turned
-on once the certificate is approved. It was `false` on both `PalomarWeb` and
-`PalomarDatabase` and had to be enabled explicitly:
+redirecting. It is `https_enforced` on the Pages API, it can only be turned on
+once the certificate is approved, and it has to be set explicitly on each
+repository:
 
 ```
 gh api -X PUT repos/PalomarRegistry/<repo>/pages -F https_enforced=true
@@ -133,35 +125,8 @@ minutes after the switch flips. Request a path that cannot be in the cache:
 curl -sSI "http://palomar-registry.org/nonexistent-$RANDOM.html"   # expect 301
 ```
 
-**`www` is redirected by Cloudflare, not served by GitHub.** This is worth
-understanding, because the obvious arrangement was tried first and did not work.
-
-`www` originally pointed at Pages as a grey-clouded CNAME. GitHub served it the
-default `*.github.io` wildcard certificate, which does not match the name, so
-every HTTPS request produced a browser interstitial. The apex certificate,
-issued on 2026-08-04, covers only `palomar-registry.org`; the `www` DNS record
-was created afterwards. GitHub's own health check agreed the name was fine and
-merely unsecured:
-
-```
-$ gh api repos/PalomarRegistry/PalomarWeb/pages/health
-alt_domain: host=www.palomar-registry.org dns_resolves=true
-            is_https_eligible=true responds_to_https=false
-            https_error=peer_failed_verification
-```
-
-Detach and reattach of the custom domain is GitHub's documented retry for this,
-and it was tried twice, with gaps of five seconds and one minute. Neither
-produced a certificate covering `www`; the reported state returned to `approved`
-with `domains: [palomar-registry.org]` each time. That is an observation, not a
-documented mechanism, so do not build expectations on why. What matters is the
-practical conclusion: **there is no reliable, zero-downtime way to force GitHub
-to reissue a certificate for an added name.** The one lever that would force it,
-pointing the custom domain at `www` and back, takes the main site down for the
-duration and is not worth it.
-
-So `www` was moved off GitHub entirely. It is now a proxied record answered by a
-Cloudflare Redirect Rule in the `http_request_dynamic_redirect` phase:
+**`www` is redirected by Cloudflare, not served by GitHub.** It is a proxied
+record answered by a Redirect Rule in the `http_request_dynamic_redirect` phase:
 
 ```
 expression:  http.host eq "www.palomar-registry.org"
@@ -170,21 +135,28 @@ status:      301, preserve_query_string: true
 ```
 
 The rule fires at the edge, so the origin is never contacted and GitHub is out
-of the `www` path completely. Cloudflare's existing wildcard covers the name, so
-there was no certificate to wait for. Create the rule *before* flipping the
-record to proxied; in that order there is no window where `www` is proxied with
-no redirect behind it. Use a dynamic target rather than a static one, or every
-deep link collapses to the front page, and record URLs are permanent.
+of the `www` path. Cloudflare's wildcard already covers the name, so no
+certificate has to be issued for it. `palomarregistry.org` uses the same pattern
+in its own zone.
 
-`palomarregistry.org` uses the same pattern in its own zone.
+Two rules for building one of these. Create the rule *before* flipping the
+record to proxied, so there is no window where a proxied name has no redirect
+behind it. And use a dynamic target rather than a static one, or every deep link
+collapses to the front page; record URLs are permanent, so that is not
+recoverable.
 
-Two consequences to keep in mind. GitHub's health check now reports `www` with
-`is_pointed_to_github_pages_ip: false`, `is_non_github_pages_ip_present: true`
-and `is_https_eligible: false`, alongside `responds_to_https: true` and no
-error. That combination is correct and expected, not a fault: it is GitHub
-observing that a name it used to serve is now answered by Cloudflare. And if CAA
-records are ever added to the zone, they must permit Cloudflare's CA as well as
-Let's Encrypt, or `www` and `submit` will fail to renew.
+Do not put a redirect-only name on Pages instead. GitHub issues a certificate
+for the names configured when it issues, and there is no reliable, zero-downtime
+way to make it reissue for a name added later: detach and reattach, which is the
+documented retry, does not dependably do it, and pointing the custom domain at
+the name and back takes the main site down for the duration. A name whose only
+job is to redirect does not need an origin at all.
+
+GitHub's health check reports `www` with `is_pointed_to_github_pages_ip: false`,
+`is_non_github_pages_ip_present: true` and `is_https_eligible: false`, alongside
+`responds_to_https: true` and no error. That combination is expected, not a
+fault. If CAA records are ever added to the zone, they must permit Cloudflare's
+CA as well as Let's Encrypt, or `www` and `submit` will fail to renew.
 
 To check what a name actually presents, ask the connection rather than any API:
 
@@ -214,30 +186,20 @@ The wrangler login deliberately cannot touch DNS. The separate token
 deliberately cannot touch Workers. Neither can spend money or transfer the
 domain.
 
-The token began narrower, as DNS Edit and Zone Read on `palomar-registry.org`
-alone. It was widened twice, on 2026-08-06: to the second zone when
-`palomarregistry.org` was registered, and to Single Redirect Edit so the `www`
-redirect rule could be created through the API rather than by hand. That is a
-real increase in authority and is recorded here rather than left to be
-rediscovered. The holder of this token can now repoint any hostname in either
-zone and can rewrite the redirect rules that both zones depend on.
+The token can repoint any hostname in either zone and rewrite the redirect rules
+both zones depend on. It cannot read or change zone SSL/TLS settings, touch
+Worker routes or scripts, reach account-level rulesets such as Bulk Redirects,
+or reach the registrar or billing. So it cannot disable Universal SSL, cannot
+take down `submit`, and cannot transfer or renew a domain. The blast radius is
+DNS and redirects, in two zones.
 
-Note that Single Redirect is the current dashboard name for what the API calls
-the `http_request_dynamic_redirect` phase. The permission appears under the
-older name in some places.
+Single Redirect is the dashboard name for what the API calls the
+`http_request_dynamic_redirect` phase.
 
-What it still cannot do, verified rather than assumed: read or change zone
-SSL/TLS settings, touch Worker routes or scripts, reach account-level rulesets
-such as Bulk Redirects, or reach the registrar or billing. So it cannot disable
-Universal SSL, cannot take down `submit`, and cannot transfer or renew a domain.
-The blast radius is DNS and redirects, in two zones, and nothing else.
-
-A quick way to tell a missing permission from a malformed request, since
-Cloudflare returns both as failures: a permission problem gives
-`Authentication error` or `Unauthorized to access requested resource`, while a
-request the token is allowed to make fails validation instead, naming the
-offending field. Probing with a deliberately invalid payload therefore tests
-authority without changing anything.
+To test what a token may do without changing anything, send a deliberately
+invalid payload. A missing permission gives `Authentication error` or
+`Unauthorized to access requested resource`; a permitted request fails
+validation instead, naming the offending field.
 
 ## Moving to a different domain
 
