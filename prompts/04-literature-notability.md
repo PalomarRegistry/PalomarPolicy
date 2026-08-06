@@ -83,13 +83,17 @@ Judge the account, not the medium. Mathematics is communicated in preprints,
 talks, social media posts, private correspondence and folklore, and a source
 that cannot be archived or independently confirmed is not thereby a defect. It
 is enough that the submission says so, gives the most stable identifier that
-exists, and claims no more than the source supports.
+exists, and claims no more than the source supports. Do not request an archive,
+a corroborating citation, or a stable copy where none exists. Such a source is
+the submitter's own account and nothing more: it cannot support novelty,
+priority, reception or notability, and it cannot carry literature to `5`, but
+it does not by itself hold literature below the minimum.
 
-Score below the minimum recorded in `rubric.json` when a citation is wrong,
-misattributed or misdescribed, when a material claim rests on a source the
-submission does not identify, or when novelty is claimed without a credible
-search. Not merely because a source could not be confirmed, where the
-submission was honest about that. Never turn
+Score below the minimum recorded in `rubric.json` when a material citation is
+wrong, misattributed or misdescribed, when a material claim rests on a source
+the submission does not identify, or when novelty is claimed without a credible
+search. A minor bibliographic slip that changes nothing is a warning, not a
+failure. Never turn
 lack of browsing access into a high literature score. Score notability
 separately from browsing availability, using the actual result and the evidence
 available; do not lower it merely because external source verification was

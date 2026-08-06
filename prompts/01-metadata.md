@@ -32,10 +32,13 @@ source, the rest of the submission, and the selected-project README or
 repository-root fallback. If the submitted repository is a thin wrapper, check
 that it identifies the substantive formalisation at an immutable revision.
 
-Authorisation is already established: the submitter proved write access to the
-submitted repository. Where the substantive formalisation is under the same
-owner, that proof covers it, and no statement of approval should be asked for.
-Ask only where it belongs to somebody else, and a short note is enough.
+Check that the submission's authorisation relationship concerns the substantive
+project. Where the submitter has answered that they are a responsible author or
+maintainer of it, that answer is the basis; do not ask them to document approval
+from themselves, and do not treat a missing link or note as a deficiency, since
+both are optional. Flag an authorisation basis that is missing, or that is
+contradicted by the submission's own provenance, repository role or declared
+maintainers.
 
 Do not demand a source for a result explicitly and
 credibly recorded as first presented by the formalisation.
