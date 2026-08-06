@@ -16,15 +16,18 @@ permitted axioms. Palomar needs this comparison because the Challenge is the
 small, human-auditable statement of record. Comparator makes it a mechanical
 fact, rather than a claim, that the proof proves the stated thing.
 
-A submission also has a structured informal account. Palomar uses the upstream
-community
+A submission also has structured metadata and an informal mathematical account.
+Palomar uses the upstream community
 [formalization.yaml](https://github.com/mathlib-initiative/formalization.yaml)
 self-reporting standard for formalisation projects; this is not a format
-invented by Palomar. The formal statement alone does not say what result the
-project claims to formalise, where that result came from, who did the work,
-what was automated, or where the formalisation falls short of its sources. The
-metadata records this context, and the editorial review reads it against the
-Lean.
+invented by Palomar. `formalization.yaml` records the required structured facts
+about provenance, sources, licence, classification, authorship, automation,
+review, repository role, scope, and known gaps. Narrative prose explaining what
+the result says and why it matters may be in Challenge module documentation,
+docstrings attached to the compared declarations, the project README,
+`formalization.yaml`, or several of these locations. The formal statement alone
+does not record all this context, and the editorial review reads the submission
+as a whole against the Lean.
 
 An accepted submission has passed two kinds of assessment:
 
@@ -101,13 +104,18 @@ symbolic links, must be no larger than 500 MiB.
 In this ordinary layout:
 
 - `Challenge.lean` contains the declarations that state the result: the small
-  statement file that a mathematical reader is expected to audit.
+  statement file that a mathematical reader is expected to audit. Its module
+  documentation and declaration docstrings may contain some or all of the
+  narrative mathematical account.
 - `Solution.lean` contains declarations with the same types and supplies the
   proofs or definition values.
 - `comparator.json` tells Comparator which Challenge and Solution modules and
   declarations to compare.
-- `formalization.yaml` gives the informal mathematical account, provenance,
-  authorship, process, classification, limitations, and review history.
+- `formalization.yaml` gives the required structured provenance, sources,
+  licence, authorship, process, classification, limitations, and review history,
+  and may also contain some or all of the narrative mathematical account.
+- the project README may contain some or all of the narrative mathematical
+  account.
 - the licence file states the licence for the submitted repository snapshot.
 
 The filenames `Challenge.lean` and `Solution.lean` are conventions rather than
@@ -277,10 +285,12 @@ editorial review.
 
 ## 3. Write `formalization.yaml`
 
-`formalization.yaml` is the informal mathematical and editorial account of the
-submission. It gives a reader the information needed to identify the exact
-claim, understand its provenance and limitations, and assess how the work was
-produced and reviewed.
+`formalization.yaml` is the required structured mathematical and editorial
+record of the submission. It gives a reader the facts needed to identify the
+exact claim, understand its provenance and limitations, and assess how the work
+was produced and reviewed. Narrative prose may also appear there, but it need
+not be duplicated there when it is supplied in an eligible Challenge
+documentation location or README.
 
 Palomar uses the [mathlib-initiative `formalization.yaml` v0.3
 format](https://github.com/mathlib-initiative/formalization.yaml) as a base and
@@ -407,14 +417,26 @@ earlier work.
 ### 3.4 The informal account
 
 Write for a mathematically literate reader outside the immediate project. The
-metadata must make it possible to identify and assess the exact claim being
-submitted. Include:
+narrative mathematical account may be in Lean module documentation in the
+Challenge source, docstrings attached to the compared declarations, the
+selected-project README or repository-root fallback, or
+`formalization.yaml`. It may be in one of these locations or divided across
+several, and need not be duplicated. Taken together, the supplied prose must
+make it possible to identify and assess the exact claim being submitted.
+
+Keep all required structured facts in `formalization.yaml`, including
+provenance, sources and their relationships, licence, classification,
+authorship, automation, review, repository role, scope, and known gaps.
+Narrative elsewhere supplements those fields and does not replace them.
+
+Across the eligible narrative locations, include:
 
 - a plain-language account of every compared theorem;
 - every known mismatch with the cited source, extra assumption, permitted
   axiom, scope restriction, degenerate case, and other limitation;
-- the mathematical sources used to choose, state, adapt, or justify the result,
-  with precise references and relationships;
+- an explanation of the mathematical sources used to choose, state, adapt, or
+  justify the result, consistent with the precise references and relationships
+  recorded in `formalization.yaml`;
 - what is original, translated, adapted, proved, or still missing;
 - the relation to previous formalisations;
 - the authorship and production process, including AI involvement and human
@@ -427,11 +449,11 @@ important citations and searches for obvious prior results and formalisations.
 Its literature score cannot reach the acceptance threshold if important claims
 or citations remain unverified.
 
-An informal account of the proof is optional. If supplied, it must describe the
-architecture and decisive steps of the Lean proof that is actually present,
-including important assumptions and computational components. The reviewer
-compares it with the Solution source; a plausible proof of the same theorem is
-not enough.
+An informal account of the proof is optional and may be supplied in any of the
+eligible narrative locations. If supplied, it must describe the architecture
+and decisive steps of the Lean proof that is actually present, including
+important assumptions and computational components. The reviewer compares it
+with the Solution source; a plausible proof of the same theorem is not enough.
 
 [submission-repo]: https://github.com/PalomarRegistry/PalomarSubmission
 
@@ -570,7 +592,8 @@ results into the final decision; it does not raise or average scores.
 The required passes examine:
 
 - whether every arXiv and MSC2020 classification is substantively plausible;
-- the clarity, accuracy, and completeness of metadata and provenance;
+- the clarity, accuracy, and completeness of the required structured metadata,
+  provenance, and narrative account across its supplied locations;
 - alignment between every compared theorem and its informal account, including
   definitions, quantifiers, hypotheses, coercions, degenerate cases, and
   claimed scope;
@@ -578,8 +601,8 @@ The required passes examine:
   concept used by the compared statements;
 - the literature account and the result's research interest.
 
-If an informal proof account is present, an additional pass compares it with
-the actual Solution proof and its imports.
+If an informal proof account is present in any eligible narrative location, an
+additional pass compares it with the actual Solution proof and its imports.
 
 Each pass uses one of four verdicts:
 
