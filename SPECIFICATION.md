@@ -129,8 +129,19 @@ The database record includes a required `challenge_render` object binding the
 content-addressed bundle, entrypoint, Verso commit, renderer commit, Landrun
 commit, and render time. It also preserves the exact downloaded mechanical
 report and normalized workflow provenance in a content-addressed evidence
-bundle. Merging the database PR is the registration event. Recording the result
-against the private submission state is a separate explicit operator action.
+bundle.
+
+Before publishing the database branch, registration preserves the submitted
+repository, every pinned Git dependency, and any separately recorded
+substantive formalisation in native public forks owned by `PalomarArchive`.
+Repositories in one GitHub fork network share one archive fork. Every accepted
+commit is bound to an immutable record-specific tag, and the complete mapping is
+recorded in both the entry and its content-addressed preservation receipt. A
+missing source, failed fork, incorrect ruleset, tag conflict, or failed read-back
+stops registration before publication.
+
+Merging the database PR is the registration event. Recording the result against
+the private submission state is a separate explicit operator action.
 
 ## Security boundary
 
@@ -143,6 +154,14 @@ Verification may elaborate a submitted `lakefile.lean` only inside Landrun with
 the network and credentials absent. It never runs `lake update` or package
 post-update hooks; the committed or trusted-synthesized manifest is the sole
 dependency-resolution authority.
+
+Accepted Git source must be preservable by native GitHub forks. The submitted
+repository, its Git dependencies, and any separately recorded substantive
+formalisation must be public GitHub repositories pinned to full commits. Git LFS
+pointers are rejected throughout that graph. Submitted and substantive source
+repositories may not contain submodules; an inert dependency gitlink is allowed
+only because verification never initializes or reads it and the fork preserves
+the exact ordinary Git object.
 
 Rendering uses a trusted synthetic Lake workspace and an exact Verso revision
 selected for the accepted Lean toolchain. It must not run a submitted Lakefile,
@@ -174,5 +193,5 @@ reached only by the recorded Solution source remain unrestricted apart from the
 ordinary full-commit and confinement requirements.
 
 This prototype accepts only public GitHub repositories. Private-repository App
-tokens, source retention, DOI minting, rate limiting, and automatic dependency
-updates are intentionally deferred.
+tokens, DOI minting, rate limiting, archival storage for toolchain binaries and
+non-Git artifacts, and automatic dependency updates are intentionally deferred.

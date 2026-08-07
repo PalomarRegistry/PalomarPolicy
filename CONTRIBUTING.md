@@ -242,17 +242,26 @@ closure. Recursive imports are treated exactly like direct imports. Previous
 acceptance by Palomar does not make a repository an approved Challenge
 dependency.
 
-Dependencies reached only from the Solution may come from any Git repository
-that satisfies the requirements below. This permits a proof to use a broader
-development without making that development part of the statement a reader
-must audit. The mechanical report records the whole project dependency set
-separately from the smaller set used by the Challenge.
+Dependencies reached only from the Solution may come from any public GitHub
+repository that satisfies the requirements below. This permits a proof to use
+a broader development without making that development part of the statement a
+reader must audit. The mechanical report records the whole project dependency
+set separately from the smaller set used by the Challenge.
 
 #### Mechanical requirements
 
 - The project may use Git dependencies for its proofs. Every Git package in
-  `lake-manifest.json` must use a credential-free HTTPS URL without a query or
-  fragment, and must be pinned to a full 40-character lowercase commit SHA.
+  `lake-manifest.json` must use a credential-free public
+  `https://github.com/owner/repository` URL without a query or fragment, and
+  must be pinned to a full 40-character lowercase commit SHA.
+- The submitted repository and any separately named substantive formalisation
+  must not contain Git submodules. A dependency may contain an inert submodule
+  gitlink only because Palomar never initializes or reads it and the native
+  archive fork retains the exact gitlink.
+- Git LFS pointers are rejected in the submitted repository, every dependency,
+  and any separately named substantive formalisation. Accepted source must be
+  fully present in ordinary Git objects so the complete consumed source graph
+  can be preserved in native GitHub forks.
 - Do not commit compiled Lean or native build output outside `.lake`. The
   verifier rejects files with compiled-artifact suffixes including `.olean`,
   `.ilean`, `.a`, `.bc`, `.dll`, `.dylib`, `.o`, `.obj`, `.so`, and `.trace`,
@@ -726,10 +735,17 @@ decision, so its public log reveals nothing about whether a review happened or
 what it found. The submitter's identity, the review, and the decision stay
 non-public unless the submitter registers.
 
-On registration, Palomar archives the review beside the record. The reviewer
-model identifiers, exact source commit, mechanical workflow run, and exact
-policy commit also become public. Submitting grants Palomar permission to quote
-the submitted metadata in the review report and registry record.
+On registration, Palomar archives the review beside the record. It also creates
+or reuses native public forks in
+[`PalomarArchive`](https://github.com/PalomarArchive) for the submitted
+repository, every pinned Git dependency, and any separately recorded
+substantive formalisation. Every accepted commit receives an immutable,
+record-specific preservation tag. Registration stops before publishing a
+database change if any source, fork, tag, or read-back check fails. The reviewer
+model identifiers, exact source commit, mechanical workflow run, exact policy
+commit, and source-preservation receipt also become public. Submitting grants
+Palomar permission to quote the submitted metadata in the review report and
+registry record.
 
 After acceptance and before registration, Palomar renders the pinned Challenge
 source with Verso for display. Rendering compiles submitted Lean, so it runs
