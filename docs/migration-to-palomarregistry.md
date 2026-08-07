@@ -1,12 +1,21 @@
 # Migrating Palomar to the PalomarRegistry organisation
 
-Date: 2026-08-04. Settles the institutional-home half of `TODO.md` decision 8.
+Date: 2026-08-04. Completed. Settles the institutional-home half of `TODO.md`
+decision 8.
 
-Palomar's repositories live under a personal account, `kim-em`. They move to the
-[`PalomarRegistry`](https://github.com/PalomarRegistry) organisation. This
-document is the checklist. It exists because a transfer is close to a one-shot
-operation: GitHub's redirects are helpful but incomplete, and one of the ways
-they break is permanent.
+> **Historical migration record, not an operations runbook.** The transfer
+> described here is complete. Repository names, schema counts, record counts,
+> and Pages steps below describe the pre-launch tree at the time of the move;
+> that tree was later reshaped. For the current topology and recovery procedure,
+> use [`infrastructure.md`](infrastructure.md). In particular, do not re-enable
+> GitHub Pages for the now-private `PalomarDatabase`: filtered public data is
+> served by the `palomar-data` Worker over private R2.
+
+Palomar's repositories lived under the personal account `kim-em` and moved to
+the [`PalomarRegistry`](https://github.com/PalomarRegistry) organisation. This
+document preserves the checklist and reasoning used for that one-shot move;
+GitHub's redirects are helpful but incomplete, and one of the ways they break
+is permanent.
 
 ## What moves and what does not
 
@@ -181,10 +190,14 @@ Easy to forget, because grep does not find them:
 - Webhook subscriptions.
 - The reserved old repository names.
 
-## After transferring
+## Historical post-transfer checklist
 
-1. Re-enable GitHub Pages on `PalomarDatabase` and `PalomarWeb`; the transfer
-   does not carry the deployment.
+This checklist was executed for the 2026-08-04 organization transfer. It must
+not be rerun against the current private-database/R2 architecture.
+
+1. Re-enable the Pages sites that existed at transfer time; the transfer did
+   not carry their deployments. `PalomarDatabase` Pages was subsequently
+   retired and must remain disabled; `PalomarWeb` remains the sole Pages site.
 2. Run every repository's suite, then `tools/validate.py`,
    `tools/check_append_only.py --history main`, and `tools/build_feeds.py`.
 3. Load the site, resolve a feed, and confirm the render iframe still displays.
