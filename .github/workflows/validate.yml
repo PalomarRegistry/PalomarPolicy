@@ -30,7 +30,7 @@ jobs:
           ids = [step["id"] for step in rubric["steps"]]
           assert len(ids) == len(set(ids)), "duplicate rubric step"
           assert ids[-1] == "synthesis", "synthesis must be last"
-          assert rubric["schema_version"] == 6
+          assert rubric["schema_version"] == 7
           assert rubric["step_result"]["verdicts"] == ["pass", "warn", "fail"]
           assert review_schema["properties"]["schema_version"]["const"] == 2
           assert review_schema["properties"]["decision"]["enum"] == ["accept", "revise", "reject"]
@@ -91,5 +91,15 @@ jobs:
           assert len(owned_scores) == len(set(owned_scores)), "duplicate score owner"
           assert set(registry_scores) <= set(owned_scores)
           assert all(owners[key]["required"] for key in registry_scores)
+          coverage_steps = {
+              step["id"] for step in rubric["steps"]
+              if step.get("requires_declaration_coverage") is True
+          }
+          assert coverage_steps == {
+              "statement_alignment",
+              "definition_fidelity",
+              "literature_notability",
+              "proof_account",
+          }
           print(f"validated {len(ids)} review steps")
           PY

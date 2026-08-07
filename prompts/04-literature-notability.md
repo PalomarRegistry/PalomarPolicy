@@ -13,6 +13,17 @@ Read it as a whole and do not require duplication in `formalization.yaml`.
 Evaluate that account against the actual compared Lean declarations, not
 against the most favourable theorem that the prose might suggest.
 
+Audit every theorem and definition selected by the recorded Comparator
+configuration. An omnibus or multi-result configuration does not have one
+reviewer-selected headline: assess the research-interest floor for each
+distinct mathematical result group represented by the selected declarations.
+Related corollaries and helper formulations may be assessed together, but name
+all declarations in `declarations_checked`. Do not stop after finding one good
+result or one defect. Clean result groups need no separate praise. Report every
+distinct material criticism across all groups; there is no submission-wide
+findings cap. Deduplicate only a genuinely shared root cause and identify every
+affected declaration.
+
 Acceptance requires affirmative answers to both questions:
 
 1. Could this result plausibly warrant a research paper or serious research
@@ -132,11 +143,13 @@ Return JSON only:
     {"severity": "info|warning|error", "evidence": "citation, URL, or metadata section", "message": "finding"}
   ],
   "scores": {"notability": 1, "literature": 1},
-  "sources_checked": ["https://..."]
+  "sources_checked": ["https://..."],
+  "declarations_checked": ["every Comparator theorem name, then every definition name, in configuration order"]
 }
 ```
 
 Scores are integers 1–5. Do not disguise uncertainty as a pass: a mandatory
 criterion that is not affirmatively established scores below the threshold and
-uses `fail`. Return at least one evidence-based finding even when the verdict
-is `pass`.
+uses `fail`. Use an empty findings array when no material criticism was found;
+the exhaustive `declarations_checked` manifest records clean coverage without
+public praise.

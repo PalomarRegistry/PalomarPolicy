@@ -33,6 +33,14 @@ Do not lower auditability merely because an allowed Challenge import produces a
 dependencies can be audited; the trust label separately records their
 provenance.
 
+Audit the definitions material to every theorem and definition selected by the
+recorded Comparator configuration. Do not select only the strongest headline or
+stop after the first defect. A clean selected declaration needs no separate
+praise, but it must appear in `declarations_checked`. Report every distinct
+material fidelity or auditability problem; there is no submission-wide findings
+cap. Deduplicate only a genuinely shared root cause and name every affected
+declaration in that finding.
+
 Record what documentation you found for each material definition and where you
 found it, then tie that prose to the exact Lean definition or imported concept
 you inspected. If no prose explains a material definition or its intended
@@ -72,10 +80,12 @@ Return JSON only:
   ],
   "scores": {"definition_fidelity": 1, "auditability": 1},
   "trust_level": "high|qualified",
-  "sources_checked": ["challenge_source", "repository@commit:path"]
+  "sources_checked": ["challenge_source", "repository@commit:path"],
+  "declarations_checked": ["every Comparator theorem name, then every definition name, in configuration order"]
 }
 ```
 
 Scores are integers 1–5. A manufactured or materially misleading definition is
-`fail`. Return at least one evidence-based finding even when the verdict is
-`pass`.
+`fail`. Use an empty findings array when no material criticism was found; the
+exhaustive `declarations_checked` manifest records clean coverage without public
+praise.

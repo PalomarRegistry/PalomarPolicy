@@ -97,9 +97,19 @@ LICENSE                       # or another accepted licence filename
 ```
 
 Submit the repository as `owner/name` together with the full 40-character SHA
-of the commit to be reviewed. Branch names and tags are not accepted as
-substitutes for a commit. The checked-out repository, excluding `.git` and
-symbolic links, must be no larger than 500 MiB.
+of the commit to be reviewed, and explicitly select the repository-relative
+Comparator configuration path (`comparator.json` in this ordinary layout).
+Branch names and tags are not accepted as substitutes for a commit. The
+checked-out repository, excluding `.git` and symbolic links, must be no larger
+than 500 MiB.
+
+One submission and one Palomar entry correspond to exactly one Comparator
+configuration. If a repository/commit contains twelve different configuration
+files, submit it twelve times with twelve different paths. Those become twelve
+entries sharing a repository and commit but retaining distinct path and
+declaration information. If one configuration selects many theorems or
+definitions, it remains one entry and the reviewer audits every selected
+declaration.
 
 In this ordinary layout:
 
@@ -539,7 +549,8 @@ repository.
 
 The submission form can select one repository-relative directory as the
 **selected project**. That directory becomes the root used for its Lakefile,
-default metadata path, default Comparator path, and module resolution.
+default metadata path and module resolution. The Comparator path is always
+selected explicitly, even when it is the conventional `comparator.json`.
 
 If the selected project has its own `lean-toolchain`, that file is used.
 Otherwise the repository-root `lean-toolchain` is used. When both exist, the
@@ -548,12 +559,12 @@ repository root.
 
 ### 6.2 Explicit metadata and Comparator paths
 
-You may supply explicit paths in the form when the selected files do not use
-their defaults:
+The Comparator path is required. You may additionally supply the metadata path
+when the selected file does not use its default:
 
 - the metadata path may point anywhere inside the repository, but its basename
   must be exactly `formalization.yaml`;
-- the Comparator configuration path must point inside the selected project and
+- the required Comparator configuration path must point inside the selected project and
   must end in `.json`.
 
 Every supplied path is relative to the repository root and uses `/`. It must
@@ -620,6 +631,17 @@ The review consists of required evidence passes followed by a synthesis step. A
 pass examines one subject and returns a verdict, findings tied to files or
 other evidence, and one or more scores. Synthesis combines those fixed pass
 results into the final decision; it does not raise or average scores.
+
+Every substantive pass must return a coverage manifest containing every
+theorem name and then every definition name in the recorded Comparator
+configuration. The reviewer rejects an incomplete or reordered manifest. Clean
+declarations need no individual comment, but every distinct material criticism
+must be reported; finding one problem must not suppress review of later
+declarations. The reviewer mechanically requires the final AI-comment list to
+contain every warning and error from every evidence pass, in order. One Palomar
+submission records one Comparator configuration. A
+repository with several configurations must submit each configuration
+separately if all of them are to become Palomar records.
 
 The required passes examine:
 

@@ -69,7 +69,8 @@ moving branch state, is the authoritative mechanical result.
 A passing report binds at least:
 
 - the submission identifier, source repository, full commit, selected project,
-  requested paths, workflow run, and workflow revision;
+  requested paths—including the explicitly selected Comparator configuration
+  path—workflow run, and workflow revision;
 - the resolved and hashed Challenge, Solution, Comparator configuration,
   `formalization.yaml`, Lakefile, root licence, and Lean toolchain;
 - the compared declarations, classifications, provenance, authorization-related

@@ -36,3 +36,11 @@ the runner wraps that synthesis in the final review report. Do not wrap JSON in
 a code fence.
 Assess the work and its framing, never the submitter; frankness is not permission
 for personal disparagement.
+
+Copy the `message` of every warning or error from every evidence pass into
+`warnings`, exactly and in pass order. Do not
+drop a criticism because another declaration or result group was already
+criticised, paraphrase it away, or impose a global comment cap. Omit praise for
+clean declarations. Any combination of comments must happen in the evidence
+pass, and only when one shared root cause and one action genuinely cover all
+named declarations.
