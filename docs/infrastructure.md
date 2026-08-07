@@ -22,7 +22,15 @@ restore a direct raw-GitHub or GitHub Pages fallback for database data.
 The old `kim-em/Palomar*` repository names must stay reserved forever.
 Recreating a repository at an old name destroys that name's GitHub redirect.
 Published records contain immutable URLs, so the cost of losing a redirect only
-grows.
+grows. Redirects are a compatibility convenience, not an archive or recovery
+mechanism.
+
+`PalomarRegistry` contains registry infrastructure, not the mathematical work
+it evaluates. Submitter-owned repositories and cited sources remain under their
+owners' control. A preservation fork in `PalomarArchive` records accepted Git
+objects without transferring authorship, ownership, or endorsement to Palomar.
+Never infer editorial or automation authority from organization membership;
+authorize dedicated identities by the specific capabilities their role needs.
 
 ## Source-preservation organization
 
@@ -225,11 +233,14 @@ The private SubmissionState repository stores these reviewer secrets:
 The exact repository permissions for `PALOMAR_GITHUB_TOKEN`, archive-account
 guardrails, and rotation procedure are maintained in the
 [`PalomarSubmissionState` runbook](https://github.com/PalomarRegistry/PalomarSubmissionState#secrets).
-For a fine-grained archive token, select all `PalomarArchive` repositories
-(including future repositories) and grant Metadata read plus Administration,
-Contents, and Workflows write. GitHub documents Workflows as an additional
-permission for Git-ref creation in its
-[fine-grained PAT permission table](https://docs.github.com/en/rest/authentication/permissions-required-for-fine-grained-personal-access-tokens#repository-permissions-for-workflows).
+Keep the combined archive credential as a classic token with `public_repo` and
+`workflow`. A fine-grained token scoped to `PalomarArchive` could preserve its
+forks with Metadata read plus Administration, Contents, and Workflows write,
+but it cannot also star arbitrary public source repositories owned by unrelated
+accounts. Splitting preservation and starring across credentials would require
+an explicit workflow and secret-design change. GitHub documents the separate
+[Workflows repository permission](https://docs.github.com/en/rest/authentication/permissions-required-for-fine-grained-personal-access-tokens#repository-permissions-for-workflows)
+and [Starring user permission](https://docs.github.com/en/rest/activity/starring#star-a-repository-for-the-authenticated-user).
 Do not combine the registry and archive credentials: the archive identity must
 not be able to mutate `PalomarRegistry`, and the general registry automation
 identity must not bypass the archive's dedicated-account check.
@@ -348,6 +359,14 @@ only then retire the old Worker custom domain. Never point either data hostname
 at raw GitHub content.
 
 ## What is deliberately manual
+
+Some operational state exists only in provider control planes and will not
+appear in a repository search: organization membership and permissions,
+repository visibility, branch protection and rulesets, Pages custom domains and
+HTTPS settings, Actions secrets and variables, installed Apps and webhooks,
+issue labels, Cloudflare account resources, and the reservation of old
+repository names. Audit this inventory explicitly during an ownership,
+organization, or hostname migration.
 
 Registrar operations, payment, organization-level GitHub Pages domain
 verification, the `www` Redirect Rule, data-Worker staging/production

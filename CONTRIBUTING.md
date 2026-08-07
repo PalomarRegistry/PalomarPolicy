@@ -769,8 +769,15 @@ commit, and source-preservation receipt also become public. Submitting grants
 Palomar permission to quote the submitted metadata in the review report and
 registry record.
 
-After acceptance and before registration, Palomar renders the pinned Challenge
-source with Verso for display. Rendering compiles submitted Lean, so it runs
+Palomar is still pre-launch. Registering makes the review, source, submitter
+identity, and record public during testing and creates immutable source-
+preservation tags. Until `.palomar-launched` is added to PalomarDatabase, the
+public database may be reshaped and a pre-launch registration is not permanent
+publication history. The append-only record guarantee begins at public launch.
+
+After acceptance and recorded registration consent, Palomar renders the pinned
+Challenge source with Verso for display before opening the database change.
+Rendering compiles submitted Lean, so it runs
 under the same restrictions as verification: no network access and no
 credentials. The commit-pinned GitHub file remains the authoritative source. A
 Challenge is eligible for inline display when exactly one declaration is
