@@ -47,7 +47,10 @@ direct administrator grant, and only then writes the preservation tag using the
 organization's base Write permission. The ruleset allows creation of new
 `refs/tags/palomar/**/*` refs but has no bypass actor and rejects updates or
 deletions of an existing preservation ref. Organizations cannot star GitHub
-repositories, so preservation deliberately does not attempt to star sources.
+repositories, but `PalomarArchivist` is a user account and can. A separate
+post-registration reconciler stars only each accepted record's original
+top-level source—not dependencies or archive forks—and verifies the star before
+recording it in private state.
 
 ## Service topology
 
@@ -188,7 +191,7 @@ Never record credential values or filesystem locations here.
 | R2 publisher Account API token | Object read/write/list on the single `palomar-public-data` bucket; no bucket administration, Worker deployment, DNS, registrar, or billing access | GitHub Actions in private `PalomarDatabase` |
 | Server deployment API token | Worker version upload and promotion for `palomar-server` | GitHub Actions in `PalomarServer` |
 | Registry automation token (`PALOMAR_GITHUB_TOKEN`) | Reads verification artifacts, updates private submission state, and creates and merges registration changes in the private database | GitHub Actions in private `PalomarSubmissionState` |
-| Archive token (`PALOMAR_ARCHIVE_TOKEN`) | Authenticates only as `PalomarArchivist`; creates and writes native public forks in `PalomarArchive` and manages each new fork's preservation ruleset and direct creator grant. A classic token needs `public_repo` and `workflow`; GitHub requires `workflow` even for a tag whose commit contains a workflow file. | GitHub Actions in private `PalomarSubmissionState` |
+| Archive token (`PALOMAR_ARCHIVE_TOKEN`) | Authenticates only as `PalomarArchivist`; creates and writes native public forks in `PalomarArchive`, manages each new fork's preservation ruleset and direct creator grant, and stars original sources after registration. A classic token needs `public_repo` and `workflow`; GitHub requires `workflow` even for a tag whose commit contains a workflow file. | GitHub Actions in private `PalomarSubmissionState` |
 | Review-engine API key (`OPENAI_API_KEY`) | Runs the private editorial review pipeline | GitHub Actions in private `PalomarSubmissionState` |
 
 The private Database repository stores only these R2 publisher secrets:
@@ -254,6 +257,13 @@ may also be dispatched manually. It installs `PalomarReviewer` from `main`, runs
 `palomar-review doctor`, and then advances each live submission by at most one
 state transition. Review, registration, and finalization are serialized by one
 workflow concurrency group.
+
+After advancing submissions, the same workflow runs `palomar-review
+star-registered`. It uses GitHub's
+[`PUT /user/starred/{owner}/{repo}` endpoint](https://docs.github.com/en/rest/activity/starring#star-a-repository-for-the-authenticated-user),
+reads the star back, and only then records the account, repository, and time in
+private submission state. A failed call cannot undo or block an accepted record;
+because no success is recorded, the next scheduled pass retries it.
 
 After creating or rotating `PALOMAR_ARCHIVE_TOKEN`, sign in as the archive
 account at <https://github.com/settings/tokens>. Editing an existing classic
