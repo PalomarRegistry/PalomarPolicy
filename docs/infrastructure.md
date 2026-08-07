@@ -185,7 +185,7 @@ Never record credential values or filesystem locations here.
 | R2 publisher Account API token | Object read/write/list on the single `palomar-public-data` bucket; no bucket administration, Worker deployment, DNS, registrar, or billing access | GitHub Actions in private `PalomarDatabase` |
 | Server deployment API token | Worker version upload and promotion for `palomar-server` | GitHub Actions in `PalomarServer` |
 | Registry automation token (`PALOMAR_GITHUB_TOKEN`) | Reads verification artifacts, updates private submission state, and creates and merges registration changes in the private database | GitHub Actions in private `PalomarSubmissionState` |
-| Archive token (`PALOMAR_ARCHIVE_TOKEN`) | Authenticates only as `PalomarArchivist`; creates and writes native public forks in `PalomarArchive` and manages each new fork's preservation ruleset and direct creator grant | GitHub Actions in private `PalomarSubmissionState` |
+| Archive token (`PALOMAR_ARCHIVE_TOKEN`) | Authenticates only as `PalomarArchivist`; creates and writes native public forks in `PalomarArchive` and manages each new fork's preservation ruleset and direct creator grant. A classic token needs `public_repo` and `workflow`; GitHub requires `workflow` even for a tag whose commit contains a workflow file. | GitHub Actions in private `PalomarSubmissionState` |
 | Review-engine API key (`OPENAI_API_KEY`) | Runs the private editorial review pipeline | GitHub Actions in private `PalomarSubmissionState` |
 
 The private Database repository stores only these R2 publisher secrets:
@@ -219,6 +219,11 @@ The private SubmissionState repository stores these reviewer secrets:
 The exact repository permissions for `PALOMAR_GITHUB_TOKEN`, archive-account
 guardrails, and rotation procedure are maintained in the
 [`PalomarSubmissionState` runbook](https://github.com/PalomarRegistry/PalomarSubmissionState#secrets).
+For a fine-grained archive token, select all `PalomarArchive` repositories
+(including future repositories) and grant Metadata read plus Administration,
+Contents, and Workflows write. GitHub documents Workflows as an additional
+permission for Git-ref creation in its
+[fine-grained PAT permission table](https://docs.github.com/en/rest/authentication/permissions-required-for-fine-grained-personal-access-tokens#repository-permissions-for-workflows).
 Do not combine the registry and archive credentials: the archive identity must
 not be able to mutate `PalomarRegistry`, and the general registry automation
 identity must not bypass the archive's dedicated-account check.
@@ -245,7 +250,8 @@ state transition. Review, registration, and finalization are serialized by one
 workflow concurrency group.
 
 After creating or rotating `PALOMAR_ARCHIVE_TOKEN`, sign in as the archive
-account at <https://github.com/settings/tokens>, replace the Actions secret at
+account at <https://github.com/settings/tokens>. Editing an existing classic
+token's scopes preserves its value; a replacement token must also replace the Actions secret at
 <https://github.com/PalomarRegistry/PalomarSubmissionState/settings/secrets/actions>,
 and run a preflight with new model reviews disabled:
 
