@@ -66,6 +66,7 @@ The data path is:
 ```text
 private PalomarDatabase main
   -> validate and build active-only snapshot
+  -> remove private-only fields, including review scores
   -> upload immutable release objects to private R2
   -> verify every uploaded digest
   -> atomically update R2 _current.json
@@ -93,9 +94,11 @@ published. A source shape that a native fork cannot preserve is rejected during
 mechanical verification rather than discovered after acceptance.
 
 The Worker never exposes `_current.json`, release manifests, bucket listings,
-the private `takedowns.json`, or the complete canonical `index.json`. It has an
-R2 binding named `DATA` and no secrets. A missing or invalid current-release
-pointer fails closed with 503; there is no raw-GitHub fallback.
+the private `takedowns.json`, the complete canonical `index.json`, submitter
+identity, or editorial review scores. These fields remain in the canonical
+record but are deliberately absent from the generated public projection. It
+has an R2 binding named `DATA` and no secrets. A missing or invalid
+current-release pointer fails closed with 503; there is no raw-GitHub fallback.
 
 `palomarregistry.org`, without the hyphen, is a defensive registration. It is a
 separate Cloudflare zone and serves no content of its own.
@@ -234,7 +237,10 @@ identity must not bypass the archive's dedicated-account check.
 
 Pushes to `PalomarWeb/main` test, build, and deploy GitHub Pages. The hourly
 `Published site health` workflow checks that the live site names the current
-commit and dispatches one fresh Pages deployment if necessary.
+commit and that the website's own validators can load the live index and every
+active public entry. It dispatches one fresh Pages deployment when the served
+build is stale and fails loudly when the public projection has become
+incompatible with the website contract.
 
 ### Submission server
 
