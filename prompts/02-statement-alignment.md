@@ -32,6 +32,13 @@ definitions, quantifiers, hypotheses, coercions, edge cases, and scope agree or
 disagree. If several passages jointly describe one declaration, record the
 relevant locations and account for contradictions between them.
 
+Audit every theorem and definition selected by the recorded Comparator
+configuration. Do not choose a single headline or stop after finding one strong
+or defective declaration. A clean declaration needs no separate praise, but it
+must appear in `declarations_checked`. Report every distinct material mismatch;
+there is no submission-wide findings cap. Combine findings only when one shared
+root cause genuinely applies to all declarations named by the combined finding.
+
 If there is no corresponding prose anywhere in the provided eligible locations,
 say so explicitly and distinguish that absence from a mismatch. For every
 warning or error, give a specific and actionable correction. Identify the
@@ -58,9 +65,11 @@ Return JSON only:
   "findings": [
     {"severity": "info|warning|error", "evidence": "file/declaration", "message": "finding"}
   ],
-  "scores": {"statement_alignment": 1}
+  "scores": {"statement_alignment": 1},
+  "declarations_checked": ["every Comparator theorem name, then every definition name, in configuration order"]
 }
 ```
 
 Scores are integers 1–5. A mismatch affecting the headline claim is `fail`.
-Return at least one evidence-based finding even when the verdict is `pass`.
+Use an empty findings array when no material criticism was found; the exhaustive
+`declarations_checked` manifest records clean coverage without public praise.

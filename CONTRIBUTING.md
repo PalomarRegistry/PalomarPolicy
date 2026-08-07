@@ -621,6 +621,17 @@ pass examines one subject and returns a verdict, findings tied to files or
 other evidence, and one or more scores. Synthesis combines those fixed pass
 results into the final decision; it does not raise or average scores.
 
+Every substantive pass must return a coverage manifest containing every
+theorem name and then every definition name in the recorded Comparator
+configuration. The reviewer rejects an incomplete or reordered manifest. Clean
+declarations need no individual comment, but every distinct material criticism
+must be reported; finding one problem must not suppress review of later
+declarations. The reviewer mechanically requires the final AI-comment list to
+contain every warning and error from every evidence pass, in order. One Palomar
+submission records one Comparator configuration. A
+repository with several configurations must submit each configuration
+separately if all of them are to become Palomar records.
+
 The required passes examine:
 
 - whether every arXiv and MSC2020 classification is substantively plausible;
