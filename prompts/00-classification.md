@@ -38,3 +38,7 @@ Return JSON only:
 ```
 
 Return at least one evidence-based finding even when the verdict is `pass`.
+
+Every `message` is published permanently and the scores are not, so a message
+must never name or bound a score, its minimum, or its distance from one. State
+the deficiency and the correction; the score is recorded elsewhere.
