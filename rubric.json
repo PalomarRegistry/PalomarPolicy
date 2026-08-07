@@ -1,5 +1,6 @@
 {
   "schema_version": 7,
+  "finding_comment_policy": "all",
   "minimum_accept_score": 4,
   "registry_scores": [
     "statement_alignment",

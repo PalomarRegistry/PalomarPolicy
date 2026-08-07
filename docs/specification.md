@@ -122,12 +122,14 @@ fundamental notability failure requires rejection rather than revision. These
 are structural guarantees; Palomar does not separately claim that a human
 confirmed the model's substantive judgments.
 
-The complete delivered review remains private and is bound to the submission by
-digest. The status page presents its decision and actionable comments rather
-than internal scores. For a registered result, Palomar publishes a redacted
-archived review containing the decision and comments but not scores or
-per-finding severity. The private canonical materials retain the information
-needed to reconstruct how the decision was reached.
+The complete review remains private and is bound to the submission by digest.
+The status page presents only a binary passed/did-not-pass outcome and the
+review's useful prose. It does not expose the internal accept/revise/reject
+decision, scores, evidence-pass records, or finding severities. For a registered
+result, Palomar publishes a redacted archived review containing the accepted
+outcome and every evidence-pass comment, but not scores or per-finding severity.
+The private canonical materials retain the information needed to reconstruct
+how the decision was reached.
 
 There is no ordinary appeal or human override. A changed review must be produced
 under the current contract and delivered again; registration consent never
