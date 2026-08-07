@@ -638,7 +638,9 @@ configuration. The reviewer rejects an incomplete or reordered manifest. Clean
 declarations need no individual comment, but every distinct material criticism
 must be reported; finding one problem must not suppress review of later
 declarations. The reviewer mechanically requires the final AI-comment list to
-contain every warning and error from every evidence pass, in order. One Palomar
+contain every finding from every evidence pass, in order, including useful
+informational context. Severity remains internal; all findings are presented
+under the same AI-comments heading. One Palomar
 submission records one Comparator configuration. A
 repository with several configurations must submit each configuration
 separately if all of them are to become Palomar records.

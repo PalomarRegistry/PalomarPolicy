@@ -37,10 +37,11 @@ a code fence.
 Assess the work and its framing, never the submitter; frankness is not permission
 for personal disparagement.
 
-Copy the `message` of every warning or error from every evidence pass into
+Copy the `message` of every finding from every evidence pass into
 `warnings`, exactly and in pass order. Do not
 drop a criticism because another declaration or result group was already
-criticised, paraphrase it away, or impose a global comment cap. Omit praise for
-clean declarations. Any combination of comments must happen in the evidence
+criticised, paraphrase it away, or impose a global comment cap. Evidence passes
+should omit praise for clean declarations; preserve any informational context
+they do return. Any combination of comments must happen in the evidence
 pass, and only when one shared root cause and one action genuinely cover all
 named declarations.
