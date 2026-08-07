@@ -225,11 +225,14 @@ The private SubmissionState repository stores these reviewer secrets:
 The exact repository permissions for `PALOMAR_GITHUB_TOKEN`, archive-account
 guardrails, and rotation procedure are maintained in the
 [`PalomarSubmissionState` runbook](https://github.com/PalomarRegistry/PalomarSubmissionState#secrets).
-For a fine-grained archive token, select all `PalomarArchive` repositories
-(including future repositories) and grant Metadata read plus Administration,
-Contents, and Workflows write. GitHub documents Workflows as an additional
-permission for Git-ref creation in its
-[fine-grained PAT permission table](https://docs.github.com/en/rest/authentication/permissions-required-for-fine-grained-personal-access-tokens#repository-permissions-for-workflows).
+Keep the combined archive credential as a classic token with `public_repo` and
+`workflow`. A fine-grained token scoped to `PalomarArchive` could preserve its
+forks with Metadata read plus Administration, Contents, and Workflows write,
+but it cannot also star arbitrary public source repositories owned by unrelated
+accounts. Splitting preservation and starring across credentials would require
+an explicit workflow and secret-design change. GitHub documents the separate
+[Workflows repository permission](https://docs.github.com/en/rest/authentication/permissions-required-for-fine-grained-personal-access-tokens#repository-permissions-for-workflows)
+and [Starring user permission](https://docs.github.com/en/rest/activity/starring#star-a-repository-for-the-authenticated-user).
 Do not combine the registry and archive credentials: the archive identity must
 not be able to mutate `PalomarRegistry`, and the general registry automation
 identity must not bypass the archive's dedicated-account check.
