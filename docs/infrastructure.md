@@ -22,7 +22,15 @@ restore a direct raw-GitHub or GitHub Pages fallback for database data.
 The old `kim-em/Palomar*` repository names must stay reserved forever.
 Recreating a repository at an old name destroys that name's GitHub redirect.
 Published records contain immutable URLs, so the cost of losing a redirect only
-grows.
+grows. Redirects are a compatibility convenience, not an archive or recovery
+mechanism.
+
+`PalomarRegistry` contains registry infrastructure, not the mathematical work
+it evaluates. Submitter-owned repositories and cited sources remain under their
+owners' control. A preservation fork in `PalomarArchive` records accepted Git
+objects without transferring authorship, ownership, or endorsement to Palomar.
+Never infer editorial or automation authority from organization membership;
+authorize dedicated identities by the specific capabilities their role needs.
 
 ## Source-preservation organization
 
@@ -351,6 +359,14 @@ only then retire the old Worker custom domain. Never point either data hostname
 at raw GitHub content.
 
 ## What is deliberately manual
+
+Some operational state exists only in provider control planes and will not
+appear in a repository search: organization membership and permissions,
+repository visibility, branch protection and rulesets, Pages custom domains and
+HTTPS settings, Actions secrets and variables, installed Apps and webhooks,
+issue labels, Cloudflare account resources, and the reservation of old
+repository names. Audit this inventory explicitly during an ownership,
+organization, or hostname migration.
 
 Registrar operations, payment, organization-level GitHub Pages domain
 verification, the `www` Redirect Rule, data-Worker staging/production
