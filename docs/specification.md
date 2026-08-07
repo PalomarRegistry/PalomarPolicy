@@ -29,7 +29,7 @@ repository is the canonical submission history.
 ## Submission lifecycle and privacy
 
 ```text
-form submitted and GitHub push access confirmed
+form or API submission, and push access proved
   -> verifying
      -> verification-failed
      -> awaiting-review
@@ -40,9 +40,25 @@ form submitted and GitHub push access confirmed
 ```
 
 The internet-facing server is stateless between requests. It writes every
-durable fact and transition to PalomarSubmissionState. GitHub OAuth is used once
-to establish push access to the submitted repository; the OAuth token is then
-discarded. Push access is not proof of authorship or source-author approval, so
+durable fact and transition to PalomarSubmissionState. Push access to the
+submitted repository is established in one of two ways, and the record says
+which.
+
+A person signs in with GitHub OAuth, and the server reads `permissions.push`
+with that token before discarding it. GitHub answered for the same account that
+authorised Palomar, so this establishes that one account both can push and
+identified itself.
+
+An agent, which has no browser, instead creates a tag at the submitted commit
+and a secret gist carrying the same challenge, and Palomar reads both. Creating
+a ref requires the same write access; the gist supplies an identity, because a
+ref records no author and a third party cannot ask GitHub who has push. This
+establishes that someone who can push submitted the repository and that an
+account named itself, which are not provably the same account. It is
+deliberately the weaker of the two, and a record carries the distinction rather
+than implying parity.
+
+Push access is not proof of authorship or source-author approval either way, so
 the submission separately records its authorization relationship.
 
 The repository, commit, submission identifier, public verification run, and
