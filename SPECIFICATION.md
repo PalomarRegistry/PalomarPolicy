@@ -153,8 +153,10 @@ time, memory, processes, files, and output. Resource exhaustion is a retryable
 infrastructure result, never a mathematical rejection.
 
 Registered render HTML is sanitized, carries a restrictive CSP, and is served
-from the PalomarDatabase GitHub Pages site. PalomarWeb treats the database as
-the sole source of truth and embeds eligible Challenges in an iframe with
+from the read-only `data.palomar-registry.org` Worker over a private R2 bucket.
+The private PalomarDatabase repository remains the canonical source, while
+PalomarWeb consumes only its filtered public projection and embeds eligible
+Challenges in an iframe with
 `sandbox="allow-scripts"` and no `allow-same-origin`. It always links to the
 commit-pinned recorded Challenge source. A Challenge is eligible for inline
 display only when exactly one declaration is compared and the file is at most

@@ -1,287 +1,236 @@
 # Palomar infrastructure
 
-Last updated 2026-08-06.
+Last reconciled against the live services on 2026-08-07.
 
-This is the durable record of where Palomar runs, so that moving it is a
-checklist rather than an excavation. If you are changing the domain, read the
-last section first: the hard part is not DNS, it is the list of places a
-hostname is written down.
+This is the durable record of where Palomar runs, so that changing a host or
+credential is a checklist rather than an excavation. The private canonical
+database and the public data service are deliberately different systems; never
+restore a direct raw-GitHub or GitHub Pages fallback for database data.
 
 ## Accounts and ownership
 
 | Thing | Where | Notes |
 | --- | --- | --- |
-| Repositories | GitHub org [`PalomarRegistry`](https://github.com/PalomarRegistry) | Moved from the `kim-em` personal account on 2026-08-04. Base member permission is `read`. |
-| Domains | `palomar-registry.org` and `palomarregistry.org`, both at Cloudflare Registrar | Registrar and DNS are the same account. |
-| DNS and Workers | Cloudflare account `d789bf36d237e0cb313be59b927c82bd` | Zones `f05ebb1809990a5d27e6d6a7d0d1ae85` for `palomar-registry.org` and `feea63b2ced3571a5ab5ce4ba516067f` for `palomarregistry.org`, nameservers `joyce`/`matias.ns.cloudflare.com`. |
-| Static hosting | GitHub Pages | Not Cloudflare, despite the domain being there. |
+| Repositories | GitHub organization [`PalomarRegistry`](https://github.com/PalomarRegistry) | Moved from the `kim-em` personal account on 2026-08-04. Base member permission is `read`. `PalomarDatabase` and `PalomarSubmissionState` are private. |
+| Domains | `palomar-registry.org` and `palomarregistry.org`, both at Cloudflare Registrar | Registrar and DNS are in the same Cloudflare account. |
+| DNS, Workers, and R2 | Cloudflare account `d789bf36d237e0cb313be59b927c82bd` | Zones `f05ebb1809990a5d27e6d6a7d0d1ae85` for `palomar-registry.org` and `feea63b2ced3571a5ab5ce4ba516067f` for `palomarregistry.org`; nameservers `joyce`/`matias.ns.cloudflare.com`. |
+| Website hosting | GitHub Pages, repository `PalomarWeb` | The website is static; its registry content is fetched at runtime from the public data Worker. |
+| Public registry storage | Private R2 bucket `palomar-public-data` | Contains generated, active-only releases. The bucket itself is not public. |
 
-The old `kim-em/Palomar*` repository names **must stay reserved forever**.
-Recreating a repository at an old name permanently destroys that name's
-redirects. No record cites those names today, because the registry is empty,
-but a record's URLs are immutable from the first one onwards, so the cost of
-losing a redirect only ever grows.
+The old `kim-em/Palomar*` repository names must stay reserved forever.
+Recreating a repository at an old name destroys that name's GitHub redirect.
+Published records contain immutable URLs, so the cost of losing a redirect only
+grows.
 
-## Hostnames
+## Service topology
 
 | Host | Serves | Hosted by | Status |
 | --- | --- | --- | --- |
-| `palomar-registry.org` | The website | GitHub Pages, `PalomarWeb` | Live, HTTPS enforced |
-| `www.palomar-registry.org` | Redirects to the apex | Cloudflare, at the edge | Live, 301, path and query preserved |
-| `data.palomar-registry.org` | Render bundles and RSS feeds | GitHub Pages, `PalomarDatabase` | Live, HTTPS enforced |
-| `submit.palomar-registry.org` | The submission server | Cloudflare Worker, `PalomarServer` | Live |
-| `palomarregistry.org`, `www` | Redirects to `palomar-registry.org` | Cloudflare, at the edge | Live, 308, separate zone |
-| `palomarregistry.github.io/PalomarWeb/` | Nothing directly | GitHub Pages | 301 to `palomar-registry.org` |
-| `palomarregistry.github.io/PalomarDatabase/` | Nothing directly | GitHub Pages | 301 to `data.palomar-registry.org` |
+| `palomar-registry.org` | Human-facing website | GitHub Pages, `PalomarWeb` | Live; HTTPS enforced |
+| `www.palomar-registry.org` | Redirect to the apex | Cloudflare Redirect Rule | Live; 301; path and query preserved |
+| `data.palomar-registry.org` | Filtered index, active entry records, schemas, renders, evidence, feeds, tombstones, and source availability | Cloudflare Worker `palomar-data` over private R2 | Live; read-only |
+| `submit.palomar-registry.org` | Submission server | Cloudflare Worker `palomar-server` | Live |
+| `palomarregistry.org` and `www.palomarregistry.org` | Defensive-domain redirects | Cloudflare Worker `palomar-domain-redirect` | Live; 308; path and query preserved |
+| `palomarregistry.github.io/PalomarWeb/` | Legacy website location | GitHub Pages | Redirects to `palomar-registry.org` |
+| `palomarregistry.github.io/PalomarDatabase/` | Nothing | No Pages site | Returns 404 |
 
-Cloudflare is registrar and DNS for the names GitHub serves, hosts `submit` as a
-Worker, and terminates TLS for the redirect-only names, `www` and the whole
-`palomarregistry.org` zone. Only the apex and `data` reach GitHub at all.
+The data path is:
 
-`palomarregistry.org`, without the hyphen, is a defensive registration held so
-the obvious misspelling of the real domain does not go somewhere else. It is a
-separate Cloudflare zone and serves nothing; every name in it redirects.
+```text
+private PalomarDatabase main
+  -> validate and build active-only snapshot
+  -> upload immutable release objects to private R2
+  -> verify every uploaded digest
+  -> atomically update R2 _current.json
+  -> palomar-data Worker exposes only allowlisted public paths
+  -> PalomarWeb fetches https://data.palomar-registry.org/index.json
+```
 
-The render origin is `data.palomar-registry.org`. Older notes call it
-`renders.`, which does not resolve.
+The Worker never exposes `_current.json`, release manifests, bucket listings,
+the private `takedowns.json`, or the complete canonical `index.json`. It has an
+R2 binding named `DATA` and no secrets. A missing or invalid current-release
+pointer fails closed with 503; there is no raw-GitHub fallback.
 
-Raw record data is fetched from
-`raw.githubusercontent.com/PalomarRegistry/PalomarDatabase/main/index.json`,
-not from Pages. That is deliberate: the database is the source of truth and is
-read at its canonical location, while Pages serves only derived artifacts.
+`palomarregistry.org`, without the hyphen, is a defensive registration. It is a
+separate Cloudflare zone and serves no content of its own.
 
-## DNS records
+## Cloudflare resources
 
-| Type | Name | Target | Proxy |
-| --- | --- | --- | --- |
-| A | `@` | `185.199.108.153`, `.109.153`, `.110.153`, `.111.153` | **DNS only (grey cloud)** |
-| AAAA | `@` | `2606:50c0:8000::153` through `8003::153` | **DNS only (grey cloud)** |
-| CNAME | `data` | `palomarregistry.github.io` | **DNS only (grey cloud)** |
-| AAAA | `www` | `100::` | Proxied (orange cloud) |
-| AAAA | `submit` | `100::` | Proxied (orange cloud) |
-| TXT | `_github-pages-challenge-palomarregistry` | the org verification token | DNS only |
+| Resource | Configuration source | Deployment |
+| --- | --- | --- |
+| Worker `palomar-data-staging` | `PalomarDatabase/worker/wrangler.jsonc`, top level | Manual staging deployment at its `workers.dev` URL |
+| Worker `palomar-data` | `PalomarDatabase/worker/wrangler.jsonc`, environment `production` | Manual deployment with `npx wrangler deploy --env production`; owns the `data` custom domain |
+| R2 bucket `palomar-public-data` | `PalomarDatabase` publication tooling and the Workers `DATA` binding | Snapshots are published by private GitHub Actions, not by Worker deployment |
+| Worker `palomar-server` | `PalomarServer/wrangler.jsonc` | Tested, uploaded, and promoted automatically on pushes to `main` |
+| Worker `palomar-domain-redirect` | `PalomarServer/redirect/wrangler.jsonc` | Manual `npm run deploy:redirect` |
+| `www.palomar-registry.org` redirect | Cloudflare zone Redirect Rule | Managed separately from Wrangler |
 
-The proxy setting is not cosmetic, but the rule is narrower than "always grey".
-**A name must be grey-clouded when GitHub has to receive the traffic and
-terminate TLS for it**, which is true of the apex and `data`. Proxy one of
-those and GitHub cannot complete its certificate challenge, and you get
-certificate errors or a redirect loop rather than a clean failure.
+Deploying `palomar-data` changes the reader, not the data. Publishing a database
+snapshot changes R2, not the Worker. Keep those operations separate so either
+can be rolled back without changing the other.
 
-The two proxied names are proxied precisely because GitHub is not involved, and
-neither has a real origin. `100::` is the IPv6 discard prefix, used here as a
-placeholder: Cloudflare answers on its own addresses and never forwards. For
-`submit` the traffic goes to a Worker, and wrangler creates that record itself,
-so it should not be edited by hand. For `www` a Redirect Rule replies at the
-edge. Pointing either at a real host would be misleading, since nothing would
-ever reach it. See *Certificates and HTTPS*.
+## DNS
 
-The apex is eight address records rather than one alias because ordinary DNS
-cannot put a CNAME at a zone apex. Cloudflare could hide that with CNAME
-flattening, but this zone uses GitHub's published A and AAAA set explicitly,
-which is what GitHub documents. If GitHub ever changes that address set, these
-are the records that have to change.
+| Name | Configuration | Proxy/owner |
+| --- | --- | --- |
+| `palomar-registry.org` | GitHub Pages A records `185.199.108.153` through `185.199.111.153` and the corresponding AAAA set | DNS only; GitHub terminates TLS |
+| `www.palomar-registry.org` | Placeholder record used only to enter Cloudflare's proxy | Proxied; Redirect Rule answers at the edge |
+| `data.palomar-registry.org` | Worker custom domain declared by `PalomarDatabase/worker/wrangler.jsonc` | Managed by Cloudflare/Wrangler; do not recreate the retired GitHub Pages CNAME |
+| `submit.palomar-registry.org` | Proxied record plus the Worker route in `PalomarServer/wrangler.jsonc` | Cloudflare Worker route |
+| `palomarregistry.org`, `www.palomarregistry.org` | Worker custom domains declared by `PalomarServer/redirect/wrangler.jsonc` | Managed by Cloudflare/Wrangler |
+| `_github-pages-challenge-palomarregistry` | GitHub organization Pages verification token | DNS only |
 
-The `palomarregistry.org` zone holds two records, `@` and `www`, both
-`AAAA 100::` and both proxied, the same shape for the same reason.
+The apex remains grey-clouded because GitHub must receive the request and
+terminate TLS. `data` must not point at `palomarregistry.github.io`: the old
+CNAME was deleted before the Worker custom domain was deployed. Wrangler owns
+the data custom-domain record, so changing it by hand risks disconnecting the
+Worker.
 
-## Why renders get their own origin
+## Render-origin isolation
 
-`PalomarDatabase/docs/render-origin.md` has the full argument. In short: a
-render bundle is untrusted output derived from a submitter's Lean source. It
-is embedded in an iframe with `sandbox="allow-scripts"` and deliberately
-without `allow-same-origin`, so it receives an opaque origin. While the site
-and the bundles share `palomarregistry.github.io`, that sandbox attribute is
-the *only* thing separating them. A dedicated hostname makes it one layer
-among several rather than the whole defence.
+Render bundles are untrusted output derived from submitter-controlled Lean
+source. They are served from `data.palomar-registry.org`, while the parent site
+is served from `palomar-registry.org`. PalomarWeb pins that render base and its
+`frame-src` CSP to the data host. Embedded documents also use
+`sandbox="allow-scripts"` without `allow-same-origin`, giving the frame an opaque
+origin.
 
-Consequence to remember: a GitHub Pages custom domain **drops the project path
-prefix**. Renders moved from
-`palomarregistry.github.io/PalomarDatabase/renders/...` to
-`data.palomar-registry.org/renders/...`. The base and the CSP had to change in
-the same window, and would again for any future move.
+The distinct hostname, iframe sandbox, exact render CSP, database content
+validator, trusted runtime hashes, and browser sanitizer are independent
+layers. Do not remove one because the others exist. The data host must not set
+application cookies or host the website, and render paths must remain immutable
+and content-addressed.
 
 ## Certificates and HTTPS
 
-Two certificate authorities are in play, and which one serves a name depends on
-whether that name is proxied. GitHub Pages issues from Let's Encrypt for the
-apex and `data`. Cloudflare's Universal SSL, currently from Google Trust
-Services, covers `palomar-registry.org` and `*.palomar-registry.org` and is what
-`www` and `submit` present. Neither needs installing or renewing by hand.
+GitHub Pages terminates TLS for `palomar-registry.org`; Cloudflare terminates TLS
+for `www`, `data`, `submit`, and the defensive-domain redirects. Certificates
+are managed by those providers and are not installed manually.
 
-**Enforce HTTPS is a separate switch from having a certificate.** A host can
-have a valid, approved certificate and still serve plaintext on port 80 without
-redirecting. It is `https_enforced` on the Pages API, it can only be turned on
-once the certificate is approved, and it has to be set explicitly on each
-repository:
+HTTPS enforcement for the website is the `https_enforced` setting on the
+`PalomarWeb` Pages site. It does not apply to the data Worker. When testing a
+Pages enforcement change, request an uncached path because Pages responses may
+remain cached for several minutes:
 
-```
-gh api -X PUT repos/PalomarRegistry/<repo>/pages -F https_enforced=true
+```sh
+curl -sSI "http://palomar-registry.org/nonexistent-$RANDOM.html" # expect 301
 ```
 
-When checking whether it took effect, do not test `/`. Pages sits behind Fastly
-with `max-age=600`, so the root can serve a cached pre-enforcement `200` for ten
-minutes after the switch flips. Request a path that cannot be in the cache:
+The hyphenated `www` Redirect Rule is:
 
-```
-curl -sSI "http://palomar-registry.org/nonexistent-$RANDOM.html"   # expect 301
-```
-
-**`www` is redirected by Cloudflare, not served by GitHub.** It is a proxied
-record answered by a Redirect Rule in the `http_request_dynamic_redirect` phase:
-
-```
+```text
 expression:  http.host eq "www.palomar-registry.org"
 target:      concat("https://palomar-registry.org", http.request.uri.path)
 status:      301, preserve_query_string: true
 ```
 
-The rule fires at the edge, so the origin is never contacted and GitHub is out
-of the `www` path. Cloudflare's wildcard already covers the name, so no
-certificate has to be issued for it. `palomarregistry.org` uses the same pattern
-in its own zone.
-
-Two rules for building one of these. Create the rule *before* flipping the
-record to proxied, so there is no window where a proxied name has no redirect
-behind it. And use a dynamic target rather than a static one, or every deep link
-collapses to the front page; record URLs are permanent, so that is not
-recoverable.
-
-Do not put a redirect-only name on Pages instead. GitHub issues a certificate
-for the names configured when it issues, and there is no reliable, zero-downtime
-way to make it reissue for a name added later: detach and reattach, which is the
-documented retry, does not dependably do it, and pointing the custom domain at
-the name and back takes the main site down for the duration. A name whose only
-job is to redirect does not need an origin at all.
-
-GitHub's health check reports `www` with `is_pointed_to_github_pages_ip: false`,
-`is_non_github_pages_ip_present: true` and `is_https_eligible: false`, alongside
-`responds_to_https: true` and no error. That combination is expected, not a
-fault. If CAA records are ever added to the zone, they must permit Cloudflare's
-CA as well as Let's Encrypt, or `www` and `submit` will fail to renew.
-
-To check what a name actually presents, ask the connection rather than any API:
-
-```
-curl -sS -o /dev/null -w '%{http_code} %{ssl_verify_result}\n' https://www.palomar-registry.org/
-python3 -c "import ssl,socket;c=ssl.create_default_context();c.check_hostname=False;s=c.wrap_socket(socket.create_connection(('www.palomar-registry.org',443)),server_hostname='www.palomar-registry.org');print([v for _,v in s.getpeercert()['subjectAltName']])"
-```
-
-Expect a lag after any change of this kind. The old grey-cloud address stays in
-resolver caches for its TTL, and during that window a fraction of requests still
-reach GitHub and fail verification. It clears on its own; measure with repeated
-requests rather than one.
-
-The lesson for any future Pages host: **create the DNS record first, then attach
-the custom domain.** Doing it in the other order produces a certificate that is
-correct for what was configured and wrong for what people will type, and that is
-much harder to undo than to avoid.
+Create a redirect rule before proxying a redirect-only name, and use a dynamic
+target so deep links and query strings survive. The defensive-domain Worker
+performs the equivalent redirect with status 308.
 
 ## Credentials
 
-| Credential | Scope | Held by |
+Never record credential values or filesystem locations here.
+
+| Credential | Scope and use | Held by |
 | --- | --- | --- |
-| wrangler OAuth login | workers, workers_kv, workers_routes, workers_scripts, workers_tail, account read, user read | kim@lean-fro.org |
-| Cloudflare API token | Zone · DNS · Edit, Zone · Zone · Read, and Zone · Single Redirect · Edit, on **both** `palomar-registry.org` and `palomarregistry.org` | kim@lean-fro.org |
+| Wrangler OAuth login | Worker scripts, routes, bindings, and read-only account inspection used for manual deployments | `kim@lean-fro.org` |
+| DNS/Redirect API token | DNS edit, zone read, and Single Redirect edit on the two Palomar zones only | `kim@lean-fro.org` |
+| R2 publisher Account API token | Object read/write/list on the single `palomar-public-data` bucket; no bucket administration, Worker deployment, DNS, registrar, or billing access | GitHub Actions in private `PalomarDatabase` |
+| Server deployment API token | Worker version upload and promotion for `palomar-server` | GitHub Actions in `PalomarServer` |
 
-Who holds a credential is worth recording. Where it sits on disk is not: it
-would tell an attacker who got as far as running code exactly what to read, and
-tells a legitimate reader nothing they need.
+The private Database repository stores only these R2 publisher secrets:
 
-The wrangler login deliberately cannot touch DNS. The separate token
-deliberately cannot touch Workers. Neither can spend money or transfer the
-domain.
+- `CLOUDFLARE_ACCOUNT_ID`
+- `R2_ACCESS_KEY_ID`
+- `R2_SECRET_ACCESS_KEY`
 
-The token can repoint any hostname in either zone and rewrite the redirect rules
-both zones depend on. It cannot read or change zone SSL/TLS settings, touch
-Worker routes or scripts, reach account-level rulesets such as Bulk Redirects,
-or reach the registrar or billing. So it cannot disable Universal SSL, cannot
-take down `submit`, and cannot transfer or renew a domain. The blast radius is
-DNS and redirects, in two zones.
+For an R2 Account API token, select the `R2 buckets` resource scope and restrict
+it to `palomar-public-data`. The required bucket permission is
+`Workers R2 Storage Bucket Item Write`, which permits reading, writing, and
+listing objects without bucket administration. Cloudflare's S3 mapping is:
 
-Single Redirect is the dashboard name for what the API calls the
-`http_request_dynamic_redirect` phase.
+- Access Key ID: the API token ID;
+- Secret Access Key: the SHA-256 digest of the API token value.
 
-To test what a token may do without changing anything, send a deliberately
-invalid payload. A missing permission gives `Authentication error` or
-`Unauthorized to access requested resource`; a permitted request fails
-validation instead, naming the offending field.
+The token-creation confirmation may show those two S3 values directly. Copy
+them then: the secret is not shown again. Install the mapped values as the two
+`R2_*` GitHub Actions secrets, not as Worker secrets and not in repository
+variables. Rotating the parent token requires replacing both mapped secrets.
 
-## Moving to a different domain
+The `palomar-data` Worker itself needs no credential because its R2 access is a
+binding. The publisher needs S3 credentials because it runs in GitHub Actions.
 
-DNS is the easy part. What actually costs time is that hostnames are written
-into code, into content security policies, and into artifacts. Work through
-these in order.
+## Deployment and recovery
 
-### 1. Things that must change together
+### Website
+
+Pushes to `PalomarWeb/main` test, build, and deploy GitHub Pages. The hourly
+`Published site health` workflow checks that the live site names the current
+commit and dispatches one fresh Pages deployment if necessary.
+
+### Submission server
+
+Pushes to `PalomarServer/main` run tests, upload a Cloudflare Worker version,
+and promote it. The workflow does not change its route or cron trigger.
+
+### Public registry data
+
+Pushes affecting publishable Database inputs validate the complete private
+ledger, stage the filtered snapshot, upload immutable release objects, read
+them back, verify their digests, and update `_current.json` last. The hourly
+`Published evidence health` workflow checks every registered render and, if one
+is missing, dispatches the filtered R2 publisher—not GitHub Pages.
+
+Before changing the data Worker, deploy and smoke-test `palomar-data-staging`.
+Then deploy production and verify at least:
+
+```sh
+curl --fail https://data.palomar-registry.org/healthz
+curl --fail https://data.palomar-registry.org/index.json
+curl --fail --head https://data.palomar-registry.org/index.json
+curl -X POST -o /dev/null -w '%{http_code}\n' https://data.palomar-registry.org/index.json # expect 405
+curl -o /dev/null -w '%{http_code}\n' https://data.palomar-registry.org/_current.json # expect 404
+```
+
+The obsolete Database Pages site should remain absent. Anonymous GitHub API,
+raw-content, and former Pages requests for `PalomarDatabase` should all return
+404, while authenticated maintainers retain Git and API access.
+
+## Moving a hostname
+
+Hostnames are pinned in code, CSPs, feeds, workflows, and immutable records.
+For a data- or website-domain change, audit at least:
 
 | Where | What |
 | --- | --- |
-| `PalomarWeb/assets/security.mjs` | `DEFAULT_DATABASE`, `DEFAULT_RENDER_BASE` |
-| `PalomarWeb/assets/app.js` | `CANONICAL_WEB_BASE`, `FEED_BASE`, `DATABASE_SOURCE_BASE` |
-| `PalomarWeb/{index,entry,render,404,about}.html` | CSP `frame-src`, and the RSS `<link rel="alternate">` hrefs |
-| `PalomarWeb/tests/{security.test.mjs,rendering.test.js,site.spec.js,fixture_server.py}` | fixtures assert the exact hosts |
-| `PalomarDatabase/tools/build_feeds.py` | `WEB_BASE`, `FEED_BASE` |
-| `PalomarReviewer/src/palomar_reviewer/cli.py` | `WEB_URL` |
+| `PalomarWeb/assets/security.mjs` | `DEFAULT_DATABASE`, `DEFAULT_RENDER_BASE`, and source-availability URL |
+| `PalomarWeb/assets/app.js` | canonical website and feed bases |
+| `PalomarWeb/{index,entry,render,404,about}.html` | CSP `connect-src`/`frame-src`, feed links, and data links |
+| `PalomarWeb/.github/workflows/*.yml` and tests | pinned public-data and website origins |
+| `PalomarDatabase/worker/wrangler.jsonc` | Worker custom domain |
+| `PalomarDatabase/tools/{build_feeds.py,check_published.py}` | website, feed, and public-data bases |
+| `PalomarDatabase/docs/*.md` | publication and render-origin runbooks |
+| `PalomarReviewer/src/palomar_reviewer/cli.py` | public website/data URLs used during registration |
+| `PalomarServer/wrangler.jsonc` | website URL and submission route |
 
-The CSP is the one that fails least helpfully. Get `frame-src` wrong and
-renders silently do not display, with the reason only visible in the browser
-console.
+Registered entries, evidence, renders, and in-use schemas are immutable. Never
+rewrite their historical URLs. Keep an old hostname serving or redirecting as
+long as an immutable record names it. Feed XML regenerates, but subscribers may
+retain old copies.
 
-### 2. Things that must not change
+For a new Pages website domain: verify it at the GitHub organization, create
+the complete DNS set, attach it to `PalomarWeb`, wait for the certificate, then
+enforce HTTPS. For a new data domain: add it to the production Worker config,
+deploy and verify the Worker, update all consumers and CSPs, deploy them, and
+only then retire the old Worker custom domain. Never point either data hostname
+at raw GitHub content.
 
-Registered records under `PalomarDatabase/entries/`, their `evidence/`
-bundles, and `schema-v1.json` are immutable byte for byte once written. They
-contain absolute URLs and they keep containing them, because they are
-historical statements that were true when made. Rewriting them is
-indistinguishable from fabricating them.
+## What is deliberately manual
 
-The registry is empty today, so nothing has rotted yet and a move now is
-cheap. That stops being true with the first record. **From then on, old
-hostnames must keep resolving or the record links rot.** That is an argument
-for owning a domain rather than depending on a hosting provider's namespace,
-and it is the reason a domain move is not free even after the code is
-updated.
-
-### 3. Feeds already published
-
-`build_feeds.py` bakes absolute URLs into `feed.xml` and the per-subject
-feeds. Feeds regenerate on every database change, so they self-heal, but
-anything a subscriber already fetched keeps the old links.
-
-### 4. Ordering
-
-1. Verify the domain for the GitHub organisation **first**, at
-   Settings → Pages → verified domains. Do this before any DNS points at
-   Pages. Without verification, someone else can attach an unclaimed subdomain
-   of a domain you own to *their* Pages site, and publishing the DNS first is
-   what makes such a takeover work rather than merely possible.
-2. Then create **every** DNS record the domain needs, grey-clouded, and confirm
-   each resolves, including any name you want covered by the certificate.
-3. Attach the custom domain in the repository's Pages settings and wait for
-   the certificate. Enforce HTTPS becomes available only once it is issued,
-   and is a separate switch that has to be turned on deliberately.
-4. Ship the code changes from the table above.
-
-Steps 1 to 3 are ordered the way they are for two different reasons that pull
-in the same direction: verification first closes the takeover window, and
-complete DNS before attaching is what gets every name into the certificate.
-A name that only ever redirects does not need to be in this sequence at all,
-and is simpler as a Cloudflare Redirect Rule.
-
-Steps 3 and 4 cannot be simultaneous, so plan for a window where renders do
-not display. It is short and pre-launch it does not matter; after launch,
-land the code change behind a fallback that tries both origins instead.
-
-For `palomar-registry.org` itself, steps 1 and 2 are done: the organisation is
-verified, and both `PalomarWeb` and `PalomarDatabase` report
-`protected_domain_state: verified`.
-
-## What is deliberately not automated
-
-Registrar operations, payment, and org-level GitHub Pages domain verification
-have no API path we use, and all three are rare enough that a documented
-manual step is better than a credential with the authority to perform them.
-
-The account is on the Workers free tier. Network wait does not count against
-Worker CPU time, so the free tier is likely sufficient for `submit`. Measure
-before paying.
+Registrar operations, payment, organization-level GitHub Pages domain
+verification, the `www` Redirect Rule, and data-Worker staging/production
+deployments are manual. Website, server, filtered-data, availability, and
+health-check workflows are automated. The account is currently using the
+Cloudflare Workers and R2 free tiers; usage and paid-plan triggers are tracked
+in the workspace `TODO.md`.
