@@ -12,6 +12,8 @@ restore a direct raw-GitHub or GitHub Pages fallback for database data.
 | Thing | Where | Notes |
 | --- | --- | --- |
 | Repositories | GitHub organization [`PalomarRegistry`](https://github.com/PalomarRegistry) | Moved from the `kim-em` personal account on 2026-08-04. Base member permission is `read`. `PalomarDatabase` and `PalomarSubmissionState` are private. |
+| Preserved source | GitHub organization [`PalomarArchive`](https://github.com/PalomarArchive) | Public native forks and immutable record-specific tags. Base member permission is `write`; repository deletion, visibility changes, and private-repository creation are disabled. |
+| Archive identity | GitHub user [`PalomarArchivist`](https://github.com/PalomarArchivist) | Dedicated 2FA-protected ordinary member of `PalomarArchive`, never an organization owner or a member of `PalomarRegistry`. |
 | Domains | `palomar-registry.org` and `palomarregistry.org`, both at Cloudflare Registrar | Registrar and DNS are in the same Cloudflare account. |
 | DNS, Workers, and R2 | Cloudflare account `d789bf36d237e0cb313be59b927c82bd` | Zones `f05ebb1809990a5d27e6d6a7d0d1ae85` for `palomar-registry.org` and `feea63b2ced3571a5ab5ce4ba516067f` for `palomarregistry.org`; nameservers `joyce`/`matias.ns.cloudflare.com`. |
 | Website hosting | GitHub Pages, repository `PalomarWeb` | The website is static; its registry content is fetched at runtime from the public data Worker. |
@@ -21,6 +23,31 @@ The old `kim-em/Palomar*` repository names must stay reserved forever.
 Recreating a repository at an old name destroys that name's GitHub redirect.
 Published records contain immutable URLs, so the cost of losing a redirect only
 grows.
+
+## Source-preservation organization
+
+`PalomarArchive` is a separate security boundary from the registry repositories.
+Its [member privileges](https://github.com/organizations/PalomarArchive/settings/member_privileges)
+and [authentication security](https://github.com/organizations/PalomarArchive/settings/security)
+must remain configured as follows:
+
+| Setting | Required value | Reason |
+| --- | --- | --- |
+| Base repository permission | Write | `PalomarArchivist` must add new preservation tags after its temporary per-fork administrator grant is removed. |
+| Public repository creation | Allowed | GitHub creates a native organization fork as a new public repository. |
+| Private repository creation | Disallowed | Accepted source is public and the archive must not become a private-data store. |
+| Repository deletion | Disallowed for members | The archive identity cannot erase a preserved fork. |
+| Repository visibility changes | Disallowed for members | The archive identity cannot hide or privatize a preserved fork. |
+| Require two-factor authentication | Enabled | A member without 2FA cannot retain organization access. |
+
+`PalomarArchivist` is an ordinary active member, not an owner. Creating a native
+fork initially gives the creator direct administrator access to that repository.
+Registration creates and reads back an immutable-tag ruleset, removes that
+direct administrator grant, and only then writes the preservation tag using the
+organization's base Write permission. The ruleset allows creation of new
+`refs/tags/palomar/**/*` refs but has no bypass actor and rejects updates or
+deletions of an existing preservation ref. Organizations cannot star GitHub
+repositories, so preservation deliberately does not attempt to star sources.
 
 ## Service topology
 
@@ -45,6 +72,25 @@ private PalomarDatabase main
   -> palomar-data Worker exposes only allowlisted public paths
   -> PalomarWeb fetches https://data.palomar-registry.org/index.json
 ```
+
+The accepted-source path is:
+
+```text
+author consents to register an accepted review
+  -> PalomarReviewer verifies PALOMAR_ARCHIVE_TOKEN is PalomarArchivist
+  -> resolve the submitted repository, every pinned Git dependency, and any
+     separately recorded substantive formalization
+  -> create or reuse one native PalomarArchive fork per GitHub fork network
+  -> install and verify the immutable preservation-tag ruleset
+  -> remove PalomarArchivist's direct repository administrator grant
+  -> create and read back a record-specific tag for every accepted commit
+  -> bind source-archive.json and the preservation map into the database record
+  -> only then publish the PalomarDatabase registration branch
+```
+
+Any failure in that path stops registration before a database branch is
+published. A source shape that a native fork cannot preserve is rejected during
+mechanical verification rather than discovered after acceptance.
 
 The Worker never exposes `_current.json`, release manifests, bucket listings,
 the private `takedowns.json`, or the complete canonical `index.json`. It has an
@@ -138,6 +184,9 @@ Never record credential values or filesystem locations here.
 | DNS/Redirect API token | DNS edit, zone read, and Single Redirect edit on the two Palomar zones only | `kim@lean-fro.org` |
 | R2 publisher Account API token | Object read/write/list on the single `palomar-public-data` bucket; no bucket administration, Worker deployment, DNS, registrar, or billing access | GitHub Actions in private `PalomarDatabase` |
 | Server deployment API token | Worker version upload and promotion for `palomar-server` | GitHub Actions in `PalomarServer` |
+| Registry automation token (`PALOMAR_GITHUB_TOKEN`) | Reads verification artifacts, updates private submission state, and creates and merges registration changes in the private database | GitHub Actions in private `PalomarSubmissionState` |
+| Archive token (`PALOMAR_ARCHIVE_TOKEN`) | Authenticates only as `PalomarArchivist`; creates and writes native public forks in `PalomarArchive` and manages each new fork's preservation ruleset and direct creator grant | GitHub Actions in private `PalomarSubmissionState` |
+| Review-engine API key (`OPENAI_API_KEY`) | Runs the private editorial review pipeline | GitHub Actions in private `PalomarSubmissionState` |
 
 The private Database repository stores only these R2 publisher secrets:
 
@@ -161,6 +210,19 @@ variables. Rotating the parent token requires replacing both mapped secrets.
 The `palomar-data` Worker itself needs no credential because its R2 access is a
 binding. The publisher needs S3 credentials because it runs in GitHub Actions.
 
+The private SubmissionState repository stores these reviewer secrets:
+
+- `OPENAI_API_KEY`;
+- `PALOMAR_GITHUB_TOKEN`;
+- `PALOMAR_ARCHIVE_TOKEN`.
+
+The exact repository permissions for `PALOMAR_GITHUB_TOKEN`, archive-account
+guardrails, and rotation procedure are maintained in the
+[`PalomarSubmissionState` runbook](https://github.com/PalomarRegistry/PalomarSubmissionState#secrets).
+Do not combine the registry and archive credentials: the archive identity must
+not be able to mutate `PalomarRegistry`, and the general registry automation
+identity must not bypass the archive's dedicated-account check.
+
 ## Deployment and recovery
 
 ### Website
@@ -173,6 +235,43 @@ commit and dispatches one fresh Pages deployment if necessary.
 
 Pushes to `PalomarServer/main` run tests, upload a Cloudflare Worker version,
 and promote it. The workflow does not change its route or cron trigger.
+
+### Review, registration, and source preservation
+
+The private `PalomarSubmissionState` workflow runs every fifteen minutes and
+may also be dispatched manually. It installs `PalomarReviewer` from `main`, runs
+`palomar-review doctor`, and then advances each live submission by at most one
+state transition. Review, registration, and finalization are serialized by one
+workflow concurrency group.
+
+After creating or rotating `PALOMAR_ARCHIVE_TOKEN`, sign in as the archive
+account at <https://github.com/settings/tokens>, replace the Actions secret at
+<https://github.com/PalomarRegistry/PalomarSubmissionState/settings/secrets/actions>,
+and run a preflight with new model reviews disabled:
+
+```sh
+gh workflow run reviewer.yml \
+  --repo PalomarRegistry/PalomarSubmissionState \
+  --ref main -f max_reviews=0
+```
+
+The `Check prerequisites` log must say
+`archive token: PalomarArchivist (verified)`. This proves the installed secret's
+identity and organization access without creating a synthetic test fork.
+`max_reviews=0` suppresses new model reviews but does not suppress registration
+or finalization of an already-ready submission; inspect the private inflight
+state first if the run must be credential-only. The first real registration
+additionally proves fork creation, ruleset creation, administrator demotion, tag
+creation, and read-back; it fails closed before publication if any one of those
+operations is unavailable.
+
+For a newly registered record, inspect its `preservation.repositories` mapping
+and verify each linked [PalomarArchive repository](https://github.com/PalomarArchive),
+the repository ruleset under **Settings → Rules → Rulesets**, and the exact
+record-specific tag. The six-hour source-availability workflow then checks both
+the original and preserved commits. It publishes active-only status to the data
+Worker, retains complete mutable state on the private `availability` branch,
+and fails visibly if a preserved copy is confirmed missing twice consecutively.
 
 ### Public registry data
 
@@ -229,8 +328,10 @@ at raw GitHub content.
 ## What is deliberately manual
 
 Registrar operations, payment, organization-level GitHub Pages domain
-verification, the `www` Redirect Rule, and data-Worker staging/production
-deployments are manual. Website, server, filtered-data, availability, and
-health-check workflows are automated. The account is currently using the
-Cloudflare Workers and R2 free tiers; usage and paid-plan triggers are tracked
-in the workspace `TODO.md`.
+verification, the `www` Redirect Rule, data-Worker staging/production
+deployments, creation and recovery of the `PalomarArchivist` GitHub account,
+archive-organization policy changes, and credential rotation are manual.
+Website, server, review, registration, source preservation, filtered-data,
+availability, and health-check workflows are automated. The account is
+currently using the Cloudflare Workers and R2 free tiers; usage and paid-plan
+triggers are tracked in the workspace `TODO.md`.
