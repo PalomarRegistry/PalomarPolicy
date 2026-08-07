@@ -1,0 +1,114 @@
+{
+  "$defs": {
+    "score": {
+      "maximum": 5,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "sha": {
+      "pattern": "^[0-9a-f]{40}$",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "The review as it is archived beside a record and served to anyone. It is a projection of the review delivered to the submitter, not that review: the scores that decided the outcome, the severity on each finding, and the top-level repetition of every finding message are removed. The scores because the same submission has scored differently across two runs of one policy with the same verdict both times; the severities because they rank comments in a way the review did not intend; and the repetition because a message appearing in both lists let a reader recover the severity by comparing them. Every comment the review made is still here, once, in passes[].findings.",
+  "properties": {
+    "decision": {
+      "enum": [
+        "accept",
+        "revise",
+        "reject"
+      ]
+    },
+    "mechanical_report": {
+      "format": "uri",
+      "type": "string"
+    },
+    "passes": {
+      "items": {
+        "properties": {
+          "verdict": {
+            "enum": [
+              "pass",
+              "warn",
+              "fail"
+            ]
+          }
+        },
+        "required": [
+          "verdict"
+        ],
+        "type": "object"
+      },
+      "minItems": 5,
+      "type": "array"
+    },
+    "policy_commit": {
+      "$ref": "#/$defs/sha"
+    },
+    "requested_changes": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "reviewed_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "reviewer_models": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "schema_version": {
+      "const": 2
+    },
+    "source": {
+      "additionalProperties": false,
+      "properties": {
+        "commit": {
+          "$ref": "#/$defs/sha"
+        },
+        "repository": {
+          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "repository",
+        "commit"
+      ],
+      "type": "object"
+    },
+    "submission_id": {
+      "pattern": "^[0-9a-z]{12}$",
+      "type": "string"
+    },
+    "summary": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "submission_id",
+    "source",
+    "mechanical_report",
+    "policy_commit",
+    "reviewed_at",
+    "reviewer_models",
+    "decision",
+    "summary",
+    "requested_changes",
+    "passes"
+  ],
+  "title": "Palomar published review",
+  "type": "object"
+}

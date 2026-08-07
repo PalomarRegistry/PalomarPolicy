@@ -89,3 +89,7 @@ Scores are integers 1–5. A manufactured or materially misleading definition is
 `fail`. Use an empty findings array when no material criticism was found; the
 exhaustive `declarations_checked` manifest records clean coverage without public
 praise.
+
+Every `message` is published permanently and the scores are not, so a message
+must never name or bound a score, its minimum, or its distance from one. State
+the deficiency and the correction; the score is recorded elsewhere.

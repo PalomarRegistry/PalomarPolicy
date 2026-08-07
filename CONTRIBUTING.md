@@ -697,6 +697,27 @@ disclosed as unconfirmable, precisely stated, is not an "unverified claim" for
 the `3` anchor, and does not by itself hold literature below 4. It cannot
 support a `5`, which requires an account somebody else can check.
 
+The scores are not published. They decide the outcome, they are kept with the
+record, and the outcome is what a reader is shown, because the same repository
+at the same commit has scored 5 and then 4 on one dimension across two runs of
+this policy with the same verdict both times.
+
+**No text a reader may see may state, bound, or imply a score.** That covers
+every `summary` and every finding `message`. It is not enough to leave the
+number out: "this prevents a literature score of 5 but not 4" names the score
+exactly, and "every score meets the minimum" bounds all of them. Say what is
+wrong or missing, and what would put it right. Write
+
+> The unconfirmable source is disclosed precisely, and no priority is claimed
+> from it.
+
+rather than
+
+> This prevents a literature score of 5 but not 4.
+
+Both say the same thing about the submission; only the first says nothing about
+the arithmetic.
+
 Notability has its own anchors:
 
 - `1`: incoherent, manufactured, materially deceptive, or framed in a way

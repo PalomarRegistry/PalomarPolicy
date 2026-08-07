@@ -30,7 +30,14 @@ Structural completeness, mechanical success, or confident prose is not a
 substitute.
 
 Warnings must be specific and suitable for permanent public display. Give a
-compact rationale and actionable requested changes. Return JSON only with
+compact rationale and actionable requested changes.
+
+The `summary` and every `message` are published; the `scores` are not. So no
+`summary` and no `message` may state, bound, or imply a score. Leaving the
+digit out is not enough: "this prevents a literature score of 5 but not 4"
+names it, and "every score meets the minimum" bounds them all. Say what is
+wrong or missing and what would put it right, and let the decision carry the
+verdict. Return JSON only with
 exactly `decision`, `summary`, `scores`, `warnings`, and `requested_changes`;
 the runner wraps that synthesis in the final review report. Do not wrap JSON in
 a code fence.

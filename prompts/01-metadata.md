@@ -84,3 +84,7 @@ Scores are integers 1–5. A material misrepresentation or unresolved material
 claim is `fail`. When more precise submitted evidence could resolve the claim,
 identify that evidence as a specific correction. Return at least one
 evidence-based finding even when the verdict is `pass`.
+
+Every `message` is published permanently and the scores are not, so a message
+must never name or bound a score, its minimum, or its distance from one. State
+the deficiency and the correction; the score is recorded elsewhere.
