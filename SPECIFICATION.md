@@ -47,6 +47,7 @@ authoritative verification report. A passing report binds:
 
 - the private submission identifier and public workflow run;
 - `owner/repo` and the resolved 40-character commit;
+- the explicitly selected repository-relative Comparator configuration path;
 - the selected project directory and the repository-relative paths and hashes
   of the resolved Challenge source, Solution source, `formalization.yaml`,
   Comparator configuration, and Lakefile;
