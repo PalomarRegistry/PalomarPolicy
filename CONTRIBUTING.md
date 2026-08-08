@@ -45,6 +45,19 @@ validate an informal proof independently, or constitute endorsement by a human
 expert. Acceptance is also not registration. The submitter sees the review
 first and decides whether to register it with the registry record.
 
+Submissions go to [submit.palomar-registry.org][submission-server], and that is
+the only way in. An agent submitting on someone's behalf should read
+[`llms.txt`][llms] there before its first request: it documents the endpoints,
+what each of them proves, and what registering publishes.
+
+This document is the submitter-facing standard. Where it summarises what Palomar
+publishes or what a submission proved, the binding statement is
+[the protocol specification][specification], and this document defers to it.
+
+[submission-server]: https://submit.palomar-registry.org/
+[llms]: https://submit.palomar-registry.org/llms.txt
+[specification]: docs/specification.md
+
 ## 1. Decide whether the result is suitable
 
 Mechanical correctness is necessary but not sufficient. The mathematical
@@ -512,6 +525,14 @@ or whose it is. Answering falsely is a material misrepresentation.
 
 Source-author contact or endorsement does not replace this authorisation.
 
+Write access to the submitted repository is proved separately from this
+question, and in one of two ways: a browser sign-in, or, for an agent with no
+browser, a tag at the submitted commit together with a gist. The two do not
+establish the same thing, and the private submission record says which was used;
+[the protocol specification][specification] states the difference and is the
+binding version of it. Neither is evidence of authorship, which is why you are
+asked about the relationship here instead.
+
 ## 5. What mechanical verification establishes
 
 The verifier checks out the exact commit and records hashes for the files it
@@ -689,7 +710,7 @@ concrete positive evidence, not merely successful compilation, populated
 fields, familiar terminology, or the absence of an obvious contradiction. Every
 score from every completed pass must reach 4. This includes classification,
 provenance, auditability, and optional proof alignment as well as the five
-scores registered in the registry: statement alignment, definition fidelity,
+scores recorded with the decision: statement alignment, definition fidelity,
 notability, literature, and clarity.
 
 One exception, or these anchors would forbid what section 3 permits: a source
@@ -697,10 +718,11 @@ disclosed as unconfirmable, precisely stated, is not an "unverified claim" for
 the `3` anchor, and does not by itself hold literature below 4. It cannot
 support a `5`, which requires an account somebody else can check.
 
-The scores are not published. They decide the outcome, they are kept with the
-record, and the outcome is what a reader is shown, because the same repository
-at the same commit has scored 5 and then 4 on one dimension across two runs of
-this policy with the same verdict both times.
+No score is published. They decide the outcome; the five above are kept in a
+private file beside the database entry and the rest stay in the private review,
+and the outcome is what a reader is shown, because the same repository at the
+same commit has scored 5 and then 4 on one dimension across two runs of this
+policy with the same verdict both times.
 
 **No text a reader may see may state, bound, or imply a score.** That covers
 every `summary` and every finding `message`. It is not enough to leave the
@@ -777,10 +799,16 @@ declared authorization relationship and any optional approval evidence, so
 those are public too. That workflow does only the mechanical check. It runs
 before any editorial review, contains none of the review text, and shows no
 decision, so its public log reveals nothing about whether a review happened or
-what it found. The submitter's identity, the review, and the decision stay
-non-public unless the submitter registers.
+what it found. The review and the decision stay non-public unless the submitter
+registers. Palomar publishes no submitter: the registry record has no field for
+the account that proved push access, and registering does not add one. What is
+published about that person is the authorisation relationship declared in
+section 4 and, if you supply it, the free-text evidence beside it, which
+identifies whoever you write into it.
 
-On registration, Palomar archives the review beside the record. It also creates
+On registration, Palomar archives a redacted copy of the review beside the
+record; [the protocol specification][specification] says what that copy carries
+and what is held back. It also creates
 or reuses native public forks in
 [`PalomarArchive`](https://github.com/PalomarArchive) for the submitted
 repository, every pinned Git dependency, and any separately recorded
@@ -792,11 +820,11 @@ commit, and source-preservation receipt also become public. Submitting grants
 Palomar permission to quote the submitted metadata in the review report and
 registry record.
 
-Palomar is still pre-launch. Registering makes the review, source, submitter
-identity, and record public during testing and creates immutable source-
-preservation tags. Until `.palomar-launched` is added to PalomarDatabase, the
-public database may be reshaped and a pre-launch registration is not permanent
-publication history. The append-only record guarantee begins at public launch.
+Palomar is still pre-launch. Registering makes the redacted archived review, the
+source, and the record public during testing and creates immutable
+source-preservation tags. Until `.palomar-launched` is added to
+PalomarDatabase, the public database may be reshaped and a pre-launch
+registration is not permanent publication history. The append-only record guarantee begins at public launch.
 
 After acceptance and recorded registration consent, Palomar renders the pinned
 Challenge source with Verso for display before opening the database change.

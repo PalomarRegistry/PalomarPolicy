@@ -41,8 +41,8 @@ form or API submission, and push access proved
 
 The internet-facing server is stateless between requests. It writes every
 durable fact and transition to PalomarSubmissionState. Push access to the
-submitted repository is established in one of two ways, and the record says
-which.
+submitted repository is established in one of two ways, and the private
+submission record says which.
 
 A person signs in with GitHub OAuth, and the server reads `permissions.push`
 with that token before discarding it. GitHub answered for the same account that
@@ -55,16 +55,22 @@ a ref requires the same write access; the gist supplies an identity, because a
 ref records no author and a third party cannot ask GitHub who has push. This
 establishes that someone who can push submitted the repository and that an
 account named itself, which are not provably the same account. It is
-deliberately the weaker of the two, and a record carries the distinction rather
-than implying parity.
+deliberately the weaker of the two, and the submission record carries the
+distinction rather than implying parity. The published registry record does not:
+it names no proof route, because it names no submitter either.
 
 Push access is not proof of authorship or source-author approval either way, so
 the submission separately records its authorization relationship.
 
 The repository, commit, submission identifier, public verification run, and
-mechanical logs are public from verification onward. Submitter identity,
-editorial review, and decision remain private unless the submitter registers an
-accepted review. “Private” means access-controlled, not confidential: operators,
+mechanical logs are public from verification onward. The editorial review and
+the decision remain private unless the submitter registers an accepted review.
+Palomar publishes no submitter: no published record identifies the account that
+proved push access, no schema has a field for it, and registration does not add
+one. What is published about that person is the declared authorization
+relationship and its optional free-text evidence, so a submitter who names
+themselves there has published that much. “Private” means access-controlled,
+not confidential: operators,
 GitHub, and the model provider can see the material relevant to their roles.
 Private submission state and delivered reviews are retained indefinitely so a
 decision can be audited later.
