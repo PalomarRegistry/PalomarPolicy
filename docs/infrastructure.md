@@ -287,8 +287,9 @@ registration puts it back to the floor; a failed verification or a withdrawal
 leaves it where it is, because those are the loops worth slowing down. There is
 deliberately no ceiling, so somebody who has locked themselves out is released
 by an operator deleting that one file, and the file records the login and the
-time so it can be found. Its name is a peppered digest of the principal rather
-than a login, so listing the directory does not enumerate who has submitted.
+time so an operator can tell whose it is. Its name is a peppered digest of the
+principal rather than a login, so listing the directory does not enumerate who
+has submitted.
 
 ### Review, registration, and source preservation
 
