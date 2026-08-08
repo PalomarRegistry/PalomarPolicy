@@ -327,10 +327,19 @@ documentation location or README.
 
 Palomar uses the [mathlib-initiative `formalization.yaml` v0.3
 format](https://github.com/mathlib-initiative/formalization.yaml) as a base and
-accepts unknown fields. Palomar also adds fields for provenance, repository
-role, subject classification, and responsible maintainers. The file may contain
-those additions at the same time as upstream fields such as `status`,
-`fidelity`, and `alignment`.
+accepts unknown fields. Palomar adds repository-role, subject-classification,
+and responsible-maintainer fields plus the provenance rules below. Provenance is
+carried by the current `repository`, `project.responsible_maintainers`, and
+`sources` fields, not by a top-level field. The file may contain those additions
+at the same time as upstream fields such as `status`, `fidelity`, and
+`alignment`.
+
+There are three deliberate exceptions to the general unknown-field rule. The
+obsolete `project.responsible_maintainer`, `sources[].author`, and top-level
+`provenance` fields are rejected rather than ignored. Use
+`project.responsible_maintainers`, `sources[].authors`, and the current
+`repository` and `sources` declarations below. This includes replacing the
+former `provenance.result_origin` declaration with source-derived result origin.
 
 #### File requirements
 
@@ -366,8 +375,8 @@ include `unchecked`, `agent-reviewed`, `self-assessed`, `peer-reviewed`,
 These fields are hard mechanical requirements:
 
 - `project.name`: a nonempty string;
-- `project.authors`: a nonempty list whose entries are names or mappings with a
-  nonempty `name`;
+- `project.authors`: a nonempty list whose entries are nonempty name strings or
+  mappings with a nonempty `name`;
 - `project.license`: the exact SPDX identifier detected from the root licence
   file;
 - `classification.arxiv`: one or two distinct codes from Palomar's checked-in
@@ -380,7 +389,7 @@ These fields are hard mechanical requirements:
   `method`;
 - `review.status`: a nonempty string.
 
-### 3.2 Provenance required for editorial acceptance
+### 3.2 Provenance
 
 Provenance tells the reader where the result came from, whether this repository
 contains the substantive development, and who is responsible for the submitted
@@ -389,32 +398,63 @@ relationship to earlier work should be assessed.
 
 The required `sources` list records the result's origin. Use a source entry with
 `type: original-proof` only when the formalisation is the first presentation of
-the result; its title should identify the result in human-readable terms. An
-original result may list additional background material with `relationship:
-background` or `other`. Otherwise, record the work presented elsewhere with a
-relationship of `formalizes`, `adapts`, or `independently-proves`.
+the result; its title should identify that result in human-readable terms and
+its relationship must be `other`. An original result may list additional
+background material with relationship `background` or `other`. Otherwise,
+record the work presented elsewhere with a relationship of `formalizes`,
+`adapts`, or `independently-proves`. A new proof of a known result is
+source-based and uses `independently-proves`; it is not an `original-proof`.
+Prior work that the recorded result substantively formalises or adapts likewise
+makes the result source-based. In original mode, use `background` only for
+contextual material; use `other` with an explanation when the closed vocabulary
+has no more accurate non-substantive relationship.
 
-Palomar policy requires the following information to be accurate and
-informative:
+#### Mechanical requirements
 
-- `project.responsible_maintainers`: at least one person responsible for the
-  submitted formalisation;
-- `sources`: a nonempty list, using `type: original-proof` for a result first
-  presented by the formalisation;
-- `repository.role`: `substantive-development` or `thin-wrapper`;
-- for a source-based result, at least one source whose `relationship` is
-  `formalizes`, `adapts`, or `independently-proves`.
+Mechanical verification requires this current shape:
 
-#### Mechanical handling of missing provenance
+- `project.responsible_maintainers`: a nonempty list whose members, like
+  `project.authors`, are nonempty name strings or mappings with a nonempty
+  `name`. For a thin wrapper these are people responsible for the submitted
+  wrapper; the submission's authorisation relationship separately covers the
+  underlying substantive formalisation;
+- `repository.role`: exactly `substantive-development` or `thin-wrapper`. A
+  `substantive-development` repository must omit
+  `repository.substantive_formalization`. A `thin-wrapper` repository must
+  provide `repository.substantive_formalization.id` as `owner/repository` or a
+  `https://github.com/owner/repository` URL and
+  `repository.substantive_formalization.revision` as a full 40-character
+  lowercase commit SHA. This first validates and normalises the metadata shape;
+  the verifier later resolves the named GitHub repository and exact commit and
+  fails if they cannot be used as the substantive source;
+- `sources`: a nonempty list in which every entry has a nonempty `title` and a
+  `relationship` of exactly `formalizes`, `adapts`, `independently-proves`,
+  `background`, or `other`;
+- when a source has a `type`, it must be `paper`, `book`, `web discussion`,
+  `folklore`, `original-proof`, or `other`; the field may otherwise be omitted.
+  The current Palomar spelling is exactly `web discussion`, with a space.
 
-The current verifier derives result origin from the required source entries. It
-records a warning and substitutes `unspecified` when sources do not declare an
-origin, and it does the same for a missing or unrecognised repository role or
-responsible maintainer. It also warns when a source-based result has no
-substantively related source. These warnings do not stop the mechanical run,
-but the editorial metadata and provenance review still assesses the missing
-information, and acceptance requires its score to meet the same threshold as
-every other completed review dimension.
+The source list must satisfy exactly one of these alternatives:
+
+1. **Original:** at least one entry has `type: original-proof`; every such entry
+   has `relationship: other`; and every source relationship is `background` or
+   `other`. The report derives `result_origin: original`.
+2. **Source-based:** no entry has `type: original-proof`, and at least one entry
+   has relationship `formalizes`, `adapts`, or `independently-proves`. The report
+   derives `result_origin: source-based`.
+
+A source list that satisfies neither alternative fails mechanical verification:
+for example, a list containing only `background` entries, or one combining an
+`original-proof` with a substantive relationship. Missing fields, unrecognised
+enumerated values, and an invalid repository-role shape also fail. The three
+obsolete fields named at the start of section 3 are rejected rather than treated
+as harmless unknown fields.
+
+These checks establish only that the required facts have a usable shape and a
+consistent declared origin. Editorial review still assesses whether the named
+people, repository role, citations, source relationships, and account of prior
+work are accurate and informative. A structurally valid citation can therefore
+still be inadequate or misleading.
 
 ### 3.3 Mathematical sources and related formalisations
 
@@ -538,7 +578,8 @@ asked about the relationship here instead.
 The verifier checks out the exact commit and records hashes for the files it
 uses. It validates the repository structure, metadata shape, licence,
 dependency pins, Challenge dependency set, file sizes, and Comparator
-configuration. It then:
+configuration. For a thin wrapper it also resolves and inspects the named
+substantive repository at the exact declared commit. It then:
 
 1. discards submitted Lake build state and materialises the exact dependencies
    in the manifest;

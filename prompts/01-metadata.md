@@ -38,10 +38,14 @@ maintainer of it, that answer is the basis; do not ask them to document approval
 from themselves, and do not treat a missing link or note as a deficiency, since
 both are optional. Flag an authorisation basis that is missing, or that is
 contradicted by the submission's own provenance, repository role or declared
-maintainers.
+maintainers. In a thin wrapper, the declared responsible maintainers cover the
+submitted wrapper while authorisation covers the underlying substantive
+project; that difference is expected and is not itself a contradiction.
 
-Do not demand a source for a result explicitly and
-credibly recorded as first presented by the formalisation.
+Do not demand a prior-work citation for a result explicitly and credibly
+recorded as first presented by the formalisation. Still assess whether that
+originality claim and the surrounding literature account are accurate and
+adequate; structural provenance does not settle that editorial question.
 
 Flag promotional language, hidden limitations, unsupported novelty claims,
 contradictions, boilerplate, and required fields that are vague, incomplete, or
