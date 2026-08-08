@@ -61,6 +61,18 @@ than implying parity.
 Push access is not proof of authorship or source-author approval either way, so
 the submission separately records its authorization relationship.
 
+Push access is also all that is required to submit. A deployment may additionally
+require that the submitted repository carries some engagement (a star, a fork,
+an issue, a pull request, a comment, or a commit) from somebody who has already
+registered a non-retracted result, with an operator-maintained list of accounts
+that count before their first registration. It is configuration rather than
+contract: which signals count, and whether a prior submitter is exempt or must
+still find somebody other than themselves, are set per deployment, and the rule
+is off in the deployment Palomar runs. Where it is on, the private submission
+record says how the repository qualified, including that the check could not be
+completed. It restricts which repositories may be submitted and has no bearing
+on how a submission is verified, reviewed, or registered.
+
 The repository, commit, submission identifier, public verification run, and
 mechanical logs are public from verification onward. Submitter identity,
 editorial review, and decision remain private unless the submitter registers an
@@ -155,7 +167,9 @@ Intake does not yet deduplicate repository and commit pairs or retain prior
 attempts for the reviewer. Resubmitting the same commit can therefore obtain a
 fresh sampled editorial decision. Whether to prevent that, expose attempt
 history, impose a cooldown, or explicitly permit it remains an open integrity
-and abuse-policy question.
+and abuse-policy question. The engagement requirement above does not answer it:
+it raises the cost of a fresh repository, not the cost of a fresh attempt on one
+that already qualifies.
 
 ## Registration, versions, and publication
 
