@@ -1,6 +1,6 @@
 # Palomar infrastructure
 
-Last reconciled against the live services on 2026-08-07.
+Last reconciled against the live services on 2026-08-08.
 
 This is the durable record of where Palomar runs, so that changing a host or
 credential is a checklist rather than an excavation. The private canonical
@@ -17,7 +17,7 @@ restore a direct raw-GitHub or GitHub Pages fallback for database data.
 | Domains | `palomar-registry.org` and `palomarregistry.org`, both at Cloudflare Registrar | Registrar and DNS are in the same Cloudflare account. |
 | DNS, Workers, and R2 | Cloudflare account `d789bf36d237e0cb313be59b927c82bd` | Zones `f05ebb1809990a5d27e6d6a7d0d1ae85` for `palomar-registry.org` and `feea63b2ced3571a5ab5ce4ba516067f` for `palomarregistry.org`; nameservers `joyce`/`matias.ns.cloudflare.com`. |
 | Website hosting | GitHub Pages, repository `PalomarWeb` | The website is static; its registry content is fetched at runtime from the public data Worker. |
-| Public registry storage | Private R2 bucket `palomar-public-data` | Contains generated, active-only releases. The bucket itself is not public. |
+| Public registry storage | Private R2 bucket `palomar-public-data` | Contains the generated, active-only projection: records at keys that never change, and the aggregates under the release that wrote them. The bucket itself is not public. |
 
 The old `kim-em/Palomar*` repository names must stay reserved forever.
 Recreating a repository at an old name destroys that name's GitHub redirect.
@@ -66,7 +66,7 @@ recording it in private state.
 | --- | --- | --- | --- |
 | `palomar-registry.org` | Human-facing website | GitHub Pages, `PalomarWeb` | Live; HTTPS enforced |
 | `www.palomar-registry.org` | Redirect to the apex | Cloudflare Redirect Rule | Live; 301; path and query preserved |
-| `data.palomar-registry.org` | Filtered index, active entry records, schemas, renders, evidence, feeds, tombstones, and source availability | Cloudflare Worker `palomar-data` over private R2 | Live; read-only |
+| `data.palomar-registry.org` | Active entry records, schemas, renders, evidence, feeds, tombstones, source availability, and the derived pages a reader arrives by. There is no whole-registry document | Cloudflare Worker `palomar-data` over private R2 | Live; read-only |
 | `submit.palomar-registry.org` | Submission server | Cloudflare Worker `palomar-server` | Live |
 | `palomarregistry.org` and `www.palomarregistry.org` | Defensive-domain redirects | Cloudflare Worker `palomar-domain-redirect` | Live; 308; path and query preserved |
 | `palomarregistry.github.io/PalomarWeb/` | Legacy website location | GitHub Pages | Redirects to `palomar-registry.org` |
@@ -76,14 +76,22 @@ The data path is:
 
 ```text
 private PalomarDatabase main
-  -> validate and build active-only snapshot
-  -> remove private-only fields, including review scores
-  -> upload immutable release objects to private R2
-  -> verify every uploaded digest
+  -> validate the records the change touched
+  -> read the release being served, and stage this one as a difference from it
+  -> offer each new record to R2 at a key that never changes
+  -> write the aggregates under the new release, its delta last
+  -> read every uploaded object back and verify its digest
   -> atomically update R2 _current.json
   -> palomar-data Worker exposes only allowlisted public paths
-  -> PalomarWeb fetches https://data.palomar-registry.org/index.json
+  -> PalomarWeb fetches https://data.palomar-registry.org/recent.json
 ```
+
+There is no step there that rewrites a record on the way out, and that is the
+change that let the records sit at keys of their own. While the publisher
+stripped review scores, a published record's bytes were a function of publisher
+code rather than of the commit they came from, so an object called immutable
+changed shape twice under a fixed record. The scores live outside the record
+now, in the private `scores/`, which staging never opens.
 
 The accepted-source path is:
 
@@ -104,12 +112,19 @@ Any failure in that path stops registration before a database branch is
 published. A source shape that a native fork cannot preserve is rejected during
 mechanical verification rather than discovered after acceptance.
 
-The Worker never exposes `_current.json`, release manifests, bucket listings,
-the private `takedowns.json`, the complete canonical `index.json`, submitter
-identity, or editorial review scores. These fields remain in the canonical
-record but are deliberately absent from the generated public projection. It
-has an R2 binding named `DATA` and no secrets. A missing or invalid
-current-release pointer fails closed with 503; there is no raw-GitHub fallback.
+The Worker never exposes `_current.json`, a release delta, either internal key
+prefix, bucket listings, the private `takedowns.json`, or submitter identity. A
+request carrying a query string is refused with 404 before anything is read,
+because Cloudflare's cache key includes one and nothing served here takes a
+parameter. Two things this list used to name are no longer withheld so much as
+absent. `index.json` is a staging intermediate that reaches R2 under no key at
+all, having been the one served object whose size was the registry's. Review
+scores are not a field held back from the projection either; they are not in the
+record, and `review` is `additionalProperties: false`, so a record carrying them
+fails the schema check staging already runs rather than relying on a stripping
+step that could be forgotten. The Worker has an R2 binding named `DATA` and no
+secrets. A missing or invalid current-release pointer fails closed with 503;
+there is no raw-GitHub fallback.
 
 `palomarregistry.org`, without the hyphen, is a defensive registration. It is a
 separate Cloudflare zone and serves no content of its own.
@@ -251,23 +266,51 @@ identity must not bypass the archive's dedicated-account check.
 
 Pushes to `PalomarWeb/main` test, build, and deploy GitHub Pages. The hourly
 `Published site health` workflow checks that the live site names the current
-commit and that the website's own validators can load the live index and every
-active public entry. It dispatches one fresh Pages deployment when the served
-build is stale and fails loudly when the public projection has become
-incompatible with the website contract.
+commit and that the website's own validators can load `recent.json` and every
+record it names. It asked about every active entry while a document named them
+all; there is no such document now, and the page a visitor actually loads is
+both the check that matters and the only one whose cost does not grow with the
+registry. It dispatches one fresh Pages deployment when the served build is
+stale and fails loudly when the public projection has become incompatible with
+the website contract.
 
 ### Submission server
 
 Pushes to `PalomarServer/main` run tests, upload a Cloudflare Worker version,
 and promote it. The workflow does not change its route or cron trigger.
 
+One piece of operator state has no dashboard and appears in no repository the
+public can read: `index/rate/<digest>.json` in `PalomarSubmissionState`, the
+interval a submitter must wait before starting another submission. It is sixty
+seconds to begin with and doubles on every start, and only a completed
+registration puts it back to the floor; a failed verification or a withdrawal
+leaves it where it is, because those are the loops worth slowing down. There is
+deliberately no ceiling, so somebody who has locked themselves out is released
+by an operator deleting that one file, and the file records the login and the
+time so an operator can tell whose it is. Its name is a peppered digest of the
+principal rather than a login, so listing the directory does not enumerate who
+has submitted.
+
 ### Review, registration, and source preservation
 
-The private `PalomarSubmissionState` workflow runs every fifteen minutes and
-may also be dispatched manually. It installs `PalomarReviewer` from `main`, runs
-`palomar-review doctor`, and then advances each live submission by at most one
-state transition. Review, registration, and finalization are serialized by one
-workflow concurrency group.
+The private `PalomarSubmissionState` workflow runs every two hours, at `37 */2`,
+and may also be dispatched manually. A pass that has more to do asks for the
+next one rather than waiting for the clock, so the interval sets how long an
+idle registry sleeps and not how fast a busy one moves. It installs
+`PalomarReviewer` from `main`, runs `palomar-review doctor`, and then advances
+each live submission. Most transitions are one step per pass; a registration is
+not, and runs to completion inside the pass that opened it, so that opening the
+database change, waiting for its validation, merging, and finalizing are not
+four passes and up to eight hours apart. The finalize arm is recovery for a
+registration whose job died between opening the change and merging it. Review,
+registration, and finalization are serialized by one workflow concurrency group.
+
+That pass reads its work from `index/open.json`, an index of the open
+submissions that each transition maintains as it goes. Listing `submissions/`
+through the contents API instead meant a request whose cost was the number of
+submissions the registry had ever had, paid on every scheduled pass forever.
+A weekly `queue-sweep.yml` rebuilds the index from the state directories, so an
+index that has drifted is repaired rather than believed indefinitely.
 
 After advancing submissions, the same workflow runs `palomar-review
 star-registered`. It uses GitHub's
@@ -302,28 +345,52 @@ For a newly registered record, inspect its `preservation.repositories` mapping
 and verify each linked [PalomarArchive repository](https://github.com/PalomarArchive),
 the repository ruleset under **Settings → Rules → Rulesets**, and the exact
 record-specific tag. The six-hour source-availability workflow then checks both
-the original and preserved commits. It publishes active-only status to the data
-Worker, retains complete mutable state on the private `availability` branch,
-and fails visibly if a preserved copy is confirmed missing twice consecutively.
+the original and preserved commits, and fails visibly if a preserved copy is
+confirmed missing twice consecutively. What it knew last time it reads back from
+the object it is serving, and it writes the active-only manifest straight to that
+same key. The complete state used to sit on a private `availability` branch, and
+that branch is gone: keeping it meant a workflow with write access to the
+canonical repository, a commit every six hours, and two copies of the truth that
+could disagree. The workflow now runs with `contents: read`.
 
 ### Public registry data
 
-Pushes affecting publishable Database inputs validate the complete private
-ledger, stage the filtered snapshot, upload immutable release objects, read
-them back, verify their digests, and update `_current.json` last. The hourly
-`Published evidence health` workflow checks every registered render and, if one
-is missing, dispatches the filtered R2 publisher—not GitHub Pages.
+Pushes affecting publishable Database inputs validate the records the change
+touched, stage this release as a difference from the one being served, upload
+what changed, read it back, verify its digests, and update `_current.json`
+last. The publication alternates credentialed steps with uncredentialed ones on
+purpose: staging has no bucket credentials and must keep none, so every step
+that decides what a release contains has no access, and every step that has
+access decides nothing. The plan is worked out twice because a word's open
+postings page cannot be named until that word's head has been read.
 
-Before changing the data Worker, deploy and smoke-test `palomar-data-staging`.
-Then deploy production and verify at least:
+`Published evidence health` checks every registered render and, if one is
+missing, dispatches the filtered R2 publisher, not GitHub Pages. It runs the
+moment a publication finishes rather than waiting up to an hour, and keeps a
+daily schedule for the residual case of an object that stops being served with
+no publication behind it. The checks whose cost is the size of the registry
+rather than the size of the change moved to the weekly `whole-database-sweep.yml`:
+the first-parent append-only walk, the frozen-path file-mode sweep, every record
+hashed from its bytes, and `publish_snapshot.py --reconcile`, which compares
+every served page against a full rebuild.
+
+Before changing the data Worker, deploy and check `palomar-data-staging`. Then
+deploy production and verify at least:
 
 ```sh
 curl --fail https://data.palomar-registry.org/healthz
-curl --fail https://data.palomar-registry.org/index.json
-curl --fail --head https://data.palomar-registry.org/index.json
-curl -X POST -o /dev/null -w '%{http_code}\n' https://data.palomar-registry.org/index.json # expect 405
+curl --fail https://data.palomar-registry.org/recent.json
+curl --fail --head https://data.palomar-registry.org/recent.json
+curl -X POST -o /dev/null -w '%{http_code}\n' https://data.palomar-registry.org/recent.json # expect 405
+curl -o /dev/null -w '%{http_code}\n' 'https://data.palomar-registry.org/recent.json?v=1' # expect 404
+curl -o /dev/null -w '%{http_code}\n' https://data.palomar-registry.org/index.json # expect 404
 curl -o /dev/null -w '%{http_code}\n' https://data.palomar-registry.org/_current.json # expect 404
 ```
+
+The two 404s are the point of the check, not an afterthought. `index.json` was
+the one served object whose size was the registry's, and it is gone; a query
+string is refused before any read, because Cloudflare's cache key includes one
+and ignoring it would let any client mint unbounded misses against the bucket.
 
 The obsolete Database Pages site should remain absent. Anonymous GitHub API,
 raw-content, and former Pages requests for `PalomarDatabase` should all return
@@ -336,15 +403,17 @@ For a data- or website-domain change, audit at least:
 
 | Where | What |
 | --- | --- |
-| `PalomarWeb/assets/security.mjs` | `DEFAULT_DATABASE`, `DEFAULT_RENDER_BASE`, and source-availability URL |
+| `PalomarWeb/assets/security.mjs` | `DEFAULT_DATABASE`, `DEFAULT_RENDER_BASE`, source-availability URL, and every allowlisted read-surface URL builder |
 | `PalomarWeb/assets/app.js` | canonical website and feed bases |
 | `PalomarWeb/{index,entry,render,404,about}.html` | CSP `connect-src`/`frame-src`, feed links, and data links |
 | `PalomarWeb/.github/workflows/*.yml` and tests | pinned public-data and website origins |
 | `PalomarDatabase/worker/wrangler.jsonc` | Worker custom domain |
-| `PalomarDatabase/tools/{build_feeds.py,check_published.py}` | website, feed, and public-data bases |
+| `PalomarDatabase/tools/{build_feeds.py,check_published.py}` and `tests/` | website, feed, and public-data bases |
 | `PalomarDatabase/docs/*.md` | publication and render-origin runbooks |
 | `PalomarReviewer/src/palomar_reviewer/cli.py` | public website/data URLs used during registration |
 | `PalomarServer/wrangler.jsonc` | website URL and submission route |
+| `PalomarServer/src/index.js` and `public/{intake.js,llms.txt}` | CSP `connect-src`, the versions endpoint the status page reads, and the hosts the agent instructions name |
+| `PalomarServer/redirect/index.js` | `CANONICAL_ORIGIN` for the defensive domains |
 
 Registered entries, evidence, renders, and in-use schemas are immutable. Never
 rewrite their historical URLs. Keep an old hostname serving or redirecting as
@@ -373,6 +442,10 @@ verification, the `www` Redirect Rule, data-Worker staging/production
 deployments, creation and recovery of the `PalomarArchivist` GitHub account,
 archive-organization policy changes, and credential rotation are manual.
 Website, server, review, registration, source preservation, filtered-data,
-availability, and health-check workflows are automated. The account is
+availability, health-check, and the two weekly sweep workflows are automated.
+The sweeps are where anything whose cost is the size of the registry rather than
+the size of the change has been moved, because those checks used to run once per
+accepted result and the registry paid for them quadratically over its life. The
+account is
 currently using the Cloudflare Workers and R2 free tiers; usage and paid-plan
 triggers are tracked in the workspace `TODO.md`.

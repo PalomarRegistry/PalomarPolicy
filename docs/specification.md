@@ -165,8 +165,14 @@ PalomarReviewer verifies the consent and evidence bindings and reserves the
 permanent identifier and version in private state. A retry reuses that
 reservation.
 
-For a new result, the identifier contains the acceptance date and a random
-six-digit serial. An accepted correction or dependency update creates the next
+For a new result, the identifier contains the acceptance date and the next
+six-digit serial free on that date, counting from 1. The serial was drawn at
+random until 2026-08-07, to hide how many reservations never became records.
+What that cost was ordering: with a random serial the registration order of two
+identifiers cannot be read from the identifiers, so every surface wanting that
+order had to carry an ordinal beside the identifier, and an ordinal and an
+identifier that disagree is a failure nothing downstream can detect or repair.
+An accepted correction or dependency update creates the next
 integer version of an existing identifier; a new mathematical result receives a
 new identifier. Explicit version URLs are immutable, while an unversioned URL
 resolves to the latest active version.
@@ -195,11 +201,17 @@ Authority for exceptional intervention is an open governance question; there
 is no submitter-facing ordinary takedown route.
 
 The public data service is an active-only projection built from the private
-ledger. Publication removes private-only fields, writes immutable release
-objects to private R2, verifies their digests, and atomically advances the
-current-release pointer. The read-only Worker exposes only allowlisted paths and
-has no raw-GitHub fallback. PalomarWeb consumes this projection and is never a
-source of registry truth.
+ledger. A record is copied into it byte for byte rather than rewritten, so its
+published bytes are a function of the commit and not of the publisher; anything
+the public must not see is kept outside the record in the first place.
+Publication writes each new record once at a key that never changes, writes the
+aggregates under the new release, verifies every digest by reading it back, and
+atomically advances the current-release pointer last. The read-only Worker
+exposes only allowlisted paths and has no raw-GitHub fallback. There is no
+whole-registry document: a reader takes what is new, one result's versions, a
+day of the archive, a classification code, or a search word, and each of those
+costs what it answers rather than what the registry holds. PalomarWeb consumes
+this projection and is never a source of registry truth.
 
 ## Source preservation
 
