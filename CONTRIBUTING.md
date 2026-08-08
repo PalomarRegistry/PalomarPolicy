@@ -163,9 +163,12 @@ manifest.
 - The `lean-toolchain` file must name a Lean release, in the form
   `leanprover/lean4:<version>`, no older than the minimum recorded in
   `toolchains.json` in the [PalomarSubmission repository][submission-repo].
-  There is no list of accepted versions to keep current: Palomar builds
-  against the lean4export and Verso releases matching the toolchain, and
-  records the exact revisions it used.
+  That closed file contains exactly the fields `schema_version` and `minimum`.
+  It neither selects nor pins trusted tools. The verifier derives the
+  `lean4export` release tag from the submitted Lean version, resolves that tag
+  once to an exact commit, and records the commit; the renderer does the same
+  for Verso. Comparator, NanoDa, and Landrun use fixed verifier pins. The
+  mechanical and render reports record every exact revision used.
 - The project root must contain exactly one of `lakefile.toml` and
   `lakefile.lean`. The Lakefile must be a regular file no larger than 1 MiB. A
   TOML Lakefile must be valid TOML.
@@ -222,27 +225,29 @@ when Comparator accepts it.
 #### Mechanical requirements
 
 `comparator.json` must be a regular JSON file containing one object and must be
-no larger than 1 MiB. It has four required keys:
+no larger than 1 MiB. It has five required keys:
 
 ```json
 {
   "challenge_module": "Challenge",
   "solution_module": "Solution",
   "theorem_names": ["MyProject.main_theorem"],
-  "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"]
+  "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
+  "enable_nanoda": true
 }
 ```
 
 - `theorem_names` must be a nonempty array. The optional `definition_names`
   array defaults to empty. Every entry in either array must be a nonempty
   string.
-- No other keys are accepted, apart from the optional `definition_names` and
-  `enable_nanoda` keys.
+- No other keys are accepted, apart from the optional `definition_names` key.
 - `permitted_axioms` may contain only `propext`, `Quot.sound`, and
   `Classical.choice`.
-- The optional `enable_nanoda` key is accepted for Comparator compatibility,
-  but its submitted value is ignored. Palomar always enables NanoDa in a
-  separate trusted configuration.
+- `enable_nanoda` must be the exact JSON boolean `true`. A missing key, `false`,
+  or any non-boolean value fails mechanical verification. After validation,
+  Palomar copies the submitted bytes byte-for-byte to a protected path outside
+  every sandbox-writable directory and passes that unchanged protected copy to
+  Comparator. It does not silently insert or rewrite this requirement.
 - Deliberate holes in Challenge declarations are allowed. Comparator must
   confirm that every proved Solution declaration does not depend on `sorryAx`,
   `Lean.ofReduceBool`, a custom axiom, or an unnamed missing definition.
@@ -581,16 +586,21 @@ dependency pins, Challenge dependency set, file sizes, and Comparator
 configuration. For a thin wrapper it also resolves and inspects the named
 substantive repository at the exact declared commit. It then:
 
-1. discards submitted Lake build state and materialises the exact dependencies
+1. refuses intake unless `enable_nanoda` is the exact JSON boolean `true`;
+2. discards submitted Lake build state and materialises the exact dependencies
    in the manifest;
-2. compiles the Challenge separately against Lean core and the verified Mathlib
+3. compiles the Challenge separately against Lean core and the verified Mathlib
    or Tau Ceti dependencies;
-3. records every Lean source file used by that compilation and rejects any
+4. records every Lean source file used by that compilation and rejects any
    source outside the permitted set;
-4. protects that compiled Challenge module from replacement by project build
+5. protects that compiled Challenge module from replacement by project build
    output;
-5. runs Comparator without network access or credentials;
-6. forces the exported proofs through both Lean's kernel and NanoDa.
+6. copies the validated configuration bytes byte-for-byte to a protected path
+   outside every sandbox-writable directory;
+7. runs Comparator without network access or credentials using that unchanged
+   protected copy; and
+8. requires every exported proof to pass Lean's kernel and replay through the
+   pinned NanoDa kernel.
 
 A passing mechanical report establishes that the recorded Solution satisfies
 the recorded Challenge under those checks. It does not establish that the

@@ -102,6 +102,20 @@ A passing report binds at least:
 
 Every exported proof is checked by Lean's kernel and replayed through the
 pinned independent NanoDa kernel. Palomar has no single-kernel passing result.
+The selected Comparator configuration must carry `enable_nanoda` as the exact
+JSON boolean `true`. Missing, false, and non-boolean values fail before
+Comparator runs. Palomar copies the validated submitted bytes byte-for-byte to
+a protected path outside every sandbox-writable directory and passes that
+unchanged protected copy to Comparator; it does not insert or rewrite the
+setting.
+
+`PalomarSubmission/toolchains.json` is closed to exactly the fields
+`schema_version` and `minimum`; it neither selects nor pins trusted tools. The
+verifier derives the `lean4export` release tag from the submitted Lean version,
+resolves that tag once to an exact commit, and records the commit; the renderer
+does the same for Verso. Comparator, NanoDa, and Landrun use fixed verifier
+pins. The mechanical and render reports record every exact trusted-tool
+revision used for the run.
 
 Mechanical metadata requirements are hard failures where `CONTRIBUTING.md` says
 so. Provenance requires a nonempty `project.responsible_maintainers` list whose
