@@ -28,6 +28,11 @@ still restricted to Mathlib or Tau Ceti. The
 rest of the proof project may have arbitrary pinned Git dependencies and
 contained repository-local path dependencies.
 
+Every historical packaging row below also needs the current universal
+Comparator requirement: the selected configuration must contain
+`"enable_nanoda": true` with `true` as the exact JSON boolean, even when the
+row's recorded smallest packaging change does not mention it.
+
 ## Nested-layout compatibility corpus
 
 The path-aware intake is intended to cover the observed nested layouts in
