@@ -12,7 +12,7 @@
   },
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "The review as it is archived beside a record and served to anyone. It is a projection of the review delivered to the submitter, not that review: the scores that decided the outcome, the severity on each finding, and the top-level repetition of every finding message are removed. The scores because the same submission has scored differently across two runs of one policy with the same verdict both times; the severities because they rank comments in a way the review did not intend; and the repetition because a message appearing in both lists let a reader recover the severity by comparing them. Every comment the review made is still here, once, in passes[].findings.",
+  "description": "The review as it is archived beside a record and served to anyone. It is a projection of the review delivered to the submitter, not that review: the scores that decided the outcome, the severity on each finding, and the top-level repetition of every finding message are removed. The scores because the same submission has scored differently across two runs of one policy with the same verdict both times; the severities because they rank comments in a way the review did not intend; and the repetition because a message appearing in both lists let a reader recover the severity by comparing them. Every comment the review made is still here, once, in passes[].findings. The shape is closed at every level rather than only at the root: an allowlist that stops one level down is a denylist below it, and what a denylist misses is exactly the field nobody thought to name.",
   "properties": {
     "decision": {
       "enum": [
@@ -27,7 +27,56 @@
     },
     "passes": {
       "items": {
+        "additionalProperties": false,
+        "description": "Closed, and for the same reason the root is closed: everything here is served. The projection that builds this document removes `scores` and each finding's `severity` by name, so a field nobody has named is served rather than removed. The review contract can grow one: it is decided here, in the rubric and the schemas beside it, and implemented in the reviewer's step contract in a third repository, and neither of those changes makes the projection notice. A review carrying a field this schema does not list therefore fails validation and is not registered, until either the projection has been taught to remove it or this list has been taught that it may be read.",
         "properties": {
+          "declarations_checked": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "findings": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "evidence": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "message": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "evidence",
+                "message"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "sources_checked": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "step": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "trust_level": {
+            "enum": [
+              "high",
+              "qualified",
+              null
+            ]
+          },
           "verdict": {
             "enum": [
               "pass",
