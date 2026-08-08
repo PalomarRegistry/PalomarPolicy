@@ -812,10 +812,13 @@ registration but does not reverse the editorial decision.
 
 When a new accepted result is prepared for registration, Palomar assigns an
 identifier of the form `PALOMAR-YYYY-MM-DD-NNNNNN`. The date is the acceptance
-date. The six-digit serial is chosen randomly from `000001` through `999999`
-and checked against identifiers already in the registry. Random allocation
-avoids revealing the order and approximate number of accepted submissions that
-have not been registered.
+date. The six-digit serial is the next one free on that date, counting from
+`000001`. It was drawn at random until 2026-08-07, which hid how many
+reservations never became records but also meant that the order two identifiers
+were registered in could not be read from the identifiers, so every surface that
+wanted registration order had to carry an ordinal beside the identifier. An
+ordinal and an identifier that disagree is a failure nothing downstream can
+detect or repair, and that turned out to cost more than the ordering it hid.
 
 A later correction or dependency update cites the existing identifier and
 becomes version 2, 3, and so on. Automated registration requires the same source
