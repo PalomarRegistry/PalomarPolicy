@@ -40,8 +40,10 @@ both are optional. Flag an authorisation basis that is missing, or that is
 contradicted by the submission's own provenance, repository role or declared
 maintainers.
 
-Do not demand a source for a result explicitly and
-credibly recorded as first presented by the formalisation.
+Do not demand a prior-work citation for a result explicitly and credibly
+recorded as first presented by the formalisation. Still assess whether that
+originality claim and the surrounding literature account are accurate and
+adequate; structural provenance does not settle that editorial question.
 
 Flag promotional language, hidden limitations, unsupported novelty claims,
 contradictions, boilerplate, and required fields that are vague, incomplete, or
