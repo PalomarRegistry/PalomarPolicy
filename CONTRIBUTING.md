@@ -327,10 +327,12 @@ documentation location or README.
 
 Palomar uses the [mathlib-initiative `formalization.yaml` v0.3
 format](https://github.com/mathlib-initiative/formalization.yaml) as a base and
-accepts unknown fields. Palomar also adds fields for provenance, repository
-role, subject classification, and responsible maintainers. The file may contain
-those additions at the same time as upstream fields such as `status`,
-`fidelity`, and `alignment`.
+accepts unknown fields. Palomar adds repository-role, subject-classification,
+and responsible-maintainer fields plus the provenance rules below. Provenance is
+carried by the current `repository`, `project.responsible_maintainers`, and
+`sources` fields, not by a top-level field. The file may contain those additions
+at the same time as upstream fields such as `status`, `fidelity`, and
+`alignment`.
 
 There are three deliberate exceptions to the general unknown-field rule. The
 obsolete `project.responsible_maintainer`, `sources[].author`, and top-level
@@ -373,8 +375,8 @@ include `unchecked`, `agent-reviewed`, `self-assessed`, `peer-reviewed`,
 These fields are hard mechanical requirements:
 
 - `project.name`: a nonempty string;
-- `project.authors`: a nonempty list whose entries are names or mappings with a
-  nonempty `name`;
+- `project.authors`: a nonempty list whose entries are nonempty name strings or
+  mappings with a nonempty `name`;
 - `project.license`: the exact SPDX identifier detected from the root licence
   file;
 - `classification.arxiv`: one or two distinct codes from Palomar's checked-in
@@ -402,6 +404,10 @@ background material with relationship `background` or `other`. Otherwise,
 record the work presented elsewhere with a relationship of `formalizes`,
 `adapts`, or `independently-proves`. A new proof of a known result is
 source-based and uses `independently-proves`; it is not an `original-proof`.
+Prior work that the recorded result substantively formalises or adapts likewise
+makes the result source-based. In original mode, use `background` only for
+contextual material; use `other` with an explanation when the closed vocabulary
+has no more accurate non-substantive relationship.
 
 #### Mechanical requirements
 
@@ -426,7 +432,7 @@ Mechanical verification requires this current shape:
   `background`, or `other`;
 - when a source has a `type`, it must be `paper`, `book`, `web discussion`,
   `folklore`, `original-proof`, or `other`; the field may otherwise be omitted.
-  The accepted upstream spelling is exactly `web discussion`, with a space.
+  The current Palomar spelling is exactly `web discussion`, with a space.
 
 The source list must satisfy exactly one of these alternatives:
 
@@ -437,10 +443,12 @@ The source list must satisfy exactly one of these alternatives:
    has relationship `formalizes`, `adapts`, or `independently-proves`. The report
    derives `result_origin: source-based`.
 
-Missing fields, unrecognised enumerated values, an undeclared result origin, a
-conflict between the two alternatives, and an invalid repository-role shape
-fail mechanical verification. The three obsolete fields named at the start of
-section 3 are also rejected rather than treated as harmless unknown fields.
+A source list that satisfies neither alternative fails mechanical verification:
+for example, a list containing only `background` entries, or one combining an
+`original-proof` with a substantive relationship. Missing fields, unrecognised
+enumerated values, and an invalid repository-role shape also fail. The three
+obsolete fields named at the start of section 3 are rejected rather than treated
+as harmless unknown fields.
 
 These checks establish only that the required facts have a usable shape and a
 consistent declared origin. Editorial review still assesses whether the named
@@ -570,7 +578,8 @@ asked about the relationship here instead.
 The verifier checks out the exact commit and records hashes for the files it
 uses. It validates the repository structure, metadata shape, licence,
 dependency pins, Challenge dependency set, file sizes, and Comparator
-configuration. It then:
+configuration. For a thin wrapper it also resolves and inspects the named
+substantive repository at the exact declared commit. It then:
 
 1. discards submitted Lake build state and materialises the exact dependencies
    in the manifest;
