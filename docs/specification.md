@@ -165,10 +165,26 @@ and validates every result against the rubric and schemas.
 Each pass receives only its prompt, binding policy inputs, the mechanically
 recorded submission evidence, and earlier pass results declared by the rubric.
 Repository content, external material, tool output, and earlier model output are
-untrusted evidence, never instructions. Review engines run in a fail-closed
-sandbox without write or shell tools and cannot access registration credentials
-or unrelated operator files. Literature research access, when enabled, is used
-only by the literature and notability pass.
+untrusted evidence, never instructions. Every engine runs inside a fail-closed
+Bubblewrap namespace that exposes the submission read-only, makes its dedicated
+output directory the only host-backed writable bind, provides an empty
+ephemeral home and temporary directory, and omits the runner's GitHub, database,
+archive, and other operator credentials and files. That outer namespace is not
+a tool sandbox: Codex keeps its inspection and shell tools under its own
+read-only sandbox, but this runner never enables Codex web search and ignores
+user configuration that could enable it. Claude has no explicit tools in
+ordinary passes and only `WebSearch` and `WebFetch` in the literature and
+notability pass; a configured custom command is arbitrary code inside the outer
+namespace.
+
+Codex and Claude must authenticate their model transport, so the selected
+engine's provider credential is currently bound into the same namespace as the
+engine process, which can read it, and the namespace shares the host network.
+Every pass is schema-validated and refused before reuse or release if its plain
+output matches the configured key or an API-key shape. That output check is a
+backstop, not containment against encoding or another channel. The planned
+credential broker will keep provider credentials outside the engine namespace;
+it is not implemented yet.
 
 Synthesis must reproduce the evidence-pass scores exactly. An acceptance cannot
 override a failed mandatory pass or a score below the rubric minimum, and a
@@ -284,8 +300,11 @@ not a mathematical rejection.
 The server holds separate least-privilege credentials for private state and
 public workflow dispatch, so compromising the intake service does not grant
 write access to verification code or the registry. Registry and archive
-automation use distinct identities. Model engines cannot access registration
-credentials or unrelated operator files.
+automation use distinct identities. The review namespace omits those
+registration credentials and unrelated operator files, but still exposes the
+selected model provider's authentication to its engine process. The
+credential-output scan mitigates one obvious release route; it does not replace
+the planned broker boundary described above.
 
 Rendered HTML is sanitized, content-addressed, and served from
 `data.palomar-registry.org`, separate from the website origin. PalomarWeb embeds
