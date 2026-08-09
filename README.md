@@ -5,6 +5,8 @@ The versioned editorial contract for the Palomar registry.
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) is the human-facing submission standard.
 - [`docs/specification.md`](docs/specification.md) defines the repository,
   review, registration, and publication contract.
+- [`docs/governance.md`](docs/governance.md) defines the named governance
+  roles, their initial membership, and the accepted GitHub trust model.
 - [`rubric.json`](rubric.json) defines the ordered AI review passes.
 - [`prompts/`](prompts/) contains the prompt text used by
   [`PalomarReviewer`](https://github.com/PalomarRegistry/PalomarReviewer).
