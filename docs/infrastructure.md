@@ -32,6 +32,18 @@ objects without transferring authorship, ownership, or endorsement to Palomar.
 Never infer editorial or automation authority from organization membership;
 authorize dedicated identities by the specific capabilities their role needs.
 
+The named roles and memberships are maintained in
+[`governance.md`](governance.md). Palomar uses GitHub Free and has explicitly
+decided not to buy GitHub Team. The organization teams are access groups, not a
+paid-plan commitment: Technical Maintainers have Maintain access across the
+Palomar repositories, Moderators have only the private Database access needed
+for the retraction workflow, and Scientific Advisory Board membership alone
+grants no repository access. Public repositories use required checks and
+branch protection. The private Database and Submission State cannot receive
+the same structural branch protection on the Free plan, so pinned fail-closed
+automation, available human review, and manual discipline are the documented
+control there.
+
 ## Source-preservation organization
 
 `PalomarArchive` is a separate security boundary from the registry repositories.

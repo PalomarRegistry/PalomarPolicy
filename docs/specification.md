@@ -247,12 +247,14 @@ passed. Merging that pull request is the registration event. A later scheduled
 step verifies the merged entry and finalizes the private submission state.
 
 After the launch boundary, canonical entries, schemas in use, renders, and
-evidence are immutable. The private database may record a maintainer-only
+evidence are immutable. The private database may record a moderator-authorized
 suppression of one exact version from the generated public projection without
 deleting or rewriting canonical bytes. The public service then omits the
 affected entry and artifacts and serves only a minimal date-only tombstone.
-Authority for exceptional intervention is an open governance question; there
-is no submitter-facing ordinary takedown route.
+One of the named [Moderators](governance.md#moderators) must authorize the
+suppression, and a Technical Maintainer executes it through the validated
+private-database workflow. The authorizer and private reason are recorded.
+There is no submitter-facing ordinary takedown route.
 
 The public data service is an active-only projection built from the private
 ledger. A record is copied into it byte for byte rather than rewritten, so its
