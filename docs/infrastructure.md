@@ -1,6 +1,6 @@
 # Palomar infrastructure
 
-Last reconciled against the live services on 2026-08-08.
+Last reconciled against the live services on 2026-08-09.
 
 This is the durable record of where Palomar runs, so that changing a host or
 credential is a checklist rather than an excavation. The private canonical
@@ -296,14 +296,25 @@ has submitted.
 The private `PalomarSubmissionState` workflow runs every two hours, at `37 */2`,
 and may also be dispatched manually. A pass that has more to do asks for the
 next one rather than waiting for the clock, so the interval sets how long an
-idle registry sleeps and not how fast a busy one moves. It installs
-`PalomarReviewer` from `main`, runs `palomar-review doctor`, and then advances
-each live submission. Most transitions are one step per pass; a registration is
-not, and runs to completion inside the pass that opened it, so that opening the
-database change, waiting for its validation, merging, and finalizing are not
-four passes and up to eight hours apart. The finalize arm is recovery for a
-registration whose job died between opening the change and merging it. Review,
-registration, and finalization are serialized by one workflow concurrency group.
+idle registry sleeps and not how fast a busy one moves. Both production paths
+that execute Reviewer—the ordinary `reviewer.yml` pass and the weekly
+`queue-sweep.yml` rebuild—install it from a full commit SHA, never mutable
+`main`, and use the same bounded dependency cutoff. State's least-authority CI
+installs that same commit and exercises its command surface without receiving
+secrets or write authority. State's contract tests require all three installs,
+dependency cutoffs, and setup action pins to agree. The daily and manually
+dispatchable `pin-currency.yml` then compares the production commit with
+Reviewer `main` and fails once it is more than one commit behind; advancing
+production remains an explicit reviewed State change rather than an automatic
+update.
+
+The ordinary pass runs `palomar-review doctor` and then advances each live
+submission. Most transitions are one step per pass; a registration is not, and
+runs to completion inside the pass that opened it, so that opening the database
+change, waiting for its validation, merging, and finalizing are not four passes
+and up to eight hours apart. The finalize arm is recovery for a registration
+whose job died between opening the change and merging it. Review, registration,
+and finalization are serialized by one workflow concurrency group.
 
 That pass reads its work from `index/open.json`, an index of the open
 submissions that each transition maintains as it goes. Listing `submissions/`
@@ -355,24 +366,47 @@ could disagree. The workflow now runs with `contents: read`.
 
 ### Public registry data
 
-Pushes affecting publishable Database inputs validate the records the change
-touched, stage this release as a difference from the one being served, upload
-what changed, read it back, verify its digests, and update `_current.json`
-last. The publication alternates credentialed steps with uncredentialed ones on
-purpose: staging has no bucket credentials and must keep none, so every step
-that decides what a release contains has no access, and every step that has
-access decides nothing. The plan is worked out twice because a word's open
-postings page cannot be named until that word's head has been read.
+Pushes affecting publishable Database inputs first read the content-addressed
+release delta currently served from R2, through authenticated bucket access.
+Its database commit is the exact base for both validation and staging, so a
+publication that is catching up after a failed run validates every accumulated
+change it will publish. An absent or unreadable delta, or a commit that cannot
+be resolved as a current ancestor, selects complete validation and staging; a
+document that disagrees with its content-addressed release identifier is
+refused outright.
 
-`Published evidence health` checks every registered render and, if one is
-missing, dispatches the filtered R2 publisher, not GitHub Pages. It runs the
-moment a publication finishes rather than waiting up to an hour, and keeps a
-daily schedule for the residual case of an object that stops being served with
-no publication behind it. The checks whose cost is the size of the registry
-rather than the size of the change moved to the weekly `whole-database-sweep.yml`:
-the first-parent append-only walk, the frozen-path file-mode sweep, every record
-hashed from its bytes, and `publish_snapshot.py --reconcile`, which compares
-every served page against a full rebuild.
+The release then uploads what changed, reads it back, verifies its digests, and
+updates `_current.json` last. Publication alternates credentialed steps with
+uncredentialed ones on purpose: staging has no bucket credentials and must keep
+none, so every step that decides what a release contains has no access, and
+every step that has access decides nothing. The plan is worked out twice because
+a word's open postings page cannot be named until that word's head has been
+read.
+
+A successful publication uploads its canonical release delta and the entry
+records its health check needs—the versions that release added and every
+version currently taken down—as an Actions artifact bound to that run and
+attempt. `Published evidence health` downloads it through the authenticated
+Actions API, verifies that the delta names the triggering commit, and checks
+only the versions that release added while retaining the complete withdrawal
+check. This is the ordinary event path; it does not reopen every historical
+render and evidence bundle.
+
+Complete published-evidence work is a different path. A daily run, a manual
+dispatch, a failed publication, missing or malformed run-bound evidence, a
+commit mismatch, or a failed delta check uses a fresh checkout of current
+Database `main`, checks every registered render, and audits the complete served
+R2 release. A missing object can dispatch one filtered-data recovery
+publication. This is a fail-closed whole-origin evidence audit, not the full
+canonical-database reconstruction.
+
+The weekly and manually dispatchable `whole-database-sweep.yml` owns that final
+layer: it walks first-parent append-only history, checks every frozen path's
+mode, validates every record from its bytes, stages a full public dataset, and
+reconciles every served page against that rebuild. Keeping this reconstruction
+weekly preserves the independent whole-database check without charging it to
+each accepted registration or conflating it with the daily published-evidence
+audit.
 
 Before changing the data Worker, deploy and check `palomar-data-staging`. Then
 deploy production and verify at least:
