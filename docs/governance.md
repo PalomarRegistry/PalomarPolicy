@@ -75,7 +75,8 @@ The `technical-maintainers` organization team has Maintain access to every
 Palomar repository. The `moderators` team has only the private Database access
 needed for the moderation workflow. The `scientific-advisory-board` team has no
 repository permission merely by virtue of board membership. Base organization
-permission remains Read.
+permission is None, so access comes only from an explicit team or repository
+grant.
 
 Required checks and branch protection are used on public repositories. GitHub
 Free does not provide the same protected-branch enforcement for the private

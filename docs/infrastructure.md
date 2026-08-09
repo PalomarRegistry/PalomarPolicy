@@ -11,7 +11,7 @@ restore a direct raw-GitHub or GitHub Pages fallback for database data.
 
 | Thing | Where | Notes |
 | --- | --- | --- |
-| Repositories | GitHub organization [`PalomarRegistry`](https://github.com/PalomarRegistry) | Moved from the `kim-em` personal account on 2026-08-04. Base member permission is `read`. `PalomarDatabase` and `PalomarSubmissionState` are private. |
+| Repositories | GitHub organization [`PalomarRegistry`](https://github.com/PalomarRegistry) | Moved from the `kim-em` personal account on 2026-08-04. Base member permission is `none`; access is granted by role-specific teams. `PalomarDatabase` and `PalomarSubmissionState` are private. |
 | Preserved source | GitHub organization [`PalomarArchive`](https://github.com/PalomarArchive) | Public native forks and immutable record-specific tags. Base member permission is `write`; repository deletion, visibility changes, and private-repository creation are disabled. |
 | Archive identity | GitHub user [`PalomarArchivist`](https://github.com/PalomarArchivist) | Dedicated 2FA-protected ordinary member of `PalomarArchive`, never an organization owner or a member of `PalomarRegistry`. |
 | Domains | `palomar-registry.org` and `palomarregistry.org`, both at Cloudflare Registrar | Registrar and DNS are in the same Cloudflare account. |
