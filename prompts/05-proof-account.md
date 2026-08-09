@@ -49,9 +49,8 @@ assumptions or computational components, supported by concrete positive
 evidence from both the prose and the Lean proof. A plausible high-level
 resemblance is below the minimum recorded in `rubric.json`.
 
-Return JSON only:
+Return one bare JSON object and nothing else: no code fence, no surrounding prose.
 
-```json
 {
   "step": "proof_account",
   "verdict": "pass|warn|fail",
@@ -62,7 +61,6 @@ Return JSON only:
   "scores": {"proof_alignment": 1},
   "declarations_checked": ["every Comparator theorem name, then every definition name, in configuration order"]
 }
-```
 
 Use an empty findings array when no material criticism was found; the exhaustive
 `declarations_checked` manifest records clean coverage without public praise.

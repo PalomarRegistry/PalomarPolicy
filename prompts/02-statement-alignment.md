@@ -55,9 +55,8 @@ positive evidence that the prose is fair and correct. Successful compilation,
 matching terminology, or the absence of an obvious counterexample supports only
 a score below the minimum recorded in `rubric.json` by itself.
 
-Return JSON only:
+Return one bare JSON object and nothing else: no code fence, no surrounding prose.
 
-```json
 {
   "step": "statement_alignment",
   "verdict": "pass|warn|fail",
@@ -68,7 +67,6 @@ Return JSON only:
   "scores": {"statement_alignment": 1},
   "declarations_checked": ["every Comparator theorem name, then every definition name, in configuration order"]
 }
-```
 
 Scores are integers 1–5. A mismatch affecting the headline claim is `fail`.
 Use an empty findings array when no material criticism was found; the exhaustive

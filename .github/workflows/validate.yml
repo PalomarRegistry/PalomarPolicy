@@ -107,13 +107,47 @@ jobs:
           mandatory_reject = rubric.get("mandatory_reject_below_minimum", [])
           assert len(mandatory_reject) == len(set(mandatory_reject))
           assert set(mandatory_reject) <= set(registry_scores)
+          # The reviewer parses the whole stripped engine output as one JSON
+          # object and deliberately recovers neither a Markdown fence nor
+          # surrounding prose. A prompt that shows its result inside a fence
+          # asks for output the parser rejects, so the contract is asserted on
+          # the prompt set `rubric.json` actually names; a second hand-copied
+          # list of prompt filenames would drift away from the rubric.
+          bare_json_contract = (
+              "Return one bare JSON object and nothing else: "
+              "no code fence, no surrounding prose."
+          )
           owned_scores = []
           owners = {}
           for step in rubric["steps"]:
               path = root / step["prompt"]
               assert path.is_file(), f"missing prompt: {path}"
-              assert path.read_text().strip(), f"empty prompt: {path}"
+              prompt_text = path.read_text()
+              assert prompt_text.strip(), f"empty prompt: {path}"
+              assert "```" not in prompt_text, f"prompt carries a code fence: {path}"
+              assert bare_json_contract in prompt_text, (
+                  f"prompt does not require one bare JSON object: {path}"
+              )
               if step["id"] != "synthesis":
+                  # The result example has to survive fence removal, so it is
+                  # checked against the rubric rather than against itself: the
+                  # step this pass reports as, every field the step result
+                  # requires, and every score this step owns.
+                  assert f'"step": "{step["id"]}"' in prompt_text, (
+                      f"prompt lost its result example: {path}"
+                  )
+                  for field in rubric["step_result"]["required_fields"]:
+                      assert f'"{field}"' in prompt_text, (
+                          f"result example omits {field}: {path}"
+                      )
+                  verdicts = "|".join(rubric["step_result"]["verdicts"])
+                  assert f'"verdict": "{verdicts}"' in prompt_text, (
+                      f"result example omits the verdict vocabulary: {path}"
+                  )
+                  for key in step["score_keys"]:
+                      assert f'"{key}": 1' in prompt_text, (
+                          f"result example omits the {key} score: {path}"
+                      )
                   score_keys = step["score_keys"]
                   assert score_keys and len(score_keys) == len(set(score_keys))
                   assert set(score_keys) <= allowed_scores
@@ -140,5 +174,26 @@ jobs:
               "literature_notability",
               "proof_account",
           }
+          # Synthesis returns the keys the runner wraps into the review report,
+          # and the fence removal above rewrote the paragraph that names them.
+          synthesis_text = " ".join((root / rubric["steps"][-1]["prompt"]).read_text().split())
+          assert (
+              "The object has exactly `decision`, `summary`, `scores`, "
+              "`warnings`, and `requested_changes`;" in synthesis_text
+          ), "synthesis no longer states its exact output keys"
+
+          # A dated scouting list with no owner and no refresh process reads as
+          # maintained policy while it sits here. Git keeps the history; if a
+          # maintained corpus is wanted it belongs in a repository that has
+          # somebody to keep it current, so it does not quietly return.
+          snapshot = "research/candidate-submissions.md"
+          assert not (root / snapshot).exists(), f"{snapshot} is back in current policy"
+          for doc in sorted(root.rglob("*.md")) + sorted(root.rglob("*.json")):
+              if ".git" in doc.parts:
+                  continue
+              assert "candidate-submissions" not in doc.read_text(), (
+                  f"{doc} links to the removed candidate snapshot"
+              )
+
           print(f"validated {len(ids)} review steps")
           PY
