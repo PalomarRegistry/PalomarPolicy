@@ -68,9 +68,8 @@ Check the `challenge.dependencies` field in `mechanical_report`. Every entry
 must carry `allowlisted` provenance. The reviewer validates this trusted input
 before the pass runs; do not infer fidelity from a Palomar identifier.
 
-Return JSON only:
+Return one bare JSON object and nothing else: no code fence, no surrounding prose.
 
-```json
 {
   "step": "definition_fidelity",
   "verdict": "pass|warn|fail",
@@ -83,7 +82,6 @@ Return JSON only:
   "sources_checked": ["challenge_source", "repository@commit:path"],
   "declarations_checked": ["every Comparator theorem name, then every definition name, in configuration order"]
 }
-```
 
 Scores are integers 1–5. A manufactured or materially misleading definition is
 `fail`. Use an empty findings array when no material criticism was found; the

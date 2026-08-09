@@ -132,9 +132,8 @@ case merely because your verdict is positive. A score of `4` or `5` requires
 concrete positive evidence for the relevant anchor, not merely the absence of a
 clear objection.
 
-Return JSON only:
+Return one bare JSON object and nothing else: no code fence, no surrounding prose.
 
-```json
 {
   "step": "literature_notability",
   "verdict": "pass|warn|fail",
@@ -146,7 +145,6 @@ Return JSON only:
   "sources_checked": ["https://..."],
   "declarations_checked": ["every Comparator theorem name, then every definition name, in configuration order"]
 }
-```
 
 Scores are integers 1–5. Do not disguise uncertainty as a pass: a mandatory
 criterion that is not affirmatively established scores below the threshold and

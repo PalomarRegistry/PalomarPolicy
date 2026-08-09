@@ -107,13 +107,58 @@ jobs:
           mandatory_reject = rubric.get("mandatory_reject_below_minimum", [])
           assert len(mandatory_reject) == len(set(mandatory_reject))
           assert set(mandatory_reject) <= set(registry_scores)
+          # The reviewer parses the whole stripped engine output as one JSON
+          # object and deliberately recovers neither a Markdown fence nor
+          # surrounding prose. A prompt that shows its result inside a fence
+          # asks for output the parser rejects, so the contract is asserted on
+          # the prompt set `rubric.json` actually names; a second hand-copied
+          # list of prompt filenames would drift away from the rubric.
+          bare_json_contract = (
+              "Return one bare JSON object and nothing else: "
+              "no code fence, no surrounding prose."
+          )
           owned_scores = []
           owners = {}
           for step in rubric["steps"]:
               path = root / step["prompt"]
               assert path.is_file(), f"missing prompt: {path}"
-              assert path.read_text().strip(), f"empty prompt: {path}"
+              prompt_text = path.read_text()
+              assert prompt_text.strip(), f"empty prompt: {path}"
+              for marker in ("```", "~~~"):
+                  assert marker not in prompt_text, f"prompt carries a code fence: {path}"
+              # Read through the line wrapping: the sentence is one contract,
+              # and where a paragraph breaks it is not part of it.
+              assert bare_json_contract in " ".join(prompt_text.split()), (
+                  f"prompt does not require one bare JSON object: {path}"
+              )
               if step["id"] != "synthesis":
+                  # The example has to survive fence removal as the thing it
+                  # asks for: one JSON object. Parsing it says that, where
+                  # searching for its text would still pass on an example that
+                  # had lost a brace. What it must contain then comes from the
+                  # rubric rather than from a copy of the example: the step
+                  # this pass reports as, every field a step result requires,
+                  # the verdict vocabulary, and exactly the scores this step
+                  # owns.
+                  assert "\n{\n" in prompt_text, f"prompt lost its result example: {path}"
+                  try:
+                      example, _ = json.JSONDecoder().raw_decode(
+                          prompt_text[prompt_text.index("\n{\n") + 1:]
+                      )
+                  except json.JSONDecodeError as error:
+                      raise AssertionError(
+                          f"result example is not one JSON object: {path}: {error}"
+                      ) from None
+                  assert example["step"] == step["id"], f"wrong step in example: {path}"
+                  assert set(rubric["step_result"]["required_fields"]) <= set(example), (
+                      f"result example omits a required field: {path}"
+                  )
+                  assert example["verdict"] == "|".join(rubric["step_result"]["verdicts"]), (
+                      f"result example omits the verdict vocabulary: {path}"
+                  )
+                  assert set(example["scores"]) == set(step["score_keys"]), (
+                      f"result example does not show the scores this step owns: {path}"
+                  )
                   score_keys = step["score_keys"]
                   assert score_keys and len(score_keys) == len(set(score_keys))
                   assert set(score_keys) <= allowed_scores
@@ -140,5 +185,33 @@ jobs:
               "literature_notability",
               "proof_account",
           }
+          # Synthesis returns the keys the runner wraps into the review report,
+          # and the fence removal above rewrote the paragraph that names them.
+          synthesis_text = " ".join((root / rubric["steps"][-1]["prompt"]).read_text().split())
+          assert (
+              "The object has exactly `decision`, `summary`, `scores`, "
+              "`warnings`, and `requested_changes`;" in synthesis_text
+          ), "synthesis no longer states its exact output keys"
+
+          # A dated scouting list with no owner and no refresh process reads as
+          # maintained policy while it sits here. Git keeps the history; if a
+          # maintained corpus is wanted it belongs in a repository that has
+          # somebody to keep it current, so it does not quietly return.
+          snapshot = "research/candidate-submissions.md"
+          assert not (root / snapshot).exists(), f"{snapshot} is back in current policy"
+          # Every readable file rather than the extensions policy happens to
+          # use today, so a document in a format nobody has added yet is
+          # covered. `.github` is exempt because this check names the path.
+          for doc in sorted(root.rglob("*")):
+              if not doc.is_file() or {".git", ".github"} & set(doc.parts):
+                  continue
+              try:
+                  text = doc.read_text()
+              except UnicodeDecodeError:
+                  continue
+              assert "candidate-submissions" not in text, (
+                  f"{doc} links to the removed candidate snapshot"
+              )
+
           print(f"validated {len(ids)} review steps")
           PY

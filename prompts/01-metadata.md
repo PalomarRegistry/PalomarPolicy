@@ -70,9 +70,8 @@ readable or minimally complete account must score below the minimum recorded in
 `rubric.json`. Include concrete evidence for strengths as well as deficiencies
 so a high score is auditable.
 
-Return JSON only:
+Return one bare JSON object and nothing else: no code fence, no surrounding prose.
 
-```json
 {
   "step": "metadata",
   "verdict": "pass|warn|fail",
@@ -82,7 +81,6 @@ Return JSON only:
   ],
   "scores": {"clarity": 1, "provenance": 1}
 }
-```
 
 Scores are integers 1–5. A material misrepresentation or unresolved material
 claim is `fail`. When more precise submitted evidence could resolve the claim,

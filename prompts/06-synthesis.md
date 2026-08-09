@@ -37,10 +37,12 @@ The `summary` and every `message` are published; the `scores` are not. So no
 digit out is not enough: "this prevents a literature score of 5 but not 4"
 names it, and "every score meets the minimum" bounds them all. Say what is
 wrong or missing and what would put it right, and let the decision carry the
-verdict. Return JSON only with
-exactly `decision`, `summary`, `scores`, `warnings`, and `requested_changes`;
-the runner wraps that synthesis in the final review report. Do not wrap JSON in
-a code fence.
+verdict.
+
+Return one bare JSON object and nothing else: no code fence, no surrounding prose.
+The object has exactly `decision`, `summary`, `scores`, `warnings`, and
+`requested_changes`; the runner wraps that synthesis in the final review report.
+
 Assess the work and its framing, never the submitter; frankness is not permission
 for personal disparagement.
 
