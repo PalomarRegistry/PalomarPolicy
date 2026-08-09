@@ -102,12 +102,11 @@ A passing report binds at least:
 
 Every exported proof is checked by Lean's kernel and replayed through the
 pinned independent NanoDa kernel. Palomar has no single-kernel passing result.
-The selected Comparator configuration must carry `enable_nanoda` as the exact
-JSON boolean `true`. Missing, false, and non-boolean values fail before
-Comparator runs. Palomar copies the validated submitted bytes byte-for-byte to
-a protected path outside every sandbox-writable directory and passes that
-unchanged protected copy to Comparator; it does not insert or rewrite the
-setting.
+The submitted `enable_nanoda` field is optional and non-authoritative. Palomar
+does not reject a repository because the field is absent or false; it writes a
+separate protected configuration with NanoDa enabled and uses that for every
+verification. This is intentional policy: independent replay is Palomar's
+responsibility, not a configuration burden or veto delegated to submitters.
 
 `PalomarSubmission/toolchains.json` is closed to exactly the fields
 `schema_version` and `minimum`; it neither selects nor pins trusted tools. The

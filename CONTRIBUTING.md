@@ -225,29 +225,29 @@ when Comparator accepts it.
 #### Mechanical requirements
 
 `comparator.json` must be a regular JSON file containing one object and must be
-no larger than 1 MiB. It has five required keys:
+no larger than 1 MiB. It has four required keys:
 
 ```json
 {
   "challenge_module": "Challenge",
   "solution_module": "Solution",
   "theorem_names": ["MyProject.main_theorem"],
-  "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
-  "enable_nanoda": true
+  "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"]
 }
 ```
 
 - `theorem_names` must be a nonempty array. The optional `definition_names`
   array defaults to empty. Every entry in either array must be a nonempty
   string.
-- No other keys are accepted, apart from the optional `definition_names` key.
+- No other keys are accepted, apart from the optional `definition_names` and
+  `enable_nanoda` keys.
 - `permitted_axioms` may contain only `propext`, `Quot.sound`, and
   `Classical.choice`.
-- `enable_nanoda` must be the exact JSON boolean `true`. A missing key, `false`,
-  or any non-boolean value fails mechanical verification. After validation,
-  Palomar copies the submitted bytes byte-for-byte to a protected path outside
-  every sandbox-writable directory and passes that unchanged protected copy to
-  Comparator. It does not silently insert or rewrite this requirement.
+- `enable_nanoda` is accepted for Comparator compatibility but is intentionally
+  non-authoritative. Its submitted value is ignored, and the field may be
+  absent. Palomar always writes a separate protected configuration with NanoDa
+  enabled. Requiring authors to maintain this switch would add an intake
+  barrier without changing what Palomar executes.
 - Deliberate holes in Challenge declarations are allowed. Comparator must
   confirm that every proved Solution declaration does not depend on `sorryAx`,
   `Lean.ofReduceBool`, a custom axiom, or an unnamed missing definition.
@@ -586,20 +586,19 @@ dependency pins, Challenge dependency set, file sizes, and Comparator
 configuration. For a thin wrapper it also resolves and inspects the named
 substantive repository at the exact declared commit. It then:
 
-1. refuses intake unless `enable_nanoda` is the exact JSON boolean `true`;
-2. discards submitted Lake build state and materialises the exact dependencies
+1. discards submitted Lake build state and materialises the exact dependencies
    in the manifest;
-3. compiles the Challenge separately against Lean core and the verified Mathlib
+2. compiles the Challenge separately against Lean core and the verified Mathlib
    or Tau Ceti dependencies;
-4. records every Lean source file used by that compilation and rejects any
+3. records every Lean source file used by that compilation and rejects any
    source outside the permitted set;
-5. protects that compiled Challenge module from replacement by project build
+4. protects that compiled Challenge module from replacement by project build
    output;
-6. copies the validated configuration bytes byte-for-byte to a protected path
-   outside every sandbox-writable directory;
-7. runs Comparator without network access or credentials using that unchanged
-   protected copy; and
-8. requires every exported proof to pass Lean's kernel and replay through the
+5. writes a protected Comparator configuration with NanoDa enabled outside
+   every sandbox-writable directory;
+6. runs Comparator without network access or credentials using that protected
+   configuration; and
+7. requires every exported proof to pass Lean's kernel and replay through the
    pinned NanoDa kernel.
 
 A passing mechanical report establishes that the recorded Solution satisfies
