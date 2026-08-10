@@ -133,10 +133,14 @@ relationships are `background` or `other`; the report records
 `result_origin: original`. A source-based result has no `original-proof` and at
 least one `formalizes`, `adapts`, or `independently-proves` relationship; the
 report records `result_origin: source-based`. An undeclared or conflicting
-origin fails. Despite the general unknown-field rule,
-`project.responsible_maintainer`, `sources[].author`, and the top-level
-`provenance` field (including the former `provenance.result_origin`) are named
-obsolete exceptions and are rejected. These structural checks do not replace
+origin fails. For prelaunch compatibility, the verifier losslessly normalises
+`project.responsible_maintainer` and `sources[].author` to their current plural
+forms. It also accepts a top-level `provenance` mapping containing only
+`result_origin` when that value equals the origin derived from the current
+source declarations. Matching dual declarations are accepted; conflicts,
+other top-level provenance keys, and legacy declarations used in place of the
+current source contract fail. The mechanical report contains only the current
+plural fields and derived origin. These structural checks do not replace
 editorial assessment of the facts' accuracy or the citations' adequacy.
 `automation.methods` remains required by the adopted upstream format, including
 `method: manual`; `review.status` describes review performed before submission.

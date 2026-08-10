@@ -333,18 +333,21 @@ documentation location or README.
 Palomar uses the [mathlib-initiative `formalization.yaml` v0.3
 format](https://github.com/mathlib-initiative/formalization.yaml) as a base and
 accepts unknown fields. Palomar adds repository-role, subject-classification,
-and responsible-maintainer fields plus the provenance rules below. Provenance is
-carried by the current `repository`, `project.responsible_maintainers`, and
-`sources` fields, not by a top-level field. The file may contain those additions
-at the same time as upstream fields such as `status`, `fidelity`, and
-`alignment`.
+and responsible-maintainer fields plus the provenance rules below. Canonical
+provenance is carried by the current `repository`,
+`project.responsible_maintainers`, and `sources` fields. The file may contain
+those additions at the same time as upstream fields such as `status`,
+`fidelity`, and `alignment`.
 
-There are three deliberate exceptions to the general unknown-field rule. The
-obsolete `project.responsible_maintainer`, `sources[].author`, and top-level
-`provenance` fields are rejected rather than ignored. Use
-`project.responsible_maintainers`, `sources[].authors`, and the current
-`repository` and `sources` declarations below. This includes replacing the
-former `provenance.result_origin` declaration with source-derived result origin.
+For prelaunch compatibility, Palomar losslessly normalises three known older
+spellings: `project.responsible_maintainer` as the current plural maintainer
+list, `sources[].author` as the current plural author list, and a top-level
+`provenance.result_origin` when it agrees with the origin derived from the
+current `sources` declarations. When an old and current person field both
+appear, their canonical lists must be equal. Other top-level provenance keys,
+invalid or conflicting origins, and conflicting person declarations fail
+mechanical verification rather than being ignored. The mechanical report
+always uses the current plural fields and source-derived origin.
 
 #### File requirements
 
@@ -422,7 +425,8 @@ Mechanical verification requires this current shape:
   `project.authors`, are nonempty name strings or mappings with a nonempty
   `name`. For a thin wrapper these are people responsible for the submitted
   wrapper; the submission's authorisation relationship separately covers the
-  underlying substantive formalisation;
+  underlying substantive formalisation. The known singular prelaunch spelling
+  is accepted as the lossless compatibility form described above;
 - `repository.role`: exactly `substantive-development` or `thin-wrapper`. A
   `substantive-development` repository must omit
   `repository.substantive_formalization`. A `thin-wrapper` repository must
@@ -451,9 +455,9 @@ The source list must satisfy exactly one of these alternatives:
 A source list that satisfies neither alternative fails mechanical verification:
 for example, a list containing only `background` entries, or one combining an
 `original-proof` with a substantive relationship. Missing fields, unrecognised
-enumerated values, and an invalid repository-role shape also fail. The three
-obsolete fields named at the start of section 3 are rejected rather than treated
-as harmless unknown fields.
+enumerated values, and an invalid repository-role shape also fail. A legacy
+`provenance.result_origin` is redundant: it cannot supply a missing current
+source declaration and must equal the origin derived by these rules.
 
 These checks establish only that the required facts have a usable shape and a
 consistent declared origin. Editorial review still assesses whether the named
