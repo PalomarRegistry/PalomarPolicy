@@ -1,6 +1,6 @@
 # Palomar infrastructure
 
-Last reconciled against the live services on 2026-08-09.
+Last reconciled against the live services on 2026-08-11.
 
 This is the durable record of where Palomar runs, so that changing a host or
 credential is a checklist rather than an excavation. The private canonical
@@ -14,6 +14,8 @@ restore a direct raw-GitHub or GitHub Pages fallback for database data.
 | Repositories | GitHub organization [`PalomarRegistry`](https://github.com/PalomarRegistry) | Moved from the `kim-em` personal account on 2026-08-04. Base member permission is `none`; access is granted by role-specific teams. `PalomarDatabase` and `PalomarSubmissionState` are private. |
 | Preserved source | GitHub organization [`PalomarArchive`](https://github.com/PalomarArchive) | Public native forks and immutable record-specific tags. Base member permission is `write`; repository deletion, visibility changes, and private-repository creation are disabled. |
 | Archive identity | GitHub user [`PalomarArchivist`](https://github.com/PalomarArchivist) | Dedicated 2FA-protected ordinary member of `PalomarArchive`, never an organization owner or a member of `PalomarRegistry`. |
+| Metadata-repair forks | GitHub organization [`PalomarRepairs`](https://github.com/PalomarRepairs) | Created 2026-08-11. Public native forks used only to propose `formalization.yaml` repairs back to submitter-owned repositories. GitHub Actions is disabled throughout the organization, public repository creation is allowed, and private repository creation is disabled. |
+| Repair identity | GitHub user [`palomar-repair`](https://github.com/palomar-repair) | Created 2026-08-11. Dedicated 2FA-protected ordinary member of `PalomarRepairs`, never an organization owner or a member of `PalomarRegistry`. |
 | Domains | `palomar-registry.org` and `palomarregistry.org`, both at Cloudflare Registrar | Registrar and DNS are in the same Cloudflare account. |
 | DNS, Workers, and R2 | Cloudflare account `d789bf36d237e0cb313be59b927c82bd` | Zones `f05ebb1809990a5d27e6d6a7d0d1ae85` for `palomar-registry.org` and `feea63b2ced3571a5ab5ce4ba516067f` for `palomarregistry.org`; nameservers `joyce`/`matias.ns.cloudflare.com`. |
 | Website hosting | GitHub Pages, repository `PalomarWeb` | The website is static; its registry content is fetched at runtime from the public data Worker. |
@@ -72,6 +74,36 @@ post-registration reconciler stars only each accepted record's original
 top-level source—not dependencies or archive forks—and verifies the star before
 recording it in private state.
 
+## Metadata-repair organization
+
+`PalomarRepairs` is a separate security boundary for short-lived, public repair
+forks. Its
+[member privileges](https://github.com/organizations/PalomarRepairs/settings/member_privileges)
+and [Actions policy](https://github.com/organizations/PalomarRepairs/settings/actions)
+must remain configured as follows:
+
+| Setting | Required value | Reason |
+| --- | --- | --- |
+| Base repository permission | Read | The organization contains only public forks; broader base write authority is unnecessary. |
+| Public repository creation | Allowed | GitHub creates a native organization fork as a new public repository. |
+| Private repository creation | Disallowed | Repair inputs and branches are public and the organization must not become a private-data store. |
+| GitHub Actions | Disabled for all repositories | A submitter-controlled workflow copied into a fork must never run beside the repair credential. |
+
+[`palomar-repair`](https://github.com/palomar-repair) is an ordinary active
+member, not an owner, and has 2FA enabled. Creating a native organization fork
+gives it the per-repository authority needed to push and remove the one
+deterministic repair branch. The repair worker reads
+[`GET /repos/{owner}/{repo}/actions/permissions`](https://docs.github.com/en/rest/actions/permissions#get-github-actions-permissions-for-a-repository)
+before every push and proceeds only when `enabled` is `false`; an
+organization-policy drift therefore becomes an actionable infrastructure
+failure rather than an execution of untrusted workflow code.
+
+The account must never join `PalomarRegistry`, receive access to a private
+Palomar repository, or be reused for review, registration, publication, or
+source preservation. Organization owners retain the authority to remove stale
+repair forks. The repair identity needs no authority to merge its proposals:
+the submitter reviews and merges them in the submitter-owned repository.
+
 ## Service topology
 
 | Host | Serves | Hosted by | Status |
@@ -123,6 +155,25 @@ author consents to register an accepted review
 Any failure in that path stops registration before a database branch is
 published. A source shape that a native fork cannot preserve is rejected during
 mechanical verification rather than discovered after acceptance.
+
+The metadata-repair path is separate from acceptance and registration:
+
+```text
+failed verification publishes structured, schema-backed repairable fields
+  -> the author chooses whether to request a repair
+  -> PalomarSubmissionState records the request in index/repairs.json
+  -> repairer.yml validates the proposed values through the shared preflight
+     implementation used by submissions
+  -> palomar-repair creates or reuses an Actions-disabled PalomarRepairs fork
+  -> write one deterministic repair branch and read it back
+  -> open a pull request to the submitter-owned repository
+  -> the author reviews and chooses whether to merge it
+```
+
+A repair pull request is a proposal, not an accepted record or a preserved
+source. It never grants `palomar-repair` access to `PalomarRegistry`, and the
+repair worker refuses to push unless GitHub reports that Actions is disabled on
+the destination fork.
 
 The Worker never exposes `_current.json`, a release delta, either internal key
 prefix, bucket listings, the private `takedowns.json`, or submitter identity. A
@@ -227,6 +278,7 @@ Never record credential values or filesystem locations here.
 | Server deployment API token | Worker version upload and promotion for `palomar-server` | GitHub Actions in `PalomarServer` |
 | Registry automation token (`PALOMAR_GITHUB_TOKEN`) | Reads verification artifacts, updates private submission state, and creates and merges registration changes in the private database | GitHub Actions in private `PalomarSubmissionState` |
 | Archive token (`PALOMAR_ARCHIVE_TOKEN`) | Authenticates only as `PalomarArchivist`; creates and writes native public forks in `PalomarArchive`, manages each new fork's preservation ruleset and direct creator grant, and stars original sources after registration. A classic token needs `public_repo` and `workflow`; GitHub requires `workflow` even for a tag whose commit contains a workflow file. | GitHub Actions in private `PalomarSubmissionState` |
+| Repair token (`PALOMAR_REPAIR_TOKEN`) | Authenticates only as `palomar-repair`; creates public forks in `PalomarRepairs`, verifies their Actions policy, pushes and removes one deterministic repair branch, and opens pull requests to submitter-owned public repositories. It is a classic token with only the top-level `repo` scope: GitHub requires that scope to read a repository's Actions-permissions endpoint, while account isolation prevents access to Palomar's private repositories. | GitHub Actions in private `PalomarSubmissionState` |
 | Review-engine API key (`OPENAI_API_KEY`) | Runs the private editorial review pipeline | GitHub Actions in private `PalomarSubmissionState` |
 
 The private Database repository stores only these R2 publisher secrets:
@@ -255,7 +307,8 @@ The private SubmissionState repository stores these reviewer secrets:
 
 - `OPENAI_API_KEY`;
 - `PALOMAR_GITHUB_TOKEN`;
-- `PALOMAR_ARCHIVE_TOKEN`.
+- `PALOMAR_ARCHIVE_TOKEN`;
+- `PALOMAR_REPAIR_TOKEN`.
 
 The exact repository permissions for `PALOMAR_GITHUB_TOKEN`, archive-account
 guardrails, and rotation procedure are maintained in the
@@ -271,6 +324,13 @@ and [Starring user permission](https://docs.github.com/en/rest/activity/starring
 Do not combine the registry and archive credentials: the archive identity must
 not be able to mutate `PalomarRegistry`, and the general registry automation
 identity must not bypass the archive's dedicated-account check.
+
+Do not combine the repair credential with either of those identities. The
+classic `repo` scope is broader than the repairer's public-only work would
+otherwise suggest because GitHub's Actions-permissions endpoint requires it.
+That scope is contained by keeping `palomar-repair` out of every private
+repository and organization. The account must not acquire a personal private
+repository while this credential exists.
 
 ## Deployment and recovery
 
@@ -303,7 +363,7 @@ time so an operator can tell whose it is. Its name is a peppered digest of the
 principal rather than a login, so listing the directory does not enumerate who
 has submitted.
 
-### Review, registration, and source preservation
+### Review, registration, source preservation, and metadata repair
 
 The private `PalomarSubmissionState` workflow runs every two hours, at `37 */2`,
 and may also be dispatched manually. A pass that has more to do asks for the
@@ -363,6 +423,38 @@ state first if the run must be credential-only. The first real registration
 additionally proves fork creation, ruleset creation, administrator demotion, tag
 creation, and read-back; it fails closed before publication if any one of those
 operations is unavailable.
+
+The separate `repairer.yml` workflow runs every two hours, at `17 */2`, and may
+also be dispatched manually. It reads `index/repairs.json`, installs
+`PalomarReviewer` and `PalomarSubmission` from their public `main` branches,
+and runs the repair proposal through the same preflight implementation used by
+submitters. Its concurrency group serializes repair branches and pull-request
+creation independently of editorial review and registration.
+
+After creating or rotating `PALOMAR_REPAIR_TOKEN`, sign in as
+[`palomar-repair`](https://github.com/palomar-repair) and create a classic token
+at <https://github.com/settings/tokens> with only the top-level `repo` scope.
+Record its expiration in the operator credential manager. Replace the Actions
+secret at
+<https://github.com/PalomarRegistry/PalomarSubmissionState/settings/secrets/actions>,
+then revoke the superseded token and dispatch the workflow:
+
+```sh
+gh workflow run repairer.yml \
+  --repo PalomarRegistry/PalomarSubmissionState \
+  --ref main
+```
+
+An empty repair queue proves the production workflow and installed command can
+start with the secret configured; it does not exercise the token against a
+fork. The next real repair is the end-to-end credential check: it verifies the
+account can create or reuse the organization fork, reads back that Actions is
+disabled before pushing, reads back the branch, opens the pull request, and
+records the result in private State. Any failure leaves the submission and its
+repository unchanged and records an actionable infrastructure failure for an
+operator. To retire the repair facility, disable `repairer.yml`, remove
+`PALOMAR_REPAIR_TOKEN`, and revoke the token before removing the account from
+`PalomarRepairs`.
 
 For a newly registered record, inspect its `preservation.repositories` mapping
 and verify each linked [PalomarArchive repository](https://github.com/PalomarArchive),
@@ -486,9 +578,11 @@ organization, or hostname migration.
 Registrar operations, payment, organization-level GitHub Pages domain
 verification, the `www` Redirect Rule, data-Worker staging/production
 deployments, creation and recovery of the `PalomarArchivist` GitHub account,
-archive-organization policy changes, and credential rotation are manual.
-Website, server, review, registration, source preservation, filtered-data,
-availability, health-check, and the two weekly sweep workflows are automated.
+creation and recovery of the `palomar-repair` GitHub account, archive- and
+repair-organization policy changes, and credential rotation are manual.
+Website, server, review, registration, source preservation, metadata repair,
+filtered-data, availability, health-check, and the two weekly sweep workflows
+are automated.
 The sweeps are where anything whose cost is the size of the registry rather than
 the size of the change has been moved, because those checks used to run once per
 accepted result and the registry paid for them quadratically over its life. The
