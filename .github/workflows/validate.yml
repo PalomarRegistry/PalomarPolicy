@@ -30,8 +30,20 @@ jobs:
           ids = [step["id"] for step in rubric["steps"]]
           assert len(ids) == len(set(ids)), "duplicate rubric step"
           assert ids[-1] == "synthesis", "synthesis must be last"
-          assert rubric["schema_version"] == 7
+          assert rubric["schema_version"] == 8
           assert rubric["step_result"]["verdicts"] == ["pass", "warn", "fail"]
+          assert rubric["step_result"]["required_fields"] == [
+              "step",
+              "verdict",
+              "summary",
+              "findings",
+              "scores",
+              "trust_level",
+              "sources_checked",
+              "declarations_checked",
+              "codes_checked",
+              "internal_notes",
+          ]
           assert review_schema["properties"]["schema_version"]["const"] == 2
           assert review_schema["properties"]["decision"]["enum"] == ["accept", "revise", "reject"]
           assert review_schema["properties"]["passes"]["items"]["properties"]["verdict"]["enum"] == ["pass", "warn", "fail"]
@@ -68,6 +80,7 @@ jobs:
               "trust_level",
               "sources_checked",
               "declarations_checked",
+              "codes_checked",
           }, "a served pass carries a field nobody has decided may be served"
           assert set(public_finding["properties"]) == {
               "evidence",
@@ -94,6 +107,7 @@ jobs:
           }
           allowed_inputs = {
               "all_previous_results",
+              "previous_findings",
               "challenge_source",
               "comparator_config",
               "formalization_metadata",
@@ -164,6 +178,7 @@ jobs:
                   assert set(score_keys) <= allowed_scores
                   assert "policy:CONTRIBUTING.md" in step["inputs"]
                   assert "policy:rubric.json" in step["inputs"]
+                  assert "policy:prompts/materiality.md" in step["inputs"]
                   owned_scores.extend(score_keys)
                   owners.update({key: step for key in score_keys})
               for input_name in step.get("inputs", []):
@@ -213,5 +228,22 @@ jobs:
                   f"{doc} links to the removed candidate snapshot"
               )
 
+          classification_coverage_steps = {
+              step["id"] for step in rubric["steps"]
+              if step.get("requires_classification_coverage") is True
+          }
+          assert classification_coverage_steps == {"classification"}
+
+          cases = json.loads((root / "tests" / "materiality-cases.json").read_text())
+          assert len(cases) >= 8
+          assert len({case["id"] for case in cases}) == len(cases)
+          assert {case["expected"] for case in cases} >= {
+              "internal_note",
+              "finding",
+              "finding_once",
+              "reject",
+          }
+          assert len({case["area"] for case in cases}) >= 6
+          assert all(case["scenario"].strip() and case["reason"].strip() for case in cases)
           print(f"validated {len(ids)} review steps")
           PY

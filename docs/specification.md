@@ -185,20 +185,26 @@ backstop, not containment against encoding or another channel. The planned
 credential broker will keep provider credentials outside the engine namespace;
 it is not implemented yet.
 
-Synthesis must reproduce the evidence-pass scores exactly. An acceptance cannot
-override a failed mandatory pass or a score below the rubric minimum, and a
-fundamental notability failure requires rejection rather than revision. These
-are structural guarantees; Palomar does not separately claim that a human
-confirmed the model's substantive judgments.
+Synthesis must reproduce the evidence-pass scores exactly. A clean pass cannot
+score below the rubric minimum, a score of 1 or 2 requires a failed pass, and
+an acceptance cannot override any failed pass. A non-mandatory score of 3 may
+accompany an accepted warning when its material finding is disclosed;
+notability remains a mandatory floor and failure there requires rejection
+rather than revision. Acceptances cannot request changes, and revision
+decisions must request at least one. These are structural guarantees; Palomar
+does not separately claim that a human confirmed the model's substantive
+judgments.
 
 The complete review remains private and is bound to the submission by digest.
-The status page presents only a binary passed/did-not-pass outcome and the
-review's useful prose. It does not expose the internal accept/revise/reject
-decision, scores, evidence-pass records, or finding severities. For a registered
-result, Palomar publishes a redacted archived review containing the accepted
-outcome and every evidence-pass comment, but not scores or per-finding severity.
-The private canonical materials retain the information needed to reconstruct
-how the decision was reached.
+Each pass separates author-facing material findings from `internal_notes` that
+record positive checks, excluded edge cases, and non-material concerns. The
+status page presents only a binary passed/did-not-pass outcome and the
+author-facing prose. It does not expose the internal accept/revise/reject
+decision, scores, evidence-pass records, finding severities, or audit notes. For
+a registered result, Palomar publishes a redacted archived review containing
+the accepted outcome and every material finding, but not scores, per-finding
+severity, or `internal_notes`. The private canonical materials retain the
+information needed to reconstruct how the decision was reached.
 
 There is no ordinary appeal or human override. A changed review must be produced
 under the current contract and delivered again; registration consent never

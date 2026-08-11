@@ -10,6 +10,8 @@ The versioned editorial contract for the Palomar registry.
 - [`rubric.json`](rubric.json) defines the ordered AI review passes.
 - [`prompts/`](prompts/) contains the prompt text used by
   [`PalomarReviewer`](https://github.com/PalomarRegistry/PalomarReviewer).
+- [`tests/materiality-cases.json`](tests/materiality-cases.json) records the
+  generic regression matrix for public findings versus private audit notes.
 - [`taxonomies/classification-guide.md`](taxonomies/classification-guide.md)
   defines the binding classification-review interpretation.
 - [`schemas/review.schema.json`](schemas/review.schema.json) defines the

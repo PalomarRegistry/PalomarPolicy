@@ -373,7 +373,15 @@ self-reporting format. For work performed without an automated system, use
 submission, not the Palomar review that is about to occur. Upstream examples
 include `unchecked`, `agent-reviewed`, `self-assessed`, `peer-reviewed`,
 `author-verified`, and another accurately described free-form status. Use
-`review.reviewers` and `review.notes` to explain who checked what.
+`review.reviewers` when identifiable people or systems performed a distinct
+review, and use `review.notes` for a concise basis or a pointer to a fuller
+pinned account. Do not imply a separate review merely because the authors
+checked their own work; `unchecked` is accurate when no review was performed.
+
+Record each material automated method and model role honestly. Costs, hardware,
+wall time, and prompt logs are useful when available but are not required to be
+reconstructed after the fact. A concise structured disclosure may point to a
+fuller account in a document at the reviewed repository commit.
 
 #### Mechanical requirements
 
@@ -708,10 +716,14 @@ theorem name and then every definition name in the recorded Comparator
 configuration. The reviewer rejects an incomplete or reordered manifest. Clean
 declarations need no individual comment, but every distinct material criticism
 must be reported; finding one problem must not suppress review of later
-declarations. The reviewer mechanically requires the final AI-comment list to
-contain every finding from every evidence pass, in order, including useful
-informational context. Severity remains internal; all findings are presented
-under the same AI-comments heading. One Palomar
+declarations. A classification pass likewise records every submitted code.
+The reviewer mechanically requires the final AI-comment list to contain every
+material finding from every evidence pass, once and in order. A finding is an
+author-facing criticism and may later be published. Positive checks, harmless
+edge cases, excluded failure modes, and non-material concerns instead go into
+private `internal_notes`; those notes cannot justify a decision or requested
+change. Severity remains internal; all findings are presented under the same
+AI-comments heading. One Palomar
 submission records one Comparator configuration. A
 repository with several configurations must submit each configuration
 separately if all of them are to become Palomar records.
@@ -755,13 +767,13 @@ Scores run from 1 to 5:
 - `5`: exceptionally complete and independently checkable, with no meaningful
   gap found after critical review.
 
-The current minimum for acceptance is **4**. A score of 4 or 5 requires
+The current rubric minimum is **4**. A score of 4 or 5 requires
 concrete positive evidence, not merely successful compilation, populated
-fields, familiar terminology, or the absence of an obvious contradiction. Every
-score from every completed pass must reach 4. This includes classification,
-provenance, auditability, and optional proof alignment as well as the five
-scores recorded with the decision: statement alignment, definition fidelity,
-notability, literature, and clarity.
+fields, familiar terminology, or the absence of an obvious contradiction. A
+clean `pass` must reach 4 on every score it owns. A non-mandatory dimension may
+score 3 with a `warn` verdict and a concrete material finding without blocking
+acceptance. A score of 1 or 2 is a failed pass. Notability is mandatory: below
+4 it fails the pass and requires rejection.
 
 One exception, or these anchors would forbid what section 3 permits: a source
 disclosed as unconfirmable, precisely stated, is not an "unverified claim" for
@@ -816,9 +828,10 @@ never the submitter.
 ### Final decisions
 
 - `accept`: the mechanical report passes, no completed pass has verdict `fail`,
-  and every completed score is at least 4;
+  and every mandatory score is at least 4; it may include disclosed,
+  non-blocking warnings but no requested changes;
 - `revise`: the result may qualify after specific, realistically correctable
-  changes;
+  changes, which the review lists;
 - `reject`: there is a fundamental semantic, provenance, or editorial failure,
   including failure to affirmatively establish the research-interest
   requirement.
@@ -831,8 +844,8 @@ If an operator or tool failure prevents the automated review from completing,
 the submission is marked `review-failed`. That is an operational state, not a
 decision about the submission; Palomar may investigate and rerun it.
 
-Every decision includes a summary, warnings, requested changes, pass findings,
-scores, and a machine-readable report.
+Every decision includes a summary, author-facing findings, any requested
+changes, private scores and audit notes, and a machine-readable report.
 
 ## 8. Privacy, registration, and rendering
 
