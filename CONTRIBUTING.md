@@ -339,15 +339,16 @@ wrapper, `repository.substantive_formalization`, not by a top-level field. The
 file may contain those additions at the same time as upstream fields such as
 `status`, `fidelity`, and `alignment`.
 
-For prelaunch compatibility, Palomar accepts
-`project.responsible_maintainer` and `sources[].author` as singular aliases when
-the corresponding current plural field is absent. When both spellings appear,
-the current plural field takes precedence and the singular alias is ignored.
-The verifier also ignores an obsolete top-level `provenance` block. These
-compatibility forms cannot replace the current source contract: result origin
-is always derived from `sources`. The mechanical report uses only the current
-plural fields and source-derived origin. New files should use the plural fields
-and omit the top-level block.
+For compatibility with older files, Palomar accepts
+`project.responsible_maintainer` and `sources[].author` as aliases when the
+corresponding current plural key is not present at all. Despite their singular
+names, each alias may contain one person or a list. A present plural field takes
+precedence even when empty or invalid, and the alias is ignored. The verifier
+also ignores an obsolete top-level `provenance` block. These compatibility forms
+cannot replace the current source contract: result origin is always derived
+from `sources`. The mechanical report records maintainers and source authors
+under the current plural names and records the source-derived origin. New files
+should use the plural fields and omit the top-level block.
 
 #### File requirements
 
@@ -433,7 +434,7 @@ Mechanical verification requires this current shape:
   `project.authors`, are nonempty name strings or mappings with a nonempty
   `name`. For a thin wrapper these are people responsible for the submitted
   wrapper; the submission's authorisation relationship separately covers the
-  underlying substantive formalisation. The singular prelaunch alias is
+  underlying substantive formalisation. The older singular alias is
   accepted only as the compatibility fallback described above;
 - `repository` is omitted when the submitted repository contains the
   substantive development; the mechanical report records that ordinary

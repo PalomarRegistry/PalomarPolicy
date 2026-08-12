@@ -134,14 +134,16 @@ relationships are `background` or `other`; the report records
 `result_origin: original`. A source-based result has no `original-proof` and at
 least one `formalizes`, `adapts`, or `independently-proves` relationship; the
 report records `result_origin: source-based`. An undeclared or conflicting
-origin fails. For prelaunch compatibility, the verifier accepts
-`project.responsible_maintainer` and `sources[].author` as singular aliases when
-the corresponding current plural field is absent. The current plural field
-takes precedence when both spellings appear. An obsolete top-level `provenance`
-block is ignored, and cannot replace the current source declarations or
-override their derived origin. The mechanical report contains only the current
-plural fields and source-derived origin. These structural checks do not replace
-editorial assessment of the facts' accuracy or the citations' adequacy.
+origin fails. For compatibility with older files, the verifier accepts
+`project.responsible_maintainer` and `sources[].author` as aliases when the
+corresponding current plural key is not present at all; either alias may contain
+one person or a list. A present plural field takes precedence even when empty or
+invalid. An obsolete top-level `provenance` block is ignored, and cannot replace
+the current source declarations or override their derived origin. The
+mechanical report records maintainers and source authors under the current
+plural names and records the source-derived origin. These structural checks do
+not replace editorial assessment of the facts' accuracy or the citations'
+adequacy.
 `automation.methods` remains required by the adopted upstream format, including
 `method: manual`; `review.status` describes review performed before submission.
 
