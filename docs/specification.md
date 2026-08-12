@@ -119,11 +119,12 @@ revision used for the run.
 Mechanical metadata requirements are hard failures where `CONTRIBUTING.md` says
 so. Provenance requires a nonempty `project.responsible_maintainers` list whose
 members are nonempty name strings or mappings with a nonempty `name`, a
-recognised repository-role shape, and nonempty sources with recognised
-relationships. `substantive-development` excludes a
-`substantive_formalization`; `thin-wrapper` requires an `owner/repository` or
-GitHub URL plus a full 40-character lowercase commit SHA, which the verifier
-resolves after validating its shape. Optional source types use the closed
+nonempty source list with recognised relationships, and a valid optional
+thin-wrapper mapping. An omitted `repository` defaults to the submitted
+repository as the substantive development. A separately recorded
+`substantive_formalization` requires an `owner/repository` or GitHub URL plus a
+full 40-character lowercase commit SHA, which the verifier resolves after
+validating its shape. Optional source types use the closed
 vocabulary `paper`, `book`, `web discussion`, `folklore`, `original-proof`, and
 `other`; `web discussion` is the exact upstream spelling.
 

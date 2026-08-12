@@ -22,7 +22,7 @@ Palomar uses the upstream community
 self-reporting standard for formalisation projects; this is not a format
 invented by Palomar. `formalization.yaml` records the required structured facts
 about provenance, sources, licence, classification, authorship, automation,
-review, repository role, scope, and known gaps. Narrative prose explaining what
+review, any thin-wrapper relationship, scope, and known gaps. Narrative prose explaining what
 the result says and why it matters may be in Challenge module documentation,
 docstrings attached to the compared declarations, the project README,
 `formalization.yaml`, or several of these locations. The formal statement alone
@@ -332,10 +332,10 @@ documentation location or README.
 
 Palomar uses the [mathlib-initiative `formalization.yaml` v0.3
 format](https://github.com/mathlib-initiative/formalization.yaml) as a base and
-accepts unknown fields. Palomar adds repository-role, subject-classification,
-and responsible-maintainer fields plus the provenance rules below. Provenance is
-carried by the current `repository`, `project.responsible_maintainers`, and
-`sources` fields, not by a top-level field. The file may contain those additions
+accepts unknown fields. Palomar adds subject-classification and
+responsible-maintainer fields plus the provenance rules below. Provenance is
+carried by `project.responsible_maintainers`, `sources`, and, only for a thin
+wrapper, `repository.substantive_formalization`, not by a top-level field. The file may contain those additions
 at the same time as upstream fields such as `status`, `fidelity`, and
 `alignment`.
 
@@ -431,15 +431,17 @@ Mechanical verification requires this current shape:
   `name`. For a thin wrapper these are people responsible for the submitted
   wrapper; the submission's authorisation relationship separately covers the
   underlying substantive formalisation;
-- `repository.role`: exactly `substantive-development` or `thin-wrapper`. A
-  `substantive-development` repository must omit
-  `repository.substantive_formalization`. A `thin-wrapper` repository must
-  provide `repository.substantive_formalization.id` as `owner/repository` or a
+- `repository` is omitted when the submitted repository contains the
+  substantive development; the mechanical report records that ordinary
+  default as `substantive-development`. A thin wrapper must provide
+  `repository.substantive_formalization.id` as `owner/repository` or a
   `https://github.com/owner/repository` URL and
   `repository.substantive_formalization.revision` as a full 40-character
   lowercase commit SHA. This first validates and normalises the metadata shape;
   the verifier later resolves the named GitHub repository and exact commit and
-  fails if they cannot be used as the substantive source;
+  fails if they cannot be used as the substantive source. The older explicit
+  `repository.role` spellings remain accepted: `thin-wrapper` requires the
+  mapping, while `substantive-development` forbids it;
 - `sources`: a nonempty list in which every entry has a nonempty `title` and a
   `relationship` of exactly `formalizes`, `adapts`, `independently-proves`,
   `background`, or `other`;
@@ -459,13 +461,13 @@ The source list must satisfy exactly one of these alternatives:
 A source list that satisfies neither alternative fails mechanical verification:
 for example, a list containing only `background` entries, or one combining an
 `original-proof` with a substantive relationship. Missing fields, unrecognised
-enumerated values, and an invalid repository-role shape also fail. The three
+enumerated values, and an invalid thin-wrapper shape also fail. The three
 obsolete fields named at the start of section 3 are rejected rather than treated
 as harmless unknown fields.
 
 These checks establish only that the required facts have a usable shape and a
 consistent declared origin. Editorial review still assesses whether the named
-people, repository role, citations, source relationships, and account of prior
+people, repository relationship, citations, source relationships, and account of prior
 work are accurate and informative. A structurally valid citation can therefore
 still be inadequate or misleading.
 
@@ -516,7 +518,7 @@ make it possible to identify and assess the exact claim being submitted.
 
 Keep all required structured facts in `formalization.yaml`, including
 provenance, sources and their relationships, licence, classification,
-authorship, automation, review, repository role, scope, and known gaps.
+authorship, automation, review, any thin-wrapper relationship, scope, and known gaps.
 Narrative elsewhere supplements those fields and does not replace them.
 
 Across the eligible narrative locations, include:
@@ -682,12 +684,11 @@ root, regardless of how the Lakefile spelled the relative path.
 ### 6.5 Thin wrappers
 
 A **thin wrapper** is a repository that exists only to expose declarations from
-another formalisation to Comparator. Set `repository.role: thin-wrapper` and
-provide:
+another formalisation to Comparator. Ordinary projects omit `repository`;
+wrappers provide:
 
 ```yaml
 repository:
-  role: thin-wrapper
   substantive_formalization:
     id: owner/repository
     revision: 0000000000000000000000000000000000000000
@@ -696,7 +697,8 @@ repository:
 The repository must be a public GitHub repository, and `revision` must be a
 full lowercase commit SHA. Palomar records this underlying repository and
 commit as the substantive formalisation. Submitter authorisation must also
-concern that underlying project.
+concern that underlying project. The legacy explicit `role: thin-wrapper`
+spelling remains accepted but is unnecessary.
 
 ## 7. Editorial review
 

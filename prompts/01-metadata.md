@@ -5,7 +5,7 @@ narrative account. Mechanical completeness is handled elsewhere; read the
 values rather than rewarding populated fields or polished prose.
 
 Required structured facts about provenance, sources, licence, classification,
-authorship, automation, review status, repository role, scope, and known gaps
+authorship, automation, review status, any thin-wrapper relationship, scope, and known gaps
 belong in `formalization.yaml`. Narrative explanation of the mathematics and
 its development may instead live in Challenge module documentation, declaration
 docstrings, or a selected-project README. Do not require duplication. A pointer
