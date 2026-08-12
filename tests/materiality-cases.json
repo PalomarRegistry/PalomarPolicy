@@ -1,0 +1,72 @@
+[
+  {
+    "id": "excluded-partial-domain",
+    "area": "algebra",
+    "scenario": "A definition uses division, and every compared theorem assumes the denominator is nonzero.",
+    "expected": "internal_note",
+    "reason": "The hypotheses exclude the operation's fallback value."
+  },
+  {
+    "id": "reachable-default",
+    "area": "order-theory",
+    "scenario": "A headline extremum theorem permits an empty set, where the Lean definition returns a default value not asserted by the prose.",
+    "expected": "finding",
+    "reason": "A reachable fallback materially changes the advertised statement."
+  },
+  {
+    "id": "plausible-broad-classification",
+    "area": "topology",
+    "scenario": "A submitted subject code is broad but has a direct substantive connection to the selected result.",
+    "expected": "internal_note",
+    "reason": "Classification review is a plausibility screen, not an optimization exercise."
+  },
+  {
+    "id": "resolved-pinned-narrative",
+    "area": "probability",
+    "scenario": "Structured facts are present and a narrative field points to a document resolved at the reviewed repository commit.",
+    "expected": "internal_note",
+    "reason": "Verified pinned narrative need not be duplicated into structured metadata."
+  },
+  {
+    "id": "unresolved-pointer",
+    "area": "logic",
+    "scenario": "A material public claim is supported only by a repository path that cannot be resolved at the reviewed commit.",
+    "expected": "finding",
+    "reason": "The material claim cannot be audited from pinned evidence."
+  },
+  {
+    "id": "optional-automation-detail",
+    "area": "geometry",
+    "scenario": "Material AI involvement and its role are disclosed, but cost, hardware, timing, and prompt logs were not recorded.",
+    "expected": "internal_note",
+    "reason": "Unavailable optional production detail is not a public defect."
+  },
+  {
+    "id": "unsupported-scope-claim",
+    "area": "analysis",
+    "scenario": "A public scope claim is contradicted by the pinned source and selection evidence.",
+    "expected": "finding",
+    "reason": "The public scope claim is materially unsupported by the indexed declarations."
+  },
+  {
+    "id": "material-prior-work-omitted",
+    "area": "category-theory",
+    "scenario": "A directly related prior formalization changes the provenance account but is absent from structured related-work metadata.",
+    "expected": "finding",
+    "reason": "The omission materially changes the public provenance record."
+  },
+  {
+    "id": "cross-pass-duplicate",
+    "area": "combinatorics",
+    "scenario": "Two passes independently identify the same material scope defect and the same correction.",
+    "expected": "finding_once",
+    "reason": "The first pass reports it; later passes retain only additional private audit reasoning."
+  },
+  {
+    "id": "polished-routine-result",
+    "area": "linear-algebra",
+    "scenario": "The formalization and prose are correct and polished, but the selected result is routine and no credible research audience is established.",
+    "expected": "reject",
+    "reason": "Presentation quality does not replace the research-interest floor."
+  }
+]

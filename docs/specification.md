@@ -119,11 +119,12 @@ revision used for the run.
 Mechanical metadata requirements are hard failures where `CONTRIBUTING.md` says
 so. Provenance requires a nonempty `project.responsible_maintainers` list whose
 members are nonempty name strings or mappings with a nonempty `name`, a
-recognised repository-role shape, and nonempty sources with recognised
-relationships. `substantive-development` excludes a
-`substantive_formalization`; `thin-wrapper` requires an `owner/repository` or
-GitHub URL plus a full 40-character lowercase commit SHA, which the verifier
-resolves after validating its shape. Optional source types use the closed
+nonempty source list with recognised relationships, and a valid optional
+thin-wrapper mapping. An omitted `repository` defaults to the submitted
+repository as the substantive development. A separately recorded
+`substantive_formalization` requires an `owner/repository` or GitHub URL plus a
+full 40-character lowercase commit SHA, which the verifier resolves after
+validating its shape. Optional source types use the closed
 vocabulary `paper`, `book`, `web discussion`, `folklore`, `original-proof`, and
 `other`; `web discussion` is the exact upstream spelling.
 
@@ -133,14 +134,13 @@ relationships are `background` or `other`; the report records
 `result_origin: original`. A source-based result has no `original-proof` and at
 least one `formalizes`, `adapts`, or `independently-proves` relationship; the
 report records `result_origin: source-based`. An undeclared or conflicting
-origin fails. For prelaunch compatibility, the verifier losslessly normalises
-`project.responsible_maintainer` and `sources[].author` to their current plural
-forms. It also accepts a top-level `provenance` mapping containing only
-`result_origin` when that value equals the origin derived from the current
-source declarations. Matching dual declarations are accepted; conflicts,
-other top-level provenance keys, and legacy declarations used in place of the
-current source contract fail. The mechanical report contains only the current
-plural fields and derived origin. These structural checks do not replace
+origin fails. For prelaunch compatibility, the verifier accepts
+`project.responsible_maintainer` and `sources[].author` as singular aliases when
+the corresponding current plural field is absent. The current plural field
+takes precedence when both spellings appear. An obsolete top-level `provenance`
+block is ignored, and cannot replace the current source declarations or
+override their derived origin. The mechanical report contains only the current
+plural fields and source-derived origin. These structural checks do not replace
 editorial assessment of the facts' accuracy or the citations' adequacy.
 `automation.methods` remains required by the adopted upstream format, including
 `method: manual`; `review.status` describes review performed before submission.
@@ -189,20 +189,26 @@ backstop, not containment against encoding or another channel. The planned
 credential broker will keep provider credentials outside the engine namespace;
 it is not implemented yet.
 
-Synthesis must reproduce the evidence-pass scores exactly. An acceptance cannot
-override a failed mandatory pass or a score below the rubric minimum, and a
-fundamental notability failure requires rejection rather than revision. These
-are structural guarantees; Palomar does not separately claim that a human
-confirmed the model's substantive judgments.
+Synthesis must reproduce the evidence-pass scores exactly. A clean pass cannot
+score below the rubric minimum, a score of 1 or 2 requires a failed pass, and
+an acceptance cannot override any failed pass. A non-mandatory score of 3 may
+accompany an accepted warning when its material finding is disclosed;
+notability remains a mandatory floor and failure there requires rejection
+rather than revision. Acceptances cannot request changes, and revision
+decisions must request at least one. These are structural guarantees; Palomar
+does not separately claim that a human confirmed the model's substantive
+judgments.
 
 The complete review remains private and is bound to the submission by digest.
-The status page presents only a binary passed/did-not-pass outcome and the
-review's useful prose. It does not expose the internal accept/revise/reject
-decision, scores, evidence-pass records, or finding severities. For a registered
-result, Palomar publishes a redacted archived review containing the accepted
-outcome and every evidence-pass comment, but not scores or per-finding severity.
-The private canonical materials retain the information needed to reconstruct
-how the decision was reached.
+Each pass separates author-facing material findings from `internal_notes` that
+record positive checks, excluded edge cases, and non-material concerns. The
+status page presents only a binary passed/did-not-pass outcome and the
+author-facing prose. It does not expose the internal accept/revise/reject
+decision, scores, evidence-pass records, finding severities, or audit notes. For
+a registered result, Palomar publishes a redacted archived review containing
+the accepted outcome and every material finding, but not scores, per-finding
+severity, or `internal_notes`. The private canonical materials retain the
+information needed to reconstruct how the decision was reached.
 
 There is no ordinary appeal or human override. A changed review must be produced
 under the current contract and delivered again; registration consent never

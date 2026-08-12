@@ -22,7 +22,7 @@ Palomar uses the upstream community
 self-reporting standard for formalisation projects; this is not a format
 invented by Palomar. `formalization.yaml` records the required structured facts
 about provenance, sources, licence, classification, authorship, automation,
-review, repository role, scope, and known gaps. Narrative prose explaining what
+review, any thin-wrapper relationship, scope, and known gaps. Narrative prose explaining what
 the result says and why it matters may be in Challenge module documentation,
 docstrings attached to the compared declarations, the project README,
 `formalization.yaml`, or several of these locations. The formal statement alone
@@ -332,22 +332,22 @@ documentation location or README.
 
 Palomar uses the [mathlib-initiative `formalization.yaml` v0.3
 format](https://github.com/mathlib-initiative/formalization.yaml) as a base and
-accepts unknown fields. Palomar adds repository-role, subject-classification,
-and responsible-maintainer fields plus the provenance rules below. Canonical
-provenance is carried by the current `repository`,
-`project.responsible_maintainers`, and `sources` fields. The file may contain
-those additions at the same time as upstream fields such as `status`,
-`fidelity`, and `alignment`.
+accepts unknown fields. Palomar adds subject-classification and
+responsible-maintainer fields plus the provenance rules below. Provenance is
+carried by `project.responsible_maintainers`, `sources`, and, only for a thin
+wrapper, `repository.substantive_formalization`, not by a top-level field. The
+file may contain those additions at the same time as upstream fields such as
+`status`, `fidelity`, and `alignment`.
 
-For prelaunch compatibility, Palomar losslessly normalises three known older
-spellings: `project.responsible_maintainer` as the current plural maintainer
-list, `sources[].author` as the current plural author list, and a top-level
-`provenance.result_origin` when it agrees with the origin derived from the
-current `sources` declarations. When an old and current person field both
-appear, their canonical lists must be equal. Other top-level provenance keys,
-invalid or conflicting origins, and conflicting person declarations fail
-mechanical verification rather than being ignored. The mechanical report
-always uses the current plural fields and source-derived origin.
+For prelaunch compatibility, Palomar accepts
+`project.responsible_maintainer` and `sources[].author` as singular aliases when
+the corresponding current plural field is absent. When both spellings appear,
+the current plural field takes precedence and the singular alias is ignored.
+The verifier also ignores an obsolete top-level `provenance` block. These
+compatibility forms cannot replace the current source contract: result origin
+is always derived from `sources`. The mechanical report uses only the current
+plural fields and source-derived origin. New files should use the plural fields
+and omit the top-level block.
 
 #### File requirements
 
@@ -376,7 +376,15 @@ self-reporting format. For work performed without an automated system, use
 submission, not the Palomar review that is about to occur. Upstream examples
 include `unchecked`, `agent-reviewed`, `self-assessed`, `peer-reviewed`,
 `author-verified`, and another accurately described free-form status. Use
-`review.reviewers` and `review.notes` to explain who checked what.
+`review.reviewers` when identifiable people or systems performed a distinct
+review, and use `review.notes` for a concise basis or a pointer to a fuller
+pinned account. Do not imply a separate review merely because the authors
+checked their own work; `unchecked` is accurate when no review was performed.
+
+Record each material automated method and model role honestly. Costs, hardware,
+wall time, and prompt logs are useful when available but are not required to be
+reconstructed after the fact. A concise structured disclosure may point to a
+fuller account in a document at the reviewed repository commit.
 
 #### Mechanical requirements
 
@@ -425,17 +433,19 @@ Mechanical verification requires this current shape:
   `project.authors`, are nonempty name strings or mappings with a nonempty
   `name`. For a thin wrapper these are people responsible for the submitted
   wrapper; the submission's authorisation relationship separately covers the
-  underlying substantive formalisation. The known singular prelaunch spelling
-  is accepted as the lossless compatibility form described above;
-- `repository.role`: exactly `substantive-development` or `thin-wrapper`. A
-  `substantive-development` repository must omit
-  `repository.substantive_formalization`. A `thin-wrapper` repository must
-  provide `repository.substantive_formalization.id` as `owner/repository` or a
+  underlying substantive formalisation. The singular prelaunch alias is
+  accepted only as the compatibility fallback described above;
+- `repository` is omitted when the submitted repository contains the
+  substantive development; the mechanical report records that ordinary
+  default as `substantive-development`. A thin wrapper must provide
+  `repository.substantive_formalization.id` as `owner/repository` or a
   `https://github.com/owner/repository` URL and
   `repository.substantive_formalization.revision` as a full 40-character
   lowercase commit SHA. This first validates and normalises the metadata shape;
   the verifier later resolves the named GitHub repository and exact commit and
-  fails if they cannot be used as the substantive source;
+  fails if they cannot be used as the substantive source. The older explicit
+  `repository.role` spellings remain accepted: `thin-wrapper` requires the
+  mapping, while `substantive-development` forbids it;
 - `sources`: a nonempty list in which every entry has a nonempty `title` and a
   `relationship` of exactly `formalizes`, `adapts`, `independently-proves`,
   `background`, or `other`;
@@ -455,13 +465,13 @@ The source list must satisfy exactly one of these alternatives:
 A source list that satisfies neither alternative fails mechanical verification:
 for example, a list containing only `background` entries, or one combining an
 `original-proof` with a substantive relationship. Missing fields, unrecognised
-enumerated values, and an invalid repository-role shape also fail. A legacy
-`provenance.result_origin` is redundant: it cannot supply a missing current
-source declaration and must equal the origin derived by these rules.
+enumerated values, and an invalid thin-wrapper shape also fail. An ignored
+legacy `provenance.result_origin` cannot supply a missing current source
+declaration or override the origin derived by these rules.
 
 These checks establish only that the required facts have a usable shape and a
 consistent declared origin. Editorial review still assesses whether the named
-people, repository role, citations, source relationships, and account of prior
+people, repository relationship, citations, source relationships, and account of prior
 work are accurate and informative. A structurally valid citation can therefore
 still be inadequate or misleading.
 
@@ -512,7 +522,7 @@ make it possible to identify and assess the exact claim being submitted.
 
 Keep all required structured facts in `formalization.yaml`, including
 provenance, sources and their relationships, licence, classification,
-authorship, automation, review, repository role, scope, and known gaps.
+authorship, automation, review, any thin-wrapper relationship, scope, and known gaps.
 Narrative elsewhere supplements those fields and does not replace them.
 
 Across the eligible narrative locations, include:
@@ -678,12 +688,11 @@ root, regardless of how the Lakefile spelled the relative path.
 ### 6.5 Thin wrappers
 
 A **thin wrapper** is a repository that exists only to expose declarations from
-another formalisation to Comparator. Set `repository.role: thin-wrapper` and
-provide:
+another formalisation to Comparator. Ordinary projects omit `repository`;
+wrappers provide:
 
 ```yaml
 repository:
-  role: thin-wrapper
   substantive_formalization:
     id: owner/repository
     revision: 0000000000000000000000000000000000000000
@@ -692,7 +701,8 @@ repository:
 The repository must be a public GitHub repository, and `revision` must be a
 full lowercase commit SHA. Palomar records this underlying repository and
 commit as the substantive formalisation. Submitter authorisation must also
-concern that underlying project.
+concern that underlying project. The legacy explicit `role: thin-wrapper`
+spelling remains accepted but is unnecessary.
 
 ## 7. Editorial review
 
@@ -712,10 +722,14 @@ theorem name and then every definition name in the recorded Comparator
 configuration. The reviewer rejects an incomplete or reordered manifest. Clean
 declarations need no individual comment, but every distinct material criticism
 must be reported; finding one problem must not suppress review of later
-declarations. The reviewer mechanically requires the final AI-comment list to
-contain every finding from every evidence pass, in order, including useful
-informational context. Severity remains internal; all findings are presented
-under the same AI-comments heading. One Palomar
+declarations. A classification pass likewise records every submitted code.
+The reviewer mechanically requires the final AI-comment list to contain every
+material finding from every evidence pass, once and in order. A finding is an
+author-facing criticism and may later be published. Positive checks, harmless
+edge cases, excluded failure modes, and non-material concerns instead go into
+private `internal_notes`; those notes cannot justify a decision or requested
+change. Severity remains internal; all findings are presented under the same
+AI-comments heading. One Palomar
 submission records one Comparator configuration. A
 repository with several configurations must submit each configuration
 separately if all of them are to become Palomar records.
@@ -759,13 +773,13 @@ Scores run from 1 to 5:
 - `5`: exceptionally complete and independently checkable, with no meaningful
   gap found after critical review.
 
-The current minimum for acceptance is **4**. A score of 4 or 5 requires
+The current rubric minimum is **4**. A score of 4 or 5 requires
 concrete positive evidence, not merely successful compilation, populated
-fields, familiar terminology, or the absence of an obvious contradiction. Every
-score from every completed pass must reach 4. This includes classification,
-provenance, auditability, and optional proof alignment as well as the five
-scores recorded with the decision: statement alignment, definition fidelity,
-notability, literature, and clarity.
+fields, familiar terminology, or the absence of an obvious contradiction. A
+clean `pass` must reach 4 on every score it owns. A non-mandatory dimension may
+score 3 with a `warn` verdict and a concrete material finding without blocking
+acceptance. A score of 1 or 2 is a failed pass. Notability is mandatory: below
+4 it fails the pass and requires rejection.
 
 One exception, or these anchors would forbid what section 3 permits: a source
 disclosed as unconfirmable, precisely stated, is not an "unverified claim" for
@@ -820,9 +834,10 @@ never the submitter.
 ### Final decisions
 
 - `accept`: the mechanical report passes, no completed pass has verdict `fail`,
-  and every completed score is at least 4;
+  and every mandatory score is at least 4; it may include disclosed,
+  non-blocking warnings but no requested changes;
 - `revise`: the result may qualify after specific, realistically correctable
-  changes;
+  changes, which the review lists;
 - `reject`: there is a fundamental semantic, provenance, or editorial failure,
   including failure to affirmatively establish the research-interest
   requirement.
@@ -835,8 +850,8 @@ If an operator or tool failure prevents the automated review from completing,
 the submission is marked `review-failed`. That is an operational state, not a
 decision about the submission; Palomar may investigate and rerun it.
 
-Every decision includes a summary, warnings, requested changes, pass findings,
-scores, and a machine-readable report.
+Every decision includes a summary, author-facing findings, any requested
+changes, private scores and audit notes, and a machine-readable report.
 
 ## 8. Privacy, registration, and rendering
 

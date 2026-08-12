@@ -1,5 +1,5 @@
 {
-  "schema_version": 7,
+  "schema_version": 8,
   "finding_comment_policy": "all",
   "minimum_accept_score": 4,
   "registry_scores": [
@@ -15,6 +15,7 @@
   "steps": [
     {
       "id": "classification",
+      "requires_classification_coverage": true,
       "prompt": "prompts/00-classification.md",
       "required": true,
       "score_keys": [
@@ -23,6 +24,7 @@
       "inputs": [
         "policy:CONTRIBUTING.md",
         "policy:rubric.json",
+        "policy:prompts/materiality.md",
         "policy:taxonomies/classification-guide.md",
         "formalization_metadata",
         "challenge_source",
@@ -40,11 +42,13 @@
       "inputs": [
         "policy:CONTRIBUTING.md",
         "policy:rubric.json",
+        "policy:prompts/materiality.md",
         "formalization_metadata",
         "challenge_source",
         "project_readme",
         "submission",
-        "mechanical_report"
+        "mechanical_report",
+        "previous_findings"
       ]
     },
     {
@@ -58,12 +62,14 @@
       "inputs": [
         "policy:CONTRIBUTING.md",
         "policy:rubric.json",
+        "policy:prompts/materiality.md",
         "formalization_metadata",
         "challenge_source",
         "project_readme",
         "comparator_config",
         "lakefile",
-        "lean_toolchain"
+        "lean_toolchain",
+        "previous_findings"
       ]
     },
     {
@@ -78,11 +84,13 @@
       "inputs": [
         "policy:CONTRIBUTING.md",
         "policy:rubric.json",
+        "policy:prompts/materiality.md",
         "formalization_metadata",
         "challenge_source",
         "project_readme",
         "comparator_config",
-        "mechanical_report"
+        "mechanical_report",
+        "previous_findings"
       ]
     },
     {
@@ -97,11 +105,13 @@
       "inputs": [
         "policy:CONTRIBUTING.md",
         "policy:rubric.json",
+        "policy:prompts/materiality.md",
         "formalization_metadata",
         "challenge_source",
         "project_readme",
         "comparator_config",
-        "submission"
+        "submission",
+        "previous_findings"
       ]
     },
     {
@@ -116,11 +126,13 @@
       "inputs": [
         "policy:CONTRIBUTING.md",
         "policy:rubric.json",
+        "policy:prompts/materiality.md",
         "formalization_metadata",
         "challenge_source",
         "project_readme",
         "comparator_config",
-        "solution_source"
+        "solution_source",
+        "previous_findings"
       ]
     },
     {
@@ -130,6 +142,7 @@
       "inputs": [
         "policy:CONTRIBUTING.md",
         "policy:rubric.json",
+        "policy:prompts/materiality.md",
         "all_previous_results",
         "mechanical_report",
         "submission"
@@ -142,7 +155,12 @@
       "verdict",
       "summary",
       "findings",
-      "scores"
+      "scores",
+      "trust_level",
+      "sources_checked",
+      "declarations_checked",
+      "codes_checked",
+      "internal_notes"
     ],
     "verdicts": [
       "pass",
