@@ -216,11 +216,12 @@ There is no ordinary appeal or human override. A changed review must be produced
 under the current contract and delivered again; registration consent never
 carries across review bytes.
 
-Intake does not yet deduplicate repository and commit pairs or retain prior
-attempts for the reviewer. Resubmitting the same commit can therefore obtain a
-fresh sampled editorial decision. Whether to prevent that, expose attempt
-history, impose a cooldown, or explicitly permit it remains an open integrity
-and abuse-policy question.
+Intake does not yet deduplicate unregistered attempts or retain prior attempts
+for the reviewer. Resubmitting the same commit can therefore obtain a fresh
+sampled editorial decision. A commit already registered for the same stable
+result identity cannot become another registered version. Whether to prevent
+repeat reviews before registration, expose attempt history, impose a cooldown,
+or explicitly permit them remains an open integrity and abuse-policy question.
 
 ## Registration, versions, and publication
 
@@ -241,6 +242,13 @@ An accepted correction or dependency update creates the next
 integer version of an existing identifier; a new mathematical result receives a
 new identifier. Explicit version URLs are immutable, while an unversioned URL
 resolves to the latest active version.
+
+Every version independently proves write access to its submitted repository and
+records the submitter's current authorisation relationship. Citing an existing
+identifier is routing, not authority. Automated updates must retain the stable
+source repository, selected project path, and Comparator configuration path;
+repository transfers require operator review. A source commit already present
+in that identifier's version history cannot be registered again.
 
 Palomar is still pre-launch. Until `.palomar-launched` is added to
 PalomarDatabase, the database may be reshaped for testing and a pre-launch

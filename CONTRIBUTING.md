@@ -920,6 +920,14 @@ detect or repair, and that turned out to cost more than the ordering it hid.
 
 A later correction or dependency update cites the existing identifier and
 becomes version 2, 3, and so on. Automated registration requires the same source
-repository and the same selected project path as the current version. A
-repository transfer needs explicit operator review. Earlier entry files and
-their source commits remain unchanged.
+repository, selected project path, and Comparator configuration path as the
+current version. A source commit already present in that identifier's version
+history cannot be registered again. A repository transfer needs explicit
+operator review. Earlier entry files and their source commits remain unchanged.
+
+The existing identifier does not authorise an update. Every version separately
+uses the checks in section 4: the submitter proves write access to the submitted
+repository and declares that they are a responsible author or maintainer of the
+substantive formalisation, or have approval from one. The declaration is the
+authorisation basis; optional evidence may document approval, while repository
+write access alone is deliberately not treated as authorship or approval.
