@@ -335,16 +335,20 @@ format](https://github.com/mathlib-initiative/formalization.yaml) as a base and
 accepts unknown fields. Palomar adds subject-classification and
 responsible-maintainer fields plus the provenance rules below. Provenance is
 carried by `project.responsible_maintainers`, `sources`, and, only for a thin
-wrapper, `repository.substantive_formalization`, not by a top-level field. The file may contain those additions
-at the same time as upstream fields such as `status`, `fidelity`, and
-`alignment`.
+wrapper, `repository.substantive_formalization`, not by a top-level field. The
+file may contain those additions at the same time as upstream fields such as
+`status`, `fidelity`, and `alignment`.
 
-There are three deliberate exceptions to the general unknown-field rule. The
-obsolete `project.responsible_maintainer`, `sources[].author`, and top-level
-`provenance` fields are rejected rather than ignored. Use
-`project.responsible_maintainers`, `sources[].authors`, and the current
-`repository` and `sources` declarations below. This includes replacing the
-former `provenance.result_origin` declaration with source-derived result origin.
+For compatibility with older files, Palomar accepts
+`project.responsible_maintainer` and `sources[].author` as aliases when the
+corresponding current plural key is not present at all. Despite their singular
+names, each alias may contain one person or a list. A present plural field takes
+precedence even when empty or invalid, and the alias is ignored. The verifier
+also ignores an obsolete top-level `provenance` block. These compatibility forms
+cannot replace the current source contract: result origin is always derived
+from `sources`. The mechanical report records maintainers and source authors
+under the current plural names and records the source-derived origin. New files
+should use the plural fields and omit the top-level block.
 
 #### File requirements
 
@@ -430,7 +434,8 @@ Mechanical verification requires this current shape:
   `project.authors`, are nonempty name strings or mappings with a nonempty
   `name`. For a thin wrapper these are people responsible for the submitted
   wrapper; the submission's authorisation relationship separately covers the
-  underlying substantive formalisation;
+  underlying substantive formalisation. The older singular alias is
+  accepted only as the compatibility fallback described above;
 - `repository` is omitted when the submitted repository contains the
   substantive development; the mechanical report records that ordinary
   default as `substantive-development`. A thin wrapper must provide
@@ -461,9 +466,9 @@ The source list must satisfy exactly one of these alternatives:
 A source list that satisfies neither alternative fails mechanical verification:
 for example, a list containing only `background` entries, or one combining an
 `original-proof` with a substantive relationship. Missing fields, unrecognised
-enumerated values, and an invalid thin-wrapper shape also fail. The three
-obsolete fields named at the start of section 3 are rejected rather than treated
-as harmless unknown fields.
+enumerated values, and an invalid thin-wrapper shape also fail. An ignored
+legacy `provenance.result_origin` cannot supply a missing current source
+declaration or override the origin derived by these rules.
 
 These checks establish only that the required facts have a usable shape and a
 consistent declared origin. Editorial review still assesses whether the named

@@ -134,11 +134,16 @@ relationships are `background` or `other`; the report records
 `result_origin: original`. A source-based result has no `original-proof` and at
 least one `formalizes`, `adapts`, or `independently-proves` relationship; the
 report records `result_origin: source-based`. An undeclared or conflicting
-origin fails. Despite the general unknown-field rule,
-`project.responsible_maintainer`, `sources[].author`, and the top-level
-`provenance` field (including the former `provenance.result_origin`) are named
-obsolete exceptions and are rejected. These structural checks do not replace
-editorial assessment of the facts' accuracy or the citations' adequacy.
+origin fails. For compatibility with older files, the verifier accepts
+`project.responsible_maintainer` and `sources[].author` as aliases when the
+corresponding current plural key is not present at all; either alias may contain
+one person or a list. A present plural field takes precedence even when empty or
+invalid. An obsolete top-level `provenance` block is ignored, and cannot replace
+the current source declarations or override their derived origin. The
+mechanical report records maintainers and source authors under the current
+plural names and records the source-derived origin. These structural checks do
+not replace editorial assessment of the facts' accuracy or the citations'
+adequacy.
 `automation.methods` remains required by the adopted upstream format, including
 `method: manual`; `review.status` describes review performed before submission.
 
