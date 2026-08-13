@@ -117,8 +117,10 @@ pins. The mechanical and render reports record every exact trusted-tool
 revision used for the run.
 
 Mechanical metadata requirements are hard failures where `CONTRIBUTING.md` says
-so. Provenance requires a nonempty `project.responsible_maintainers` list whose
-members are nonempty name strings or mappings with a nonempty `name`, a
+so. Palomar adopts `formalization.yaml` v0.4; current files should declare
+`version: v0.4`, while an omitted version follows the upstream current-version
+default. Provenance requires a nonempty
+`project.responsible_maintainers` list whose members are nonempty name strings, a
 nonempty source list with recognised relationships, and a valid optional
 thin-wrapper mapping. An omitted `repository` defaults to the submitted
 repository as the substantive development. A separately recorded
@@ -126,7 +128,8 @@ repository as the substantive development. A separately recorded
 full 40-character lowercase commit SHA, which the verifier resolves after
 validating its shape. Optional source types use the closed
 vocabulary `paper`, `book`, `web discussion`, `folklore`, `original-proof`, and
-`other`; `web discussion` is the exact upstream spelling.
+`other`; `web discussion` is Palomar's canonical spelling within upstream
+v0.4's open source-type field.
 
 Exactly one origin is valid. An original result has at least one
 `original-proof` source, each such source has relationship `other`, and all
