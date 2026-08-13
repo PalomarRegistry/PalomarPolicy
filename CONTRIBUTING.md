@@ -330,10 +330,11 @@ was produced and reviewed. Narrative prose may also appear there, but it need
 not be duplicated there when it is supplied in an eligible Challenge
 documentation location or README.
 
-Palomar uses the [mathlib-initiative `formalization.yaml` v0.3
+Palomar uses the [mathlib-initiative `formalization.yaml` v0.4
 format](https://github.com/mathlib-initiative/formalization.yaml) as a base and
-accepts unknown fields. Palomar adds subject-classification and
-responsible-maintainer fields plus the provenance rules below. Provenance is
+accepts unknown fields. Palomar makes the upstream subject-classification,
+responsible-maintainer, and provenance fields mandatory and applies the tighter
+registry rules below. Provenance is
 carried by `project.responsible_maintainers`, `sources`, and, only for a thin
 wrapper, `repository.substantive_formalization`, not by a top-level field. The
 file may contain those additions at the same time as upstream fields such as
@@ -354,6 +355,8 @@ should use the plural fields and omit the top-level block.
 
 The file must be UTF-8 YAML no larger than 256 KiB. It must contain one
 top-level mapping. Duplicate mapping keys and YAML merge keys are not accepted.
+Current metadata should declare `version: v0.4`; files without a version remain
+readable because the upstream dispatcher treats an omitted version as current.
 
 ### 3.1 Fields checked mechanically
 
@@ -371,7 +374,7 @@ classification:
   msc2020: [05C10, 11N13]
 ```
 
-The `automation.methods` and `review.status` fields come from the upstream v0.3
+The `automation.methods` and `review.status` fields come from the upstream v0.4
 self-reporting format. For work performed without an automated system, use
 `method: manual`. `review.status` describes the review completed before
 submission, not the Palomar review that is about to occur. Upstream examples
@@ -392,8 +395,9 @@ fuller account in a document at the reviewed repository commit.
 These fields are hard mechanical requirements:
 
 - `project.name`: a nonempty string;
-- `project.authors`: a nonempty list whose entries are nonempty name strings or
-  mappings with a nonempty `name`;
+- `project.authors`: a nonempty list of nonempty name strings. Palomar still
+  reads the former mapping form for compatibility, but new metadata should use
+  the v0.4 string form;
 - `project.license`: the exact SPDX identifier detected from the root licence
   file;
 - `classification.arxiv`: one or two distinct codes from Palomar's checked-in
@@ -430,11 +434,11 @@ has no more accurate non-substantive relationship.
 
 Mechanical verification requires this current shape:
 
-- `project.responsible_maintainers`: a nonempty list whose members, like
-  `project.authors`, are nonempty name strings or mappings with a nonempty
-  `name`. For a thin wrapper these are people responsible for the submitted
-  wrapper; the submission's authorisation relationship separately covers the
-  underlying substantive formalisation. The older singular alias is
+- `project.responsible_maintainers`: a nonempty list of nonempty name strings.
+  Palomar still reads the former mapping form for compatibility, but new
+  metadata should use the v0.4 string form. For a thin wrapper these are people
+  responsible for the submitted wrapper; the submission's authorisation
+  relationship separately covers the underlying substantive formalisation. The older singular alias is
   accepted only as the compatibility fallback described above;
 - `repository` is omitted when the submitted repository contains the
   substantive development; the mechanical report records that ordinary
