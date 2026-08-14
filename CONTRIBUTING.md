@@ -894,11 +894,16 @@ commit, and source-preservation receipt also become public. Submitting grants
 Palomar permission to quote the submitted metadata in the review report and
 registry record.
 
-Palomar is still pre-launch. Registering makes the redacted archived review, the
-source, and the record public during testing and creates immutable
-source-preservation tags. Until `.palomar-launched` is added to
-PalomarDatabase, the public database may be reshaped and a pre-launch
-registration is not permanent publication history. The append-only record guarantee begins at public launch.
+Registering makes the redacted archived review, the source, and the record
+public, and creates immutable source-preservation tags. The append-only record
+guarantee has been in force since 2026-08-10, when `.palomar-launched` was added
+to PalomarDatabase, so a registration is permanent publication history from the
+moment it merges. Palomar has not launched in the sense of inviting
+submissions, which is the only sense in which it is still pre-launch. A record
+leaves public view only by moderation, which leaves a tombstone and ordinarily
+keeps the canonical file; [`docs/lawful-requests.md`](docs/lawful-requests.md)
+says how a data-protection or copyright request is made and decided, and when
+applicable law requires more than that.
 
 After acceptance and recorded registration consent, Palomar renders the pinned
 Challenge source with Verso for display before opening the database change.
