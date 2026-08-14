@@ -900,9 +900,10 @@ guarantee has been in force since 2026-08-10, when `.palomar-launched` was added
 to PalomarDatabase, so a registration is permanent publication history from the
 moment it merges. Palomar has not launched in the sense of inviting
 submissions, which is the only sense in which it is still pre-launch. A record
-leaves public view only by moderation, which keeps the canonical file and
-leaves a tombstone; [`docs/lawful-requests.md`](docs/lawful-requests.md) says
-how a data-protection or copyright request is made and decided.
+leaves public view only by moderation, which leaves a tombstone and ordinarily
+keeps the canonical file; [`docs/lawful-requests.md`](docs/lawful-requests.md)
+says how a data-protection or copyright request is made and decided, and when
+applicable law requires more than that.
 
 After acceptance and recorded registration consent, Palomar renders the pinned
 Challenge source with Verso for display before opening the database change.

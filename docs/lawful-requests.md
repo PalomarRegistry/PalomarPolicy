@@ -91,11 +91,14 @@ the original belongs to them or to GitHub.
 ## Who decides
 
 One of the named [Moderators](governance.md#moderators) decides, under the same
-authority they exercise over any other public-data suppression, and a Technical
-Maintainer executes the resulting change. The authorizing Moderator and the
-private reason are recorded in the private Database. Restoration, if a decision
-is later shown to have been wrong, uses the same separation of authorization
-and execution.
+authority they exercise over any other public-data suppression. Execution falls
+to whoever holds the authority the change actually needs: a Technical
+Maintainer for anything that goes through the private-database workflow, and an
+owner of the `PalomarArchive` organization for deleting a preserved fork, which
+no Palomar workflow can reach. The authorizing Moderator and the private reason
+are recorded in the private Database. Restoration, where it is possible and a
+decision is later shown to have been wrong, uses the same separation of
+authorization and execution.
 
 The operator receives requests, establishes the facts, assesses them, and
 answers you. The operator does not decide a suppression alone.
@@ -143,7 +146,9 @@ a standing exemption for the registry. Where an exception such as Article 17(3),
 for freedom of expression and information or for archiving and research
 purposes, is relied on, it is assessed against the particular data and the
 particular record, and the assessment is what you are given rather than a
-citation.
+citation. The refusal itself carries all of this: the reasons, the fact that
+you may complain to a supervisory authority and which one, and your right to a
+judicial remedy. You are not left to find that out from this document.
 
 Requests are not limited to submitters. A cited source author, or anyone else
 named in published material, may make one.
@@ -179,16 +184,22 @@ preserved fork and tags in `PalomarArchive`, the public verification run and
 its logs, and the generated feeds and derived pages.
 
 Where an upheld complaint reaches preserved source, what a Moderator can
-authorize is disabling public access to Palomar's preserved copy: an owner of
-the `PalomarArchive` organization removing the fork or otherwise making it
-non-public. This is deliberately outside the archive identity's own powers, and
-it is recorded like any other moderation decision. Two limits are worth stating
-plainly. Repositories in one GitHub fork network share a single preserved fork,
-so disabling public access to it affects every record bound to that network and
-not only the one complained of. And Palomar cannot reach copies it does not
-control: the original repository, other forks in the same network, third-party
-mirrors, and search-engine caches. Where those exist, Palomar identifies them
-to you so that you can pursue them with whoever does control them.
+authorize is deletion of the preserved fork and its preservation tags from the
+`PalomarArchive` namespace. That is the mechanism, and it is the only one:
+GitHub does not allow a public fork's visibility to be changed, so there is no
+option of quietly making the copy non-public, and deletion is what an
+organization owner can actually do. It is deliberately outside the archive
+identity's own powers, and it is recorded like any other moderation decision.
+
+Three limits are worth stating plainly. Repositories in one GitHub fork network
+share a single preserved fork, so deleting it affects every record bound to
+that network and not only the one complained of. Deleting a fork does not
+reliably destroy the objects: a commit can stay reachable through other members
+of the fork network, which is GitHub's behaviour and not Palomar's choice. And
+Palomar cannot reach copies it does not control at all: the original
+repository, other forks in the same network, third-party mirrors, and
+search-engine caches. Where those exist, Palomar identifies them to you so that
+you can pursue them with whoever does control them.
 
 ## Why the default retains canonical bytes
 
@@ -213,13 +224,21 @@ Editorial disagreement alone is not a ground for suppression.
 
 ## What happens to your request
 
-The request is handled by the operator and kept in the operator's mailbox. What
-is recorded with the moderation decision in the private Database is the minimum
-needed to reconstruct why a version was suppressed, years later, by someone who
-was not there: what was asked, on what basis, what was decided, and by whom. It
-is readable by the Moderators and Technical Maintainers named in
-[governance](governance.md), and by nobody else. The private reason is not
-published, and the tombstone names no requester. The
+The request is handled by the operator. The message itself stays in the
+operator's mailbox while the matter is open and while any complaint or appeal
+about it could still be brought, and is deleted after that. It is not the
+durable record and is not kept as one.
+
+The durable record is what goes into the private Database with the moderation
+decision, and it is the minimum needed to reconstruct why a version was
+suppressed, years later, by someone who was not there: what was asked, on what
+basis, what was decided, and by whom. Among Palomar's people that is readable
+by the Moderators and Technical Maintainers named in
+[governance](governance.md), and by nobody else. It is not readable only by
+Palomar's people, though: the mailbox sits with an email provider and the
+Database with GitHub, both of which process it on their own infrastructure in
+the course of providing those services. The private reason is not published,
+and the tombstone names no requester. The
 [privacy policy](https://palomar-registry.org/privacy.html) discloses this
 retention.
 
@@ -245,8 +264,11 @@ before anything else, and a decision made on wrong facts is worth correcting.
 
 A request to exercise a right and a complaint about how Palomar has handled
 personal data are different things, and you may make either without the other.
-Palomar acknowledges a complaint about its handling of personal data within 30
-days, as the United Kingdom rules require.
+A complaint about Palomar's handling of personal data is acknowledged within 30
+days, as the United Kingdom rules require, and acknowledging it is the smallest
+part of the duty. Palomar then makes the enquiries the complaint calls for,
+tells you how it is going while that takes time, and tells you the outcome
+without undue delay.
 
 You may also complain to a supervisory authority. In the United Kingdom that is
 the Information Commissioner's Office. In the European Union it is the
