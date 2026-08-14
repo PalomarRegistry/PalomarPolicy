@@ -48,7 +48,12 @@ withdrawal and not deletion or rewriting of registry history.
 
 A data-protection or copyright request, from a submitter or from anyone else,
 arrives through the process in [lawful requests](lawful-requests.md) and is
-decided by a Moderator under this section.
+decided by a Moderator under this section. The immutability and preservation
+promises Palomar makes elsewhere hold against ordinary mutation and do not
+displace applicable law: where a law that applies requires more than
+suppression of the public projection, a Moderator may authorize the narrow
+exception that document describes, on the same recorded terms as any other
+moderation decision.
 
 ## Scientific Advisory Board
 

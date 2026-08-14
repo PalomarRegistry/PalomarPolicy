@@ -269,11 +269,13 @@ source repository, selected project path, and Comparator configuration path;
 repository transfers require operator review. A source commit already present
 in that identifier's version history cannot be registered again.
 
-Palomar is still pre-launch. Until `.palomar-launched` is added to
-PalomarDatabase, the database may be reshaped for testing and a pre-launch
-registration is not permanent publication history. Public launch requires
-settling the database contents and adding that marker; the append-only
-guarantees below apply across subsequent history.
+The append-only guarantees below have been in force since 2026-08-10, when
+`.palomar-launched` was added to PalomarDatabase at the public-history boundary
+commit `7c2f0db8`. Every Database change after that commit is checked against
+them. Palomar has not launched in the sense of inviting submissions, but the
+database is no longer disposable: a registration made now is permanent
+publication history, and a record leaves public view only by the moderation
+route described below.
 
 After the submitter's consent is recorded, registration renders the accepted
 Challenge, validates the render and complete record, archives the mechanical
@@ -295,10 +297,11 @@ private-database workflow. The authorizer and private reason are recorded.
 There is no submitter-facing ordinary takedown route: registration is not
 reversible on request, and a submitter who wants a record changed registers a
 further version. A data-protection or copyright request is not that, and it has
-a route: [lawful requests](lawful-requests.md) states where to send one, what it
-must contain, and what it can obtain. Such a request is decided by a Moderator,
-and where it is upheld it reaches the public projection through exactly the
-suppression described here.
+a route: [lawful requests](lawful-requests.md) states where to send one, who
+decides it, and what it can obtain. The immutability and preservation promises
+in this document, including the source-preservation promise below, are
+immutability against ordinary mutation; they do not displace applicable law,
+and a Moderator may authorize the narrow exceptions that document describes.
 
 The public data service is an active-only projection built from the private
 ledger. A record is copied into it byte for byte rather than rewritten, so its
