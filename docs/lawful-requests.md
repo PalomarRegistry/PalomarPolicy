@@ -158,11 +158,3 @@ Data-protection law gives you rights to a response within statutory periods and
 to complain to your supervisory authority if a response does not come. Nothing
 here narrows that. This section describes how the operation behaves, not a
 deadline offered in place of the one the law sets.
-
-## Before public launch
-
-Palomar is still pre-launch. Until `.palomar-launched` is added to
-PalomarDatabase, the database may be reshaped for testing and a registration is
-not permanent publication history, so a pre-launch request can sometimes be
-answered more completely than the append-only guarantees above allow. Nothing
-else about the process differs.
