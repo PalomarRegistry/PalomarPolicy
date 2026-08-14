@@ -192,12 +192,14 @@ engine namespace, and the namespace receives only a random per-pass capability,
 delivered to Bubblewrap over a file descriptor rather than a command line or an
 inherited environment. That capability is loopback-only and worth nothing once
 the pass ends. The broker serves exactly one route and one configured model,
-forwards only allowlisted request and response headers in each direction,
+forwards only allowlisted request and response headers in each direction, and
 refuses stored, background, continued, priority, and provider-hosted-tool
-requests, and enforces per-pass ceilings on requests, cumulative tokens,
-estimated spend, request and response bytes, and concurrency. There is no
-direct-authentication fallback: a Codex pass that cannot reach its broker
-refuses to start rather than using a reusable key.
+requests. It caps the pass's request count and its concurrency, limits each
+request and each response by size, and stops admitting new requests once
+cumulative tokens or estimated spend reach their thresholds; requests already in
+flight may carry the pass past those two. There is no direct-authentication
+fallback: a Codex pass that cannot reach its broker refuses to start rather
+than using a reusable key.
 
 The namespace still shares the host network, because the transport has to reach
 that loopback listener. The Claude engine has no broker of its own; it binds a
