@@ -292,7 +292,13 @@ affected entry and artifacts and serves only a minimal date-only tombstone.
 One of the named [Moderators](governance.md#moderators) must authorize the
 suppression, and a Technical Maintainer executes it through the validated
 private-database workflow. The authorizer and private reason are recorded.
-There is no submitter-facing ordinary takedown route.
+There is no submitter-facing ordinary takedown route: registration is not
+reversible on request, and a submitter who wants a record changed registers a
+further version. A data-protection or copyright request is not that, and it has
+a route: [lawful requests](lawful-requests.md) states where to send one, what it
+must contain, and what it can obtain. Such a request is decided by a Moderator,
+and where it is upheld it reaches the public projection through exactly the
+suppression described here.
 
 The public data service is an active-only projection built from the private
 ledger. A record is copied into it byte for byte rather than rewritten, so its

@@ -46,6 +46,10 @@ The initial Moderators are:
 Moderation is exceptional public-data suppression, not an ordinary submitter
 withdrawal and not deletion or rewriting of registry history.
 
+A data-protection or copyright request, from a submitter or from anyone else,
+arrives through the process in [lawful requests](lawful-requests.md) and is
+decided by a Moderator under this section.
+
 ## Scientific Advisory Board
 
 The Scientific Advisory Board advises on Palomar's scientific direction,

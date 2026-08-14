@@ -7,6 +7,8 @@ The versioned editorial contract for the Palomar registry.
   review, registration, and publication contract.
 - [`docs/governance.md`](docs/governance.md) defines the named governance
   roles, their initial membership, and the accepted GitHub trust model.
+- [`docs/lawful-requests.md`](docs/lawful-requests.md) is the route for
+  data-protection and copyright requests.
 - [`rubric.json`](rubric.json) defines the ordered AI review passes.
 - [`prompts/`](prompts/) contains the prompt text used by
   [`PalomarReviewer`](https://github.com/PalomarRegistry/PalomarReviewer).
