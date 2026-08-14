@@ -185,14 +185,28 @@ ordinary passes and only `WebSearch` and `WebFetch` in the literature and
 notability pass; a configured custom command is arbitrary code inside the outer
 namespace.
 
-Codex and Claude must authenticate their model transport, so the selected
-engine's provider credential is currently bound into the same namespace as the
-engine process, which can read it, and the namespace shares the host network.
-Every pass is schema-validated and refused before reuse or release if its plain
-output matches the configured key or an API-key shape. That output check is a
-backstop, not containment against encoding or another channel. The planned
-credential broker will keep provider credentials outside the engine namespace;
-it is not implemented yet.
+Codex and Claude must authenticate their model transport. Production review runs
+the Codex engine, whose transport authenticates through a loopback credential
+broker: the real provider key is held by a short-lived process outside the
+engine namespace, and the namespace receives only a random per-pass capability,
+delivered to Bubblewrap over a file descriptor rather than a command line or an
+inherited environment. That capability is loopback-only and worth nothing once
+the pass ends. The broker serves exactly one route and one configured model,
+forwards only allowlisted request and response headers in each direction,
+refuses stored, background, continued, priority, and provider-hosted-tool
+requests, and enforces per-pass ceilings on requests, cumulative tokens,
+estimated spend, request and response bytes, and concurrency. There is no
+direct-authentication fallback: a Codex pass that cannot reach its broker
+refuses to start rather than using a reusable key.
+
+The namespace still shares the host network, because the transport has to reach
+that loopback listener. The Claude engine has no broker of its own; it binds a
+reusable provider login into the namespace, so it refuses to run unless an
+operator sets `PALOMAR_ALLOW_UNBROKERED_CLAUDE=1`, which no production workflow
+sets. A custom command receives no provider credential at all. Every pass is
+schema-validated and refused before reuse or release if its plain output matches
+the configured key or an API-key shape. That output check remains a backstop,
+not containment against encoding or another channel.
 
 Synthesis must reproduce the evidence-pass scores exactly. A clean pass cannot
 score below the rubric minimum, a score of 1 or 2 requires a failed pass, and
@@ -325,10 +339,11 @@ The server holds separate least-privilege credentials for private state and
 public workflow dispatch, so compromising the intake service does not grant
 write access to verification code or the registry. Registry and archive
 automation use distinct identities. The review namespace omits those
-registration credentials and unrelated operator files, but still exposes the
-selected model provider's authentication to its engine process. The
-credential-output scan mitigates one obvious release route; it does not replace
-the planned broker boundary described above.
+registration credentials and unrelated operator files, and the production
+engine's provider key never enters it: the broker boundary described above
+hands the namespace a per-pass capability instead. The credential-output scan
+mitigates one obvious release route for the unbrokered engine path; it does not
+replace that boundary.
 
 Rendered HTML is sanitized, content-addressed, and served from
 `data.palomar-registry.org`, separate from the website origin. PalomarWeb embeds
