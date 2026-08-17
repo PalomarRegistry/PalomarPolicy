@@ -489,14 +489,15 @@ software dependency. Record previous formalisations separately in
 from earlier Lean work.
 
 Give every source a nonempty `title` and the most stable identifier or location
-available. Choose the relationship that best describes how the submitted result
-uses the source:
+available. The relationship is free text. These descriptions have standard
+provenance meanings:
 
 - `formalizes`: the Lean work formalises the source's result;
 - `adapts`: it changes or extends the source's result;
 - `independently-proves`: it proves the same result independently;
 - `background`: the source supplies context rather than the recorded result;
-- `other`: another relationship, which should be explained.
+- `other`: another relationship, which should be explained. Any other free-text
+  description is classified as `other` for provenance.
 
 Source authors and identifiers may be omitted when they genuinely do not exist
 or are unknown. Contact and endorsement are useful context but are not required
@@ -508,12 +509,12 @@ earlier work.
 
 #### Field constraints
 
-- When contact information is supplied, `author_endorsement` accepts
-  `participated`, `endorsed`, `no-response`, `not-contacted`, `declined`, or
-  `n/a`.
-- Each entry in `related_formalizations` must have an `id` and one of
-  `builds-on`, `adapts`, `independent`, `supersedes`, or `other` as its
-  `relationship`.
+- When contact information is supplied, `author_endorsement` is free text;
+  `participated`, `endorsed`, `no-response`, `not-contacted`, `declined`, and
+  `n/a` remain useful common descriptions.
+- Each entry in `related_formalizations` must have an `id` and a nonempty
+  free-text `relationship`. Common descriptions include `builds-on`, `adapts`,
+  `independent`, `supersedes`, and `other`.
 
 ### 3.4 The informal account
 
