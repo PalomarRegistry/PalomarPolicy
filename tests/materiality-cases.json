@@ -21,6 +21,20 @@
     "reason": "Classification review is a plausibility screen, not an optimization exercise."
   },
   {
+    "id": "possible-proof-level-classification",
+    "area": "number-theory",
+    "scenario": "A code could describe mathematics in the proof, but the evidence does not confirm that it is used.",
+    "expected": "internal_note",
+    "reason": "Proof-level relevance is presumed from the author's selection and is accepted without investigation."
+  },
+  {
+    "id": "egregiously-off-topic-classification",
+    "area": "differential-equations",
+    "scenario": "A code is unmistakably unrelated to the result and any plausible proof.",
+    "expected": "finding",
+    "reason": "Only an egregious mismatch clears the threshold for an author-facing classification criticism."
+  },
+  {
     "id": "resolved-pinned-narrative",
     "area": "probability",
     "scenario": "Structured facts are present and a narrative field points to a document resolved at the reviewed repository commit.",

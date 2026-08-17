@@ -83,5 +83,11 @@ digits denote these broad areas:
 
 Use the full code's official description when it is known or can be checked.
 The broad-area list is context, not permission to assume that every code under
-an area is interchangeable. The review asks only whether the submitted codes
-are plausible, not whether they are the unique or best classifications.
+an area is interchangeable.
+
+Classification review is deliberately permissive. Accept an author-selected
+code if it could describe the statement, an ancillary result, or mathematical
+content or methods in the proof. Do not inspect the proof to confirm possible
+relevance or require it to be visible in the Challenge or metadata. Reject only
+an unmistakably egregious mismatch; uniqueness, specificity, and conventionality
+are not under review.

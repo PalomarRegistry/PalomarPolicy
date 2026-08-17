@@ -237,6 +237,9 @@ jobs:
           cases = json.loads((root / "tests" / "materiality-cases.json").read_text())
           assert len(cases) >= 8
           assert len({case["id"] for case in cases}) == len(cases)
+          cases_by_id = {case["id"]: case for case in cases}
+          assert cases_by_id["possible-proof-level-classification"]["expected"] == "internal_note"
+          assert cases_by_id["egregiously-off-topic-classification"]["expected"] == "finding"
           assert {case["expected"] for case in cases} >= {
               "internal_note",
               "finding",

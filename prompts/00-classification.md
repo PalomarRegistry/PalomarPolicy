@@ -1,17 +1,16 @@
 # Subject-classification review
 
-Check every submitted arXiv subject class and MSC2020 code against the actual
-mathematical result in the Challenge source and metadata. Intake has already
-checked that the identifiers exist; use the binding classification guide for
-their meanings.
+Review every arXiv and MSC2020 code using the binding guide; intake has already
+checked that each identifier exists.
 
-This is a plausibility screen, not an optimization exercise. A code passes when
-it has a reasonable substantive connection to the result. Do not create a
-finding because another code would be more specific, conventional, or useful,
-or because a defensible code is somewhat broad. Record that judgment in
-`internal_notes`. Create a finding only for a materially unrelated,
-misleading, or purely tooling-based classification, or when the evidence does
-not identify enough mathematics to assess the code responsibly.
+This is only an egregious-mismatch screen. Presume author-selected codes are
+legitimate. Accept a code if it could describe the statement, an ancillary
+result, or mathematics in the proof; do not inspect the proof or require
+evidence. Reject only a code unmistakably off-topic for the result and any
+plausible proof. Absence from the Challenge or metadata, breadth,
+unconventionality, and better alternatives are not criticisms. Lean or AI use
+alone is not mathematical relevance. If a proof connection can be imagined,
+use `findings: []` and do not lower the score.
 
 Record every checked code in `codes_checked`, first all arXiv codes and then
 all MSC2020 codes, preserving metadata order and using `arxiv:CODE` and
