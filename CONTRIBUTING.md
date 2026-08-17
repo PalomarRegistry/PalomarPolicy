@@ -375,8 +375,13 @@ classification:
 ```
 
 The `automation.methods` and `review.status` fields come from the upstream v0.4
-self-reporting format. For work performed without an automated system, use
-`method: manual`. `review.status` describes the review completed before
+self-reporting format. For portable metadata, choose `manual`, `copilot`,
+`agent`, `autonomous`, or `other` for each automation `method`; for example,
+record a broader description such as “AI-assisted” in `tool_setup` or the
+automation notes. Palomar intake accepts unfamiliar nonempty method wording and
+retains it in the submitted evidence, but it is not a new standard category.
+For work performed without an automated system, use `method: manual`.
+`review.status` describes the review completed before
 submission, not the Palomar review that is about to occur. Upstream examples
 include `unchecked`, `agent-reviewed`, `self-assessed`, `peer-reviewed`,
 `author-verified`, and another accurately described free-form status. Use
@@ -489,15 +494,19 @@ software dependency. Record previous formalisations separately in
 from earlier Lean work.
 
 Give every source a nonempty `title` and the most stable identifier or location
-available. The relationship is free text. These descriptions have standard
-provenance meanings:
+available. Choose the relationship category that best describes how the
+submitted result uses the source:
 
 - `formalizes`: the Lean work formalises the source's result;
 - `adapts`: it changes or extends the source's result;
 - `independently-proves`: it proves the same result independently;
 - `background`: the source supplies context rather than the recorded result;
-- `other`: another relationship, which should be explained. Any other free-text
-  description is classified as `other` for provenance.
+- `other`: another relationship, which should be explained in `note`.
+
+Palomar intake accepts an unfamiliar nonempty relationship rather than
+rejecting the submission, but gives it the provenance semantics of `other`.
+Portable metadata should use the canonical `other` spelling and retain the
+submitter's exact description in `note`.
 
 Source authors and identifiers may be omitted when they genuinely do not exist
 or are unknown. Contact and endorsement are useful context but are not required
@@ -509,12 +518,14 @@ earlier work.
 
 #### Field constraints
 
-- When contact information is supplied, `author_endorsement` is free text;
-  `participated`, `endorsed`, `no-response`, `not-contacted`, `declined`, and
-  `n/a` remain useful common descriptions.
-- Each entry in `related_formalizations` must have an `id` and a nonempty
-  free-text `relationship`. Common descriptions include `builds-on`, `adapts`,
-  `independent`, `supersedes`, and `other`.
+- For portable metadata, `author_endorsement` uses
+  `participated`, `endorsed`, `no-response`, `not-contacted`, `declined`, `n/a`,
+  or `other`; explain `other` in the source `note`. Palomar accepts unfamiliar
+  wording as evidence but does not turn it into a categorical endorsement.
+- Each entry in `related_formalizations` must have an `id`. Portable metadata
+  uses `builds-on`, `adapts`, `independent`, `supersedes`, or `other` for its
+  relationship and the existing `note` field for nuance. Palomar accepts an
+  unfamiliar relationship but gives it `other` semantics at registration.
 
 ### 3.4 The informal account
 
