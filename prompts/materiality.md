@@ -9,6 +9,8 @@ evidence supports at least one of these conclusions:
 - a public claim about scope, provenance, priority, authorship, licence,
   automation, or review is materially unsupported, misleading, or
   contradictory;
+- a subject classification is egregiously off-topic for both the result and any
+  plausible proof;
 - the selected statements or their trusted dependencies cannot be audited from
   the pinned evidence; or
 - the mathematical result does not clear Palomar's research-interest floor.
@@ -21,6 +23,9 @@ pinned in-repository document supplies the narrative evidence. A pointer is
 evidence only after it has actually been resolved; record the immutable
 `repository@commit:path` in `sources_checked`. An external document cannot
 replace required structured metadata.
+
+For classifications, presume possible proof relevance without checking it.
+Only an egregiously off-topic code can support a finding.
 
 Lean operations may be total outside their ordinary mathematical domain: for
 example division at zero, truncated subtraction, extrema of empty sets,

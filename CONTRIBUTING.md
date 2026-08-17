@@ -364,9 +364,10 @@ The mechanically checked fields identify the project, classify the mathematics,
 and record how the formalisation was produced and reviewed. The values still
 require mathematical and editorial judgement.
 
-Classify the mathematical result itself, not the use of Lean or AI. Each code
-need only be a plausible description; it need not be the unique or most
-specific possible choice. For example:
+Classify the mathematics, not merely the use of Lean or AI. A code may describe
+the statement, an ancillary result, or mathematics in the proof; it need not be
+unique or optimal. Palomar presumes possible proof relevance without checking
+it and rejects only unmistakably egregious mismatches. For example:
 
 ```yaml
 classification:
@@ -753,7 +754,8 @@ separately if all of them are to become Palomar records.
 
 The required passes examine:
 
-- whether every arXiv and MSC2020 classification is substantively plausible;
+- whether any arXiv or MSC2020 classification is egregiously off-topic, while
+  presuming possible proof relevance without investigating it;
 - the clarity, accuracy, and completeness of the required structured metadata,
   provenance, and narrative account across its supplied locations;
 - alignment between every compared theorem and its informal account, including
