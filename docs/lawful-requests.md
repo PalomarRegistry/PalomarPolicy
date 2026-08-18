@@ -65,9 +65,9 @@ Palomar publishes no submitter: no registry record names the account that
 proved push access, and no schema has a field for it. What is published about a
 person is the authorization relationship a submitter declared, the free-text
 evidence beside it, which identifies whoever the submitter wrote into it, the
-authors and identifiers of cited sources, the quoted submission metadata, and
-whatever appears in a preserved source repository, including the names and
-addresses in its Git history.
+authors, named contributors, contributor roles and identifiers of cited
+sources, the quoted submission metadata, and whatever appears in a preserved
+source repository, including the names and addresses in its Git history.
 
 Some of that is public before any registration. The repository, the commit, the
 submission identifier, the public verification run, and the mechanical logs are
