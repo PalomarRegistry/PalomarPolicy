@@ -24,6 +24,12 @@ evidence only after it has actually been resolved; record the immutable
 `repository@commit:path` in `sources_checked`. An external document cannot
 replace required structured metadata.
 
+Do not create editorial findings for missing or malformed fields whose presence
+and shape are hard mechanical intake requirements; validation and repair own
+those defects. For legacy evidence predating such a requirement, assess the
+available substantive account and record the structural absence only in
+`internal_notes`.
+
 For classifications, presume possible proof relevance without checking it.
 Only an egregiously off-topic code can support a finding.
 

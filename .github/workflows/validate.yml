@@ -30,7 +30,7 @@ jobs:
           ids = [step["id"] for step in rubric["steps"]]
           assert len(ids) == len(set(ids)), "duplicate rubric step"
           assert ids[-1] == "synthesis", "synthesis must be last"
-          assert rubric["schema_version"] == 9
+          assert rubric["schema_version"] == 10
           assert rubric["step_result"]["verdicts"] == ["pass", "warn", "fail"]
           assert rubric["step_result"]["required_fields"] == [
               "step",
@@ -233,6 +233,11 @@ jobs:
               if step.get("requires_classification_coverage") is True
           }
           assert classification_coverage_steps == {"classification"}
+          description_coverage_steps = {
+              step["id"] for step in rubric["steps"]
+              if step.get("requires_description_coverage") is True
+          }
+          assert description_coverage_steps == set()
 
           cases = json.loads((root / "tests" / "materiality-cases.json").read_text())
           assert len(cases) >= 8
@@ -242,6 +247,9 @@ jobs:
               "possible-proof-level-classification": "internal_note",
               "egregiously-off-topic-classification": "finding",
               "project-wide-multi-config-scope": "internal_note",
+              "concise-grouped-registry-abstract": "internal_note",
+              "legacy-missing-mechanical-abstract": "internal_note",
+              "misleading-registry-abstract": "finding",
               "unconditional-with-domain-conditions": "internal_note",
               "distinct-contribution-roles": "internal_note",
               "same-role-attribution-conflict": "finding",

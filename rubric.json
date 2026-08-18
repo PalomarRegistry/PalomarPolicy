@@ -1,5 +1,5 @@
 {
-  "schema_version": 9,
+  "schema_version": 10,
   "finding_comment_policy": "all",
   "minimum_accept_score": 4,
   "registry_scores": [
@@ -54,7 +54,6 @@
     {
       "id": "statement_alignment",
       "requires_declaration_coverage": true,
-      "requires_description_coverage": true,
       "prompt": "prompts/02-statement-alignment.md",
       "required": true,
       "score_keys": [
