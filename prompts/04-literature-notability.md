@@ -7,8 +7,9 @@ research interest. Novelty is not required.
 For each distinct selected result group, ask whether it could plausibly warrant
 a research paper or serious note and whether a credible research area and
 plausible research audience can be identified. Related corollaries may be
-grouped. A niche result may pass. If either requirement is not affirmatively
-established, notability is below the mandatory floor, the pass fails, and the
+grouped. A niche result may have a neutral outcome. If either requirement is not
+affirmatively established, notability is below the mandatory floor, the check
+has a failure outcome, and the
 finding should describe the evidentiary limit rather than claim more than the
 evidence supports.
 
@@ -42,14 +43,14 @@ external URLs actually inspected in `sources_checked`; use an empty
 are null in the enforced output schema.
 
 Use the binding notability anchors in `CONTRIBUTING.md`. A notability score
-below the rubric minimum must use `fail`; better prose alone is not a proposed
+below the rubric minimum must use `failure`; better prose alone is not a proposed
 fix when the mathematical result itself does not clear the floor.
 
 Return one bare JSON object and nothing else: no code fence, no surrounding prose.
 
 {
   "step": "literature_notability",
-  "verdict": "pass|warn|fail",
+  "outcome": "neutral|warning|failure",
   "summary": "short conclusion",
   "findings": [],
   "scores": {"notability": 4, "literature": 4},

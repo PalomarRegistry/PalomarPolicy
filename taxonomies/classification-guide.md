@@ -85,9 +85,10 @@ Use the full code's official description when it is known or can be checked.
 The broad-area list is context, not permission to assume that every code under
 an area is interchangeable.
 
-Classification review is deliberately permissive. Accept an author-selected
-code if it could describe the statement, an ancillary result, or mathematical
-content or methods in the proof. Do not inspect the proof to confirm possible
-relevance or require it to be visible in the Challenge or metadata. Reject only
-an unmistakably egregious mismatch; uniqueness, specificity, and conventionality
-are not under review.
+Classification review is deliberately permissive. Do not identify a problem
+with an author-selected code if it could describe the statement, an ancillary
+result, or mathematical content or methods in the proof. Do not inspect the
+proof to confirm possible relevance or require it to be visible in the
+Challenge or metadata. Identify a blocking problem only for an unmistakably
+egregious mismatch; uniqueness, specificity, and conventionality are not under
+review.

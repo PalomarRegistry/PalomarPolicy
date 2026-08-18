@@ -6,15 +6,15 @@ publication contract. `CONTRIBUTING.md` is the submitter-facing standard;
 `schemas/review.schema.json` are the machine-readable editorial contract;
 `taxonomies/classification-guide.md` supplies the binding interpretation for
 classification review. Every review records its exact PalomarPolicy commit, so
-later policy changes do not reinterpret an earlier decision.
+later policy changes do not reinterpret an earlier outcome.
 
 ## Components and authority
 
 | Component | Authority | Must not do |
 | --- | --- | --- |
 | `PalomarServer` | Intake, GitHub push-access check, private status access, withdrawal, and registration consent | Execute source, run editorial review, or write registry records |
-| `PalomarSubmission` | Public mechanical verification and accepted-Challenge rendering | Hold private identity or review state, or decide editorial policy |
-| `PalomarSubmissionState` | Private append-only submission state and scheduled orchestration | Publish unregistered decisions or define policy |
+| `PalomarSubmission` | Public mechanical verification and registrable-Challenge rendering | Hold private identity or review state, or decide editorial policy |
+| `PalomarSubmissionState` | Private append-only submission state and scheduled orchestration | Publish unregistered review outcomes or define policy |
 | `PalomarPolicy` | Submission rules, rubric, prompts, and review schema | Hold submissions, registered records, or credentials |
 | `PalomarTemplate` | Reusable submission starter and CI example | Define binding policy or registry truth |
 | `PalomarReviewer` | Automated editorial review, evidence validation, source preservation, registration PR preparation, clean-check merge, and finalization | Change policy, register without consent, or treat model output as trusted instructions |
@@ -64,7 +64,8 @@ the submission separately records its authorization relationship.
 
 The repository, commit, submission identifier, public verification run, and
 mechanical logs are public from verification onward. The editorial review and
-the decision remain private unless the submitter registers an accepted review.
+its outcome remain private unless the submitter registers a review that
+identified no blocking problem.
 Palomar publishes no submitter: no published record identifies the account that
 proved push access, no schema has a field for it, and registration does not add
 one. What is published about that person is the declared authorization
@@ -73,13 +74,13 @@ themselves there has published that much. “Private” means access-controlled,
 not confidential: operators,
 GitHub, and the model provider can see the material relevant to their roles.
 Private submission state and delivered reviews are retained indefinitely so a
-decision can be audited later.
+review outcome can be audited later.
 
 The submitter may withdraw from any non-terminal state. Withdrawal leaves no
-public editorial decision. `verification-failed` means the mechanical gate did
+public editorial outcome. `verification-failed` means the mechanical gate did
 not pass; `review-failed` means an operational review failure rather than an
-editorial rejection. A `revise` or `reject` decision is not registered and a
-corrected commit enters as a new submission.
+editorial rejection. A `revision_required` or `rejected` outcome is not
+registered and a corrected commit enters as a new submission.
 
 ## Mechanical verification
 
@@ -154,7 +155,8 @@ Challenge and Solution must be distinct module names. Palomar asks Lake for its
 ordered source paths and selects the first matching regular, non-symlink file
 inside the selected project. The Challenge is compiled separately against a
 frozen trusted environment, and every source in its transitive closure must
-resolve to Lean core or the accepted Mathlib/Tau Ceti statement surface.
+resolve to Lean core or the accepted Mathlib, Tau Ceti, and CSLib statement
+surface.
 Proof-only dependencies used by the Solution may be broader, but remain pinned
 and confined.
 
@@ -165,7 +167,7 @@ closed.
 
 ## Editorial review
 
-No person starts an ordinary review or signs off on its decision. The scheduled
+No person starts an ordinary review or signs off on its outcome. The scheduled
 private pipeline checks out the immutable source and recorded policy commit,
 constructs the ordered evidence packets, invokes the configured model engine,
 and validates every result against the rubric and schemas.
@@ -210,26 +212,27 @@ schema-validated and refused before reuse or release if its plain output matches
 the configured key or an API-key shape. That output check remains a backstop,
 not containment against encoding or another channel.
 
-Synthesis must reproduce the evidence-pass scores exactly. A clean pass cannot
-score below the rubric minimum, a score of 1 or 2 requires a failed pass, and
-an acceptance cannot override any failed pass. A non-mandatory score of 3 may
-accompany an accepted warning when its material finding is disclosed;
+Synthesis must reproduce the evidence-check scores exactly. A clean check cannot
+score below the rubric minimum, a score of 1 or 2 requires a failed check, and
+a no-blocking-problem outcome cannot override any failed check. A non-mandatory
+score of 3 may accompany a non-blocking warning when its material finding is disclosed;
 notability remains a mandatory floor and failure there requires rejection
-rather than revision. Acceptances cannot request changes, and revision
-decisions must request at least one. These are structural guarantees; Palomar
+rather than revision. A review that identifies no blocking problem cannot
+request changes, and a `revision_required` outcome must request at least one.
+These are structural guarantees; Palomar
 does not separately claim that a human confirmed the model's substantive
 judgments.
 
 The complete review remains private and is bound to the submission by digest.
-Each pass separates author-facing material findings from `internal_notes` that
+Each check separates author-facing material findings from `internal_notes` that
 record positive checks, excluded edge cases, and non-material concerns. The
-status page presents only a binary passed/did-not-pass outcome and the
-author-facing prose. It does not expose the internal accept/revise/reject
-decision, scores, evidence-pass records, finding severities, or audit notes. For
+status page states whether the automatic review identified blocking problems
+and presents the author-facing prose. It does not expose the machine-readable
+outcome, scores, evidence-check records, finding severities, or audit notes. For
 a registered result, Palomar publishes a redacted archived review containing
-the accepted outcome and every material finding, but not scores, per-finding
+the no-blocking-problem outcome and every material finding, but not scores, per-finding
 severity, or `internal_notes`. The private canonical materials retain the
-information needed to reconstruct how the decision was reached.
+information needed to reconstruct how the outcome was reached.
 
 There is no ordinary appeal or human override. A changed review must be produced
 under the current contract and delivered again; registration consent never
@@ -237,27 +240,30 @@ carries across review bytes.
 
 Intake does not yet deduplicate unregistered attempts or retain prior attempts
 for the reviewer. Resubmitting the same commit can therefore obtain a fresh
-sampled editorial decision. A commit already registered for the same stable
+sampled editorial outcome. A commit already registered for the same stable
 result identity cannot become another registered version. Whether to prevent
 repeat reviews before registration, expose attempt history, impose a cooldown,
 or explicitly permit them remains an open integrity and abuse-policy question.
 
 ## Registration, versions, and publication
 
-Only an accepted review can be registered. The submitter explicitly consents to
-the digest of the delivered review. Before any public registration side effect,
+Only a review that identified no blocking problem can be registered. The
+submitter explicitly consents to the digest of the delivered review. Before any
+public registration side effect,
 PalomarReviewer verifies the consent and evidence bindings and reserves the
 permanent identifier and version in private state. A retry reuses that
 reservation.
 
-For a new result, the identifier contains the acceptance date and the next
+For a new result, the identifier contains the first registration date and the
+next
 six-digit serial free on that date, counting from 1. The serial was drawn at
 random until 2026-08-07, to hide how many reservations never became records.
 What that cost was ordering: with a random serial the registration order of two
 identifiers cannot be read from the identifiers, so every surface wanting that
 order had to carry an ordinal beside the identifier, and an ordinal and an
 identifier that disagree is a failure nothing downstream can detect or repair.
-An accepted correction or dependency update creates the next
+A correction or dependency update whose review identified no blocking problem
+creates the next
 integer version of an existing identifier; a new mathematical result receives a
 new identifier. Explicit version URLs are immutable, while an unversioned URL
 resolves to the latest active version.
@@ -277,7 +283,7 @@ database is no longer disposable: a registration made now is permanent
 publication history, and a record leaves public view only by the moderation
 route described below.
 
-After the submitter's consent is recorded, registration renders the accepted
+After the submitter's consent is recorded, registration renders the registrable
 Challenge, validates the render and complete record, archives the mechanical
 report, normalized workflow provenance,
 redacted review, and source-preservation receipt in one content-addressed
@@ -327,7 +333,7 @@ submodules; an inert dependency gitlink is permitted only because verification
 never initializes it and the ordinary Git object is preserved.
 
 Repositories in one GitHub fork network share one public fork owned by
-`PalomarArchive`. Every accepted commit receives an immutable record-specific
+`PalomarArchive`. Every registered commit receives an immutable record-specific
 tag protected by a no-bypass ruleset. The archive identity is demoted from its
 temporary per-fork administrator grant before the tag is written, and every
 fork, commit, tag, and receipt is read back. Any failure stops registration.

@@ -78,16 +78,17 @@ audit but are not shown to the submitter or published. They cannot justify a
 warning, requested change, revision, or rejection unless the concern is
 promoted to a finding.
 
-The pass `summary` may also be published. Keep it to the overall conclusion and
+The check `summary` may also be published. Keep it to the overall conclusion and
 the material findings, if any; do not use it to surface private notes or
 non-material criticism indirectly.
 
-Use `findings: []` for a clean pass. A `pass` has no findings; a `warn` has at
-least one warning finding; and a `fail` has at least one error finding. Combine
+Use `findings: []` for a clean check. A `neutral` outcome has no findings; a
+`warning` has at least one warning finding; and a `failure` has at least one
+error finding. Combine
 declarations only where one root cause and one correction cover all of them.
 Do not repeat a material criticism already present in `previous_findings`;
 continue the independent audit, record any additional private reasoning in
-`internal_notes`, and leave the public finding with the pass that first
+`internal_notes`, and leave the public finding with the check that first
 established it.
 
 Every public message must state the concrete consequence and, where the defect

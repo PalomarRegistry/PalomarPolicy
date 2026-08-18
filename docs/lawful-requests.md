@@ -207,9 +207,10 @@ The canonical entry ordinarily stays in the private, access-controlled
 repository when the public projection is suppressed, along with submission
 state and the delivered review.
 
-Palomar's claim is that an accepted result was accepted under a stated
-contract, by a review recorded at an exact policy commit, on an exact source
-commit. A registry that can quietly lose an entry cannot support that claim
+Palomar's claim is that a registered result passed through a stated review
+contract recorded at an exact policy commit, on an exact source commit, and no
+blocking problem was identified. A registry that can quietly lose an entry
+cannot support that claim
 about the entries it still has, because nothing distinguishes a record that was
 never made from one that was removed. Retaining the bytes without serving them
 is how suppression and audit integrity are ordinarily both had. It is also why

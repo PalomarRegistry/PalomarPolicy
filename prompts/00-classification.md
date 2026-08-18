@@ -17,7 +17,7 @@ all MSC2020 codes, preserving metadata order and using `arxiv:CODE` and
 `msc2020:CODE`. Record the evidence files in `sources_checked`; use an empty
 `declarations_checked` list.
 
-Use `findings: []` and `verdict: pass` when there is no material criticism.
+Use `findings: []` and `outcome: neutral` when there is no material criticism.
 Keep positive topical reasoning and harmless classification alternatives in
 `internal_notes`. Scores are integers 1–5; set only `classification` and set
 every other score to null in the enforced output schema.
@@ -26,7 +26,7 @@ Return one bare JSON object and nothing else: no code fence, no surrounding pros
 
 {
   "step": "classification",
-  "verdict": "pass|warn|fail",
+  "outcome": "neutral|warning|failure",
   "summary": "short conclusion",
   "findings": [],
   "scores": {"classification": 4},

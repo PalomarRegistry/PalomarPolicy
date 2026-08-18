@@ -53,7 +53,7 @@ Return one bare JSON object and nothing else: no code fence, no surrounding pros
 
 {
   "step": "metadata",
-  "verdict": "pass|warn|fail",
+  "outcome": "neutral|warning|failure",
   "summary": "short conclusion",
   "findings": [],
   "scores": {"clarity": 4, "provenance": 4},

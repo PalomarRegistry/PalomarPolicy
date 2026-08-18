@@ -25,7 +25,7 @@ Return one bare JSON object and nothing else: no code fence, no surrounding pros
 
 {
   "step": "proof_account",
-  "verdict": "pass|warn|fail",
+  "outcome": "neutral|warning|failure",
   "summary": "short conclusion",
   "findings": [],
   "scores": {"proof_alignment": 4},

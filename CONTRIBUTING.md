@@ -22,7 +22,7 @@ Palomar uses the upstream community
 self-reporting standard for formalisation projects; this is not a format
 invented by Palomar. `formalization.yaml` records the required structured facts
 about provenance, sources, licence, classification, authorship, automation,
-review, any thin-wrapper relationship, scope, and known gaps. Its neutral
+review, any thin-wrapper relationship, scope, and known gaps. Its factual
 `project.description` field supplies the public registry abstract. Fuller prose
 explaining what the result says and why it matters may be in Challenge module
 documentation, docstrings attached to the compared declarations, the project
@@ -30,20 +30,21 @@ README, `formalization.yaml`, or several of these locations. The formal
 statement alone does not record all this context, and the editorial review
 reads the submission as a whole against the Lean.
 
-An accepted submission has passed two kinds of assessment:
+Before a submission can be registered, it must satisfy two kinds of check:
 
 1. Mechanical verification found that Comparator accepts the recorded Solution
    declarations as implementations or proofs of the recorded Challenge
    declarations, using only the permitted axioms. The exported proof is checked
    by Lean's kernel and by the independent NanoDa kernel checker.
-2. An AI editorial review found that each recorded formal statement matches its
-   informal description sufficiently closely, and judged that there is
-   plausibly a mathematician who would find the result interesting or relevant
-   as research.
+2. An AI editorial review identified no blocking problem in the alignment
+   between each recorded formal statement and its informal description, or in
+   the requirement that the result have a plausible research audience.
 
-Palomar is a registry, not a journal. Acceptance does not claim novelty,
-validate an informal proof independently, or constitute endorsement by a human
-expert. Acceptance is also not registration. The submitter sees the review
+Palomar is a registry, not a journal. The automated review is a filter: it can
+identify a blocking problem, or find no blocking problem, but it does not
+accept, approve, or endorse a submission. Finding no blocking problem does not
+claim novelty, independently validate an informal proof, or constitute review
+by a human expert. It is also not registration. The submitter sees the review
 first and decides whether to register it with the registry record.
 
 Submissions go to [submit.palomar-registry.org][submission-server], and that is
@@ -88,8 +89,8 @@ Palomar does not index:
 - submissions whose mathematical content cannot be identified from the
   Challenge and the informal account.
 
-A clear failure of either research-interest test leads to `reject`, not
-`revise`.
+A clear failure of either research-interest test leads to `rejected`, not
+`revision_required`.
 
 ## 2. Prepare an ordinary submission
 
@@ -186,9 +187,9 @@ Challenge without having to disentangle the proof development.
 
 The Challenge should be short and readable:
 
-- Prefer imports from Mathlib alone. Tau Ceti is permitted, but Palomar records
-  it as a qualified dependency and displays a warning about the larger body of
-  code that must be trusted when reading the statement.
+- Prefer imports from Mathlib alone. Tau Ceti and CSLib are permitted, but
+  Palomar records them as qualified dependencies and displays a warning about
+  the larger body of code that must be trusted when reading the statement.
 - Prefer theorem statements to new definitions.
 - Give every definition needed by a compared theorem a precise docstring and
   its ordinary mathematical meaning.
@@ -266,10 +267,12 @@ recursively. Every file in that closure must be one of:
   exact dependencies pinned by Mathlib's manifest;
 - Tau Ceti at a verified revision in its canonical repository, together with
   the exact dependencies pinned by Tau Ceti's manifest.
+- CSLib at a verified revision in its canonical repository, together with the
+  exact dependencies pinned by CSLib's manifest.
 
 No other project-specific source may occur in the Challenge's transitive import
 closure. Recursive imports are treated exactly like direct imports. Previous
-acceptance by Palomar does not make a repository an approved Challenge
+registration by Palomar does not make a repository an approved Challenge
 dependency.
 
 Dependencies reached only from the Solution may come from any public GitHub
@@ -289,7 +292,7 @@ set separately from the smaller set used by the Challenge.
   gitlink only because Palomar never initializes or reads it and the native
   archive fork retains the exact gitlink.
 - Git LFS pointers are rejected in the submitted repository, every dependency,
-  and any separately named substantive formalisation. Accepted source must be
+  and any separately named substantive formalisation. Registrable source must be
   fully present in ordinary Git objects so the complete consumed source graph
   can be preserved in native GitHub forks.
 - Do not commit compiled Lean or native build output outside `.lake`. The
@@ -648,8 +651,8 @@ substantive repository at the exact declared commit. It then:
 
 1. discards submitted Lake build state and materialises the exact dependencies
    in the manifest;
-2. compiles the Challenge separately against Lean core and the verified Mathlib
-   or Tau Ceti dependencies;
+2. compiles the Challenge separately against Lean core and the verified
+   Mathlib, Tau Ceti, or CSLib dependencies;
 3. records every Lean source file used by that compilation and rejects any
    source outside the permitted set;
 4. protects that compiled Challenge module from replacement by project build
@@ -753,34 +756,34 @@ spelling remains accepted but is unnecessary.
 ## 7. Editorial review
 
 The review is performed by a language model working through a fixed sequence of
-prompts. No person reads a submission before a decision, and no person signs
-one. It is not peer review, and it is not evidence that a mathematician has
-checked the result. It is a structured, recorded, automated reading, and it
-should be weighed as that.
+prompts. No person reads an ordinary submission before the outcome, and no
+person signs it off. It is not peer review, and it is not evidence that a
+mathematician has checked the result. It is a structured, recorded, automated
+filter, and it should be weighed as that.
 
-The review consists of required evidence passes followed by a synthesis step. A
-pass examines one subject and returns a verdict, findings tied to files or
-other evidence, and one or more scores. Synthesis combines those fixed pass
-results into the final decision; it does not raise or average scores.
+The review consists of required evidence checks followed by a synthesis step. A
+check examines one subject and returns an outcome, findings tied to files or
+other evidence, and one or more scores. Synthesis combines those fixed check
+results into the final review outcome; it does not raise or average scores.
 
-Every substantive pass must return a coverage manifest containing every
+Every substantive check must return a coverage manifest containing every
 theorem name and then every definition name in the recorded Comparator
 configuration. The reviewer rejects an incomplete or reordered manifest. Clean
 declarations need no individual comment, but every distinct material criticism
 must be reported; finding one problem must not suppress review of later
-declarations. A classification pass likewise records every submitted code.
+declarations. A classification check likewise records every submitted code.
 The reviewer mechanically requires the final AI-comment list to contain every
-material finding from every evidence pass, once and in order. A finding is an
+material finding from every evidence check, once and in order. A finding is an
 author-facing criticism and may later be published. Positive checks, harmless
 edge cases, excluded failure modes, and non-material concerns instead go into
-private `internal_notes`; those notes cannot justify a decision or requested
+private `internal_notes`; those notes cannot justify an outcome or requested
 change. Severity remains internal; all findings are presented under the same
 AI-comments heading. One Palomar
 submission records one Comparator configuration. A
 repository with several configurations must submit each configuration
 separately if all of them are to become Palomar records.
 
-The required passes examine:
+The required checks examine:
 
 - whether any arXiv or MSC2020 classification is egregiously off-topic, while
   presuming possible proof relevance without investigating it;
@@ -794,18 +797,19 @@ The required passes examine:
 - the literature account and the result's research interest.
 
 If an informal proof account is present in any eligible narrative location, an
-additional pass compares it with the actual Solution proof and its imports.
+additional check compares it with the actual Solution proof and its imports.
 
-Each pass uses one of three verdicts:
+Each check uses one of three machine-readable outcomes:
 
-- `pass`: the pass found no material problem;
-- `warn`: the pass found a specific warning but did not fail;
-- `fail`: the pass found a material deficiency or contradiction, or could not
+- `neutral`: the check identified no material problem;
+- `warning`: the check identified a specific non-blocking warning;
+- `failure`: the check identified a material deficiency or contradiction, or could not
   affirmatively establish a mandatory criterion from the available evidence.
 
-A failed pass does not by itself choose the final decision. Synthesis returns
-`revise` when a specific, realistically correctable evidence or presentation
-gap could make the submission qualify, and `reject` for a fundamental failure.
+A failed check does not by itself choose the final outcome. Synthesis returns
+`revision_required` when a specific, realistically correctable evidence or
+presentation gap could make the submission qualify, and `rejected` for a
+fundamental failure.
 The report should describe uncertainty as an evidence limitation rather than
 making a stronger negative claim than the evidence supports.
 
@@ -823,10 +827,10 @@ Scores run from 1 to 5:
 The current rubric minimum is **4**. A score of 4 or 5 requires
 concrete positive evidence, not merely successful compilation, populated
 fields, familiar terminology, or the absence of an obvious contradiction. A
-clean `pass` must reach 4 on every score it owns. A non-mandatory dimension may
-score 3 with a `warn` verdict and a concrete material finding without blocking
-acceptance. A score of 1 or 2 is a failed pass. Notability is mandatory: below
-4 it fails the pass and requires rejection.
+clean check must reach 4 on every score it owns. A non-mandatory dimension may
+score 3 with a `warning` outcome and a concrete material finding without
+blocking registration. A score of 1 or 2 is a failed check. Notability is
+mandatory: below 4 it fails the check and requires rejection.
 
 One exception, or these anchors would forbid what section 3 permits: a source
 disclosed as unconfirmable, precisely stated, is not an "unverified claim" for
@@ -837,7 +841,7 @@ No score is published. They decide the outcome; the five above are kept in a
 private file beside the database entry and the rest stay in the private review,
 and the outcome is what a reader is shown, because the same repository at the
 same commit has scored 5 and then 4 on one dimension across two runs of this
-policy with the same verdict both times.
+policy with the same outcome both times.
 
 **No text a reader may see may state, bound, or imply a score.** That covers
 every `summary` and every finding `message`. It is not enough to leave the
@@ -870,7 +874,7 @@ Notability has its own anchors:
   audience.
 
 A notability score below 4 is a fundamental editorial failure and leads to
-`reject`, including when a credible research audience or plausible
+`rejected`, including when a credible research audience or plausible
 paper-worthiness has not been affirmatively established. Findings may say
 plainly that work is `trivial`, `confusing`, `unclear`, or `niche without an
 identifiable research audience` where the evidence supports it. When the
@@ -878,34 +882,34 @@ evidence establishes only that the requirement was not demonstrated, the
 finding should say that instead. Findings assess the work and its presentation,
 never the submitter.
 
-### Final decisions
+### Final outcomes
 
-- `accept`: the mechanical report passes, no completed pass has verdict `fail`,
-  and every mandatory score is at least 4; it may include disclosed,
-  non-blocking warnings but no requested changes;
-- `revise`: the result may qualify after specific, realistically correctable
-  changes, which the review lists;
-- `reject`: there is a fundamental semantic, provenance, or editorial failure,
+- `neutral`: the automated review identified no blocking problem. This permits
+  registration but does not accept, approve, or endorse the submission. It may
+  include disclosed, non-blocking warnings but no requested changes;
+- `revision_required`: the result may qualify after specific, realistically
+  correctable changes, which the review lists;
+- `rejected`: there is a fundamental semantic, provenance, or editorial failure,
   including failure to affirmatively establish the research-interest
   requirement.
 
-Palomar has no appeals route and no human sign-off on decisions. A submitter
+Palomar has no appeals route and no human sign-off on review outcomes. A submitter
 who believes the reading is wrong should correct or strengthen the submission
 and submit the corrected commit.
 
 If an operator or tool failure prevents the automated review from completing,
 the submission is marked `review-failed`. That is an operational state, not a
-decision about the submission; Palomar may investigate and rerun it.
+review outcome about the submission; Palomar may investigate and rerun it.
 
-Every decision includes a summary, author-facing findings, any requested
+Every review includes a summary, author-facing findings, any requested
 changes, private scores and audit notes, and a machine-readable report.
 
 ## 8. Privacy, registration, and rendering
 
-The review and the decision are not public unless the submitter chooses to
+The review and its findings are not public unless the submitter chooses to
 register them. They are not secret either: they may be audited and acted on by
 the Palomar moderation team, they pass through GitHub and the model provider,
-and Palomar retains them indefinitely so that any decision can be examined
+and Palomar retains them indefinitely so that any review outcome can be examined
 later.
 
 Mechanical verification runs in a public GitHub Actions workflow, so the
@@ -914,8 +918,8 @@ public from the moment of submission. The mechanical report also includes the
 declared authorization relationship and any optional approval evidence, so
 those are public too. That workflow does only the mechanical check. It runs
 before any editorial review, contains none of the review text, and shows no
-decision, so its public log reveals nothing about whether a review happened or
-what it found. The review and the decision stay non-public unless the submitter
+review outcome, so its public log reveals nothing about whether a review
+happened or what it found. The review and its outcome stay non-public unless the submitter
 registers. Palomar publishes no submitter: the registry record has no field for
 the account that proved push access, and registering does not add one. What is
 published about that person is the authorisation relationship declared in
@@ -928,7 +932,7 @@ and what is held back. It also creates
 or reuses native public forks in
 [`PalomarArchive`](https://github.com/PalomarArchive) for the submitted
 repository, every pinned Git dependency, and any separately recorded
-substantive formalisation. Every accepted commit receives an immutable,
+substantive formalisation. Every registered commit receives an immutable,
 record-specific preservation tag. Registration stops before publishing a
 database change if any source, fork, tag, or read-back check fails. The reviewer
 model identifiers, exact source commit, mechanical workflow run, exact policy
@@ -947,20 +951,21 @@ keeps the canonical file; [`docs/lawful-requests.md`](docs/lawful-requests.md)
 says how a data-protection or copyright request is made and decided, and when
 applicable law requires more than that.
 
-After acceptance and recorded registration consent, Palomar renders the pinned
-Challenge source with Verso for display before opening the database change.
+After the review identifies no blocking problem and registration consent is
+recorded, Palomar renders the pinned Challenge source with Verso for display
+before opening the database change.
 Rendering compiles submitted Lean, so it runs
 under the same restrictions as verification: no network access and no
 credentials. The commit-pinned GitHub file remains the authoritative source. A
 Challenge is eligible for inline display when exactly one declaration is
 compared and the file is no more than 100 lines and 32 KiB. Larger
 Challenges open in a dedicated rendered page. A rendering failure postpones
-registration but does not reverse the editorial decision.
+registration but does not change the review outcome.
 
 ## 9. Updates and permanent identifiers
 
-When a new accepted result is prepared for registration, Palomar assigns an
-identifier of the form `PALOMAR-YYYY-MM-DD-NNNNNN`. The date is the acceptance
+When a new result is prepared for registration, Palomar assigns an identifier
+of the form `PALOMAR-YYYY-MM-DD-NNNNNN`. The date is the first registration
 date. The six-digit serial is the next one free on that date, counting from
 `000001`. It was drawn at random until 2026-08-07, which hid how many
 reservations never became records but also meant that the order two identifiers
