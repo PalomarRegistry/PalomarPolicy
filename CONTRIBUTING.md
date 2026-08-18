@@ -186,9 +186,9 @@ Challenge without having to disentangle the proof development.
 
 The Challenge should be short and readable:
 
-- Prefer imports from Mathlib alone. Tau Ceti is permitted, but Palomar records
-  it as a qualified dependency and displays a warning about the larger body of
-  code that must be trusted when reading the statement.
+- Prefer imports from Mathlib alone. Tau Ceti and CSLib are permitted, but
+  Palomar records them as qualified dependencies and displays a warning about
+  the larger body of code that must be trusted when reading the statement.
 - Prefer theorem statements to new definitions.
 - Give every definition needed by a compared theorem a precise docstring and
   its ordinary mathematical meaning.
@@ -266,6 +266,8 @@ recursively. Every file in that closure must be one of:
   exact dependencies pinned by Mathlib's manifest;
 - Tau Ceti at a verified revision in its canonical repository, together with
   the exact dependencies pinned by Tau Ceti's manifest.
+- CSLib at a verified revision in its canonical repository, together with the
+  exact dependencies pinned by CSLib's manifest.
 
 No other project-specific source may occur in the Challenge's transitive import
 closure. Recursive imports are treated exactly like direct imports. Previous
@@ -648,8 +650,8 @@ substantive repository at the exact declared commit. It then:
 
 1. discards submitted Lake build state and materialises the exact dependencies
    in the manifest;
-2. compiles the Challenge separately against Lean core and the verified Mathlib
-   or Tau Ceti dependencies;
+2. compiles the Challenge separately against Lean core and the verified
+   Mathlib, Tau Ceti, or CSLib dependencies;
 3. records every Lean source file used by that compilation and rejects any
    source outside the permitted set;
 4. protects that compiled Challenge module from replacement by project build
