@@ -24,6 +24,10 @@ itself a defect.
 An inspectable cited source may supply the literature context; do not require
 that context to be duplicated in repository prose.
 
+If reviewer tooling cannot access a precisely cited source, record that
+limitation in `internal_notes`, not a finding. A finding requires affirmative
+evidence of a material omission or unsupported claim.
+
 Create findings for material misattribution, unsupported priority or novelty,
 an omitted prior result or formalization that changes the public account, or
 failure of the research-interest floor. Put minor bibliographic slips,

@@ -98,6 +98,13 @@
     "reason": "Inspectable source context need not be duplicated."
   },
   {
+    "id": "reviewer-cannot-access-cited-source",
+    "area": "analysis",
+    "scenario": "A source is precisely cited, but reviewer tooling cannot access it and no inspected evidence shows a material omission or unsupported claim.",
+    "expected": "internal_note",
+    "reason": "A reviewer-side access limitation is not an author-facing defect."
+  },
+  {
     "id": "cross-pass-duplicate",
     "area": "combinatorics",
     "scenario": "Two passes independently identify the same material scope defect and the same correction.",
