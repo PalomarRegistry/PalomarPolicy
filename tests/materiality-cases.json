@@ -63,11 +63,39 @@
     "reason": "The public scope claim is materially unsupported by the indexed declarations."
   },
   {
+    "id": "project-wide-multi-config-scope",
+    "area": "analysis",
+    "scenario": "Project metadata describes results checked by several Comparator configurations, while the submission selects one of them.",
+    "expected": "internal_note",
+    "reason": "Project scope is not a claim that every result belongs to the selected submission."
+  },
+  {
+    "id": "distinct-contribution-roles",
+    "area": "number-theory",
+    "scenario": "Different people or systems are credited for bibliographic authorship, discovery, formalization, verification, or communication.",
+    "expected": "internal_note",
+    "reason": "Different contribution roles may legitimately have different credits."
+  },
+  {
+    "id": "same-role-attribution-conflict",
+    "area": "topology",
+    "scenario": "Two public records incompatibly identify who performed the same contribution role.",
+    "expected": "finding",
+    "reason": "Conflicting attribution of the same role materially obscures provenance."
+  },
+  {
     "id": "material-prior-work-omitted",
     "area": "category-theory",
     "scenario": "A directly related prior formalization changes the provenance account but is absent from structured related-work metadata.",
     "expected": "finding",
     "reason": "The omission materially changes the public provenance record."
+  },
+  {
+    "id": "cited-source-literature-context",
+    "area": "geometry",
+    "scenario": "A precisely cited, inspectable source supplies the relevant prior-work comparison, which repository prose does not repeat.",
+    "expected": "internal_note",
+    "reason": "Inspectable source context need not be duplicated."
   },
   {
     "id": "cross-pass-duplicate",

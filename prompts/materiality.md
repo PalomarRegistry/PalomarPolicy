@@ -27,6 +27,19 @@ replace required structured metadata.
 For classifications, presume possible proof relevance without checking it.
 Only an egregiously off-topic code can support a finding.
 
+Project-level files may describe the whole repository, including results checked
+by other Comparator configurations. Do not treat that as an overclaim about the
+selected submission. Create a scope finding only when submission-specific prose
+misstates what the selected Comparator configuration contains.
+
+Keep contribution roles distinct: bibliographic authorship, mathematical
+discovery, formalization, verification, and communication may have different
+credits. Report a contradiction only when the same role is attributed
+incompatibly or the roles are materially unclear.
+
+An inspectable cited source may supply literature context; do not require that
+context to be duplicated in repository prose.
+
 Lean operations may be total outside their ordinary mathematical domain: for
 example division at zero, truncated subtraction, extrema of empty sets,
 unbounded suprema or infima, nonconvergent infinite operations, and defaulted
