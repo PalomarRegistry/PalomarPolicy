@@ -40,6 +40,11 @@ incompatibly or the roles are materially unclear.
 An inspectable cited source may supply literature context; do not require that
 context to be duplicated in repository prose.
 
+Reviewer-side inability to access a precisely cited source is not an
+author-facing defect. Record the limitation in `internal_notes`; absent
+affirmative evidence of a material omission or unsupported claim, make no
+finding.
+
 Lean operations may be total outside their ordinary mathematical domain: for
 example division at zero, truncated subtraction, extrema of empty sets,
 unbounded suprema or infima, nonconvergent infinite operations, and defaulted

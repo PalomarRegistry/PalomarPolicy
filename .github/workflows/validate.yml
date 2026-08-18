@@ -245,6 +245,7 @@ jobs:
               "distinct-contribution-roles": "internal_note",
               "same-role-attribution-conflict": "finding",
               "cited-source-literature-context": "internal_note",
+              "reviewer-cannot-access-cited-source": "internal_note",
           }.items():
               assert cases_by_id[case_id]["expected"] == expected
           assert {case["expected"] for case in cases} >= {
