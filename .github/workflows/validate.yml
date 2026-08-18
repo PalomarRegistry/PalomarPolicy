@@ -30,7 +30,7 @@ jobs:
           ids = [step["id"] for step in rubric["steps"]]
           assert len(ids) == len(set(ids)), "duplicate rubric step"
           assert ids[-1] == "synthesis", "synthesis must be last"
-          assert rubric["schema_version"] == 8
+          assert rubric["schema_version"] == 9
           assert rubric["step_result"]["verdicts"] == ["pass", "warn", "fail"]
           assert rubric["step_result"]["required_fields"] == [
               "step",

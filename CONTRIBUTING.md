@@ -22,12 +22,13 @@ Palomar uses the upstream community
 self-reporting standard for formalisation projects; this is not a format
 invented by Palomar. `formalization.yaml` records the required structured facts
 about provenance, sources, licence, classification, authorship, automation,
-review, any thin-wrapper relationship, scope, and known gaps. Narrative prose explaining what
-the result says and why it matters may be in Challenge module documentation,
-docstrings attached to the compared declarations, the project README,
-`formalization.yaml`, or several of these locations. The formal statement alone
-does not record all this context, and the editorial review reads the submission
-as a whole against the Lean.
+review, any thin-wrapper relationship, scope, and known gaps. Its neutral
+`project.description` field supplies the public registry abstract. Fuller prose
+explaining what the result says and why it matters may be in Challenge module
+documentation, docstrings attached to the compared declarations, the project
+README, `formalization.yaml`, or several of these locations. The formal
+statement alone does not record all this context, and the editorial review
+reads the submission as a whole against the Lean.
 
 An accepted submission has passed two kinds of assessment:
 
@@ -136,7 +137,8 @@ In this ordinary layout:
   declarations to compare.
 - `formalization.yaml` gives the required structured provenance, sources,
   licence, authorship, process, classification, limitations, and review history,
-  and may also contain some or all of the narrative mathematical account.
+  and its `project.description` is the concise public abstract. It may also
+  contain more of the narrative mathematical account.
 - the project README may contain some or all of the narrative mathematical
   account.
 - the licence file states the licence for the submitted repository snapshot.
@@ -326,9 +328,10 @@ editorial review.
 `formalization.yaml` is the required structured mathematical and editorial
 record of the submission. It gives a reader the facts needed to identify the
 exact claim, understand its provenance and limitations, and assess how the work
-was produced and reviewed. Narrative prose may also appear there, but it need
-not be duplicated there when it is supplied in an eligible Challenge
-documentation location or README.
+was produced and reviewed. Its `project.description` is always required as the
+concise public registry abstract. More detailed narrative need not be
+duplicated there when it is supplied in an eligible Challenge documentation
+location or README.
 
 Palomar uses the [mathlib-initiative `formalization.yaml` v0.4
 format](https://github.com/mathlib-initiative/formalization.yaml) as a base and
@@ -401,6 +404,10 @@ fuller account in a document at the reviewed repository commit.
 These fields are hard mechanical requirements:
 
 - `project.name`: a nonempty string;
+- `project.description`: a nonempty string of at most 10,000 characters. This
+  is the exact abstract shown in the Registry and must at least identify the
+  mathematical content and principal results selected by the submitted
+  Comparator configuration;
 - `project.authors`: a nonempty list of nonempty name strings. Palomar still
   reads the former mapping form for compatibility, but new metadata should use
   the v0.4 string form;
@@ -531,12 +538,21 @@ earlier work.
 ### 3.4 The informal account
 
 Write for a mathematically literate reader outside the immediate project. The
-narrative mathematical account may be in Lean module documentation in the
-Challenge source, docstrings attached to the compared declarations, the
-selected-project README or repository-root fallback, or
-`formalization.yaml`. It may be in one of these locations or divided across
-several, and need not be duplicated. Taken together, the supplied prose must
-make it possible to identify and assess the exact claim being submitted.
+fuller narrative mathematical account may be in Lean module documentation in
+the Challenge source, docstrings attached to the compared declarations, the
+selected-project README or repository-root fallback, or `formalization.yaml`.
+It may be in one of these locations or divided across several, and need not be
+duplicated. `project.description` is the one required synopsis: it may point to
+a family or collective result rather than restating every theorem completely,
+but it must point to every theorem and definition selected by
+`comparator.json`. Taken together, the supplied prose must make it possible to
+identify and assess the exact claim being submitted.
+
+During preliminary checks, the submission page displays the exact registry
+abstract and the selected Comparator declarations even when every check passes.
+It remains a preview unless the submitter chooses to edit it; after
+authentication, Palomar can then open a pull request changing
+`project.description` in the submitted repository.
 
 Keep all required structured facts in `formalization.yaml`, including
 provenance, sources and their relationships, licence, classification,
@@ -556,6 +572,12 @@ Across the eligible narrative locations, include:
 - the authorship and production process, including AI involvement and human
   review;
 - the repository licence.
+
+The statement-alignment review records whether the required description points
+directly or collectively to each Comparator-selected declaration. Any selected
+declaration with no such coverage fails that review pass. More detailed prose
+elsewhere is still used to judge fidelity and context, but it cannot substitute
+for a public abstract that identifies the registered result.
 
 Do not claim novelty without a credible literature search. If novelty has not
 been established, say that it is unknown.
