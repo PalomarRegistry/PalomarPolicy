@@ -32,6 +32,12 @@ by other Comparator configurations. Do not treat that as an overclaim about the
 selected submission. Create a scope finding only when submission-specific prose
 misstates what the selected Comparator configuration contains.
 
+Interpret claims such as “unconditional” or “requires no hypotheses” in their
+mathematical context. Domain restrictions, typing conditions, and conditions
+defining the objects under study are not omitted hypotheses; create a finding
+only when the prose conceals a substantive mathematical assumption that
+materially narrows the claimed result.
+
 Keep contribution roles distinct: bibliographic authorship, mathematical
 discovery, formalization, verification, and communication may have different
 credits. Report a contradiction only when the same role is attributed

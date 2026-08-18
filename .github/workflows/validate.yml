@@ -242,6 +242,7 @@ jobs:
               "possible-proof-level-classification": "internal_note",
               "egregiously-off-topic-classification": "finding",
               "project-wide-multi-config-scope": "internal_note",
+              "unconditional-with-domain-conditions": "internal_note",
               "distinct-contribution-roles": "internal_note",
               "same-role-attribution-conflict": "finding",
               "cited-source-literature-context": "internal_note",

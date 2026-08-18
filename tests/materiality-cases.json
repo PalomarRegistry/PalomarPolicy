@@ -70,6 +70,13 @@
     "reason": "Project scope is not a claim that every result belongs to the selected submission."
   },
   {
+    "id": "unconditional-with-domain-conditions",
+    "area": "number-theory",
+    "scenario": "A result is described as unconditional or requiring no hypotheses, while its declarations retain domain conditions defining the objects under study.",
+    "expected": "internal_note",
+    "reason": "Mathematical claims of unconditionality do not assert that a theorem has no typing or domain conditions."
+  },
+  {
     "id": "distinct-contribution-roles",
     "area": "number-theory",
     "scenario": "Different people or systems are credited for bibliographic authorship, discovery, formalization, verification, or communication.",
