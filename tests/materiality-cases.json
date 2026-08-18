@@ -65,14 +65,14 @@
   {
     "id": "project-wide-multi-config-scope",
     "area": "analysis",
-    "scenario": "Project metadata describes results checked by several Comparator configurations, while the submission selects one of them.",
+    "scenario": "A project-wide public abstract accurately describes results checked by several Comparator configurations, while the submission selects one configuration whose principal result family the abstract covers collectively.",
     "expected": "internal_note",
-    "reason": "Project scope is not a claim that every result belongs to the selected submission."
+    "reason": "A project-wide abstract may cover more than the selected submission while still pointing to the selected principal result family."
   },
   {
     "id": "concise-grouped-registry-abstract",
     "area": "analysis",
-    "scenario": "A concise public abstract identifies the mathematical subject and principal result families but does not enumerate every selected variant or companion declaration.",
+    "scenario": "A concise project-wide public abstract points collectively to the mathematical subject and principal result families represented by the selected configuration but does not enumerate every selected variant, helper, or companion declaration.",
     "expected": "internal_note",
     "reason": "A registry abstract is not a declaration manifest; related selected results may be described collectively."
   },

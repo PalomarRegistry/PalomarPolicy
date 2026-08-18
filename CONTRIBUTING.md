@@ -405,10 +405,9 @@ These fields are hard mechanical requirements:
 
 - `project.name`: a nonempty string;
 - `project.description`: a nonempty string of at most 10,000 characters. This
-  is the exact abstract shown in the Registry and must identify the
-  mathematical content and principal result families selected by the submitted
-  Comparator configuration; it need not enumerate every declaration or
-  variant;
+  is the exact abstract shown in the Registry and gives a concise account of
+  the mathematical content and principal results of the formalization as a
+  whole;
 - `project.authors`: a nonempty list of nonempty name strings. Palomar still
   reads the former mapping form for compatibility, but new metadata should use
   the v0.4 string form;
@@ -574,11 +573,17 @@ Across the eligible narrative locations, include:
   review;
 - the repository licence.
 
-The statement-alignment review treats the required description as a concise
-public abstract. It creates a finding only when the abstract materially
-misstates the selected work or omits a distinct principal result family, not
-because an individual declaration is not separately identifiable. Presence,
-shape, and length are checked mechanically before editorial review.
+The statement-alignment review treats the required description as a concise,
+project-wide public abstract. The selected Comparator configuration is evidence
+for checking that the abstract at least points, directly or collectively, to
+the mathematical subject and principal result families represented by that
+selection. The abstract may accurately describe additional project results,
+including results checked by another configuration. The review creates a
+finding only when the abstract is materially false or misleading, unrelated to
+the selected work, or omits a distinct principal result family represented by
+the selection—not because an individual declaration is not separately
+identifiable. Presence, shape, and length are checked mechanically before
+editorial review.
 
 Do not claim novelty without a credible literature search. If novelty has not
 been established, say that it is unknown.
