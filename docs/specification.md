@@ -145,7 +145,8 @@ one person or a list. A present plural field takes precedence even when empty or
 invalid. An obsolete top-level `provenance` block is ignored, and cannot replace
 the current source declarations or override their derived origin. The
 mechanical report records maintainers and source authors under the current
-plural names and records the source-derived origin. These structural checks do
+plural names, preserves optional source contributors as `name`/`role`
+records, and records the source-derived origin. These structural checks do
 not replace editorial assessment of the facts' accuracy or the citations'
 adequacy.
 `automation.methods` remains required by the adopted upstream format, including

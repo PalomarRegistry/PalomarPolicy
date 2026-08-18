@@ -470,6 +470,8 @@ Mechanical verification requires this current shape:
 - `sources`: a nonempty list in which every entry has a nonempty `title` and a
   `relationship` of exactly `formalizes`, `adapts`, `independently-proves`,
   `background`, or `other`;
+- optional `sources[].contributors` is a list of mappings, each with a
+  nonempty `name` and a nonempty, at-most-200-character free-form `role`;
 - when a source has a `type`, it must be `paper`, `book`, `web discussion`,
   `folklore`, `original-proof`, or `other`; the field may otherwise be omitted.
   The current Palomar spelling is exactly `web discussion`, with a space.
@@ -522,6 +524,13 @@ submitter's exact description in `note`.
 Source authors and identifiers may be omitted when they genuinely do not exist
 or are unknown. Contact and endorsement are useful context but are not required
 and do not replace submitter authorisation.
+
+Use `authors` only for a source's bibliographic authors. Use `contributors`
+for other named credits, such as `editor` or `problem-proposer`, with one
+`name` and free-form `role` per entry. A solution paper and the collection
+that posed its problem should normally remain distinct source entries so that
+each retains its own authorship, contributor roles, identifier and relationship
+to the formalization.
 
 For each previous formalisation, use `note` to explain whether the present
 work extends, reimplements, ports, compares with, or otherwise relates to the
