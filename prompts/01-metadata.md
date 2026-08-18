@@ -12,6 +12,11 @@ docstrings, or a selected-project README. Do not require duplication. A pointer
 to a pinned in-repository document is acceptable only after resolving it and
 recording `repository@commit:path` in `sources_checked`.
 
+Project-level files may describe the whole repository, including results checked
+by other Comparator configurations. Do not treat that as an overclaim about the
+selected submission. Create a scope finding only when submission-specific prose
+misstates what the selected Comparator configuration contains.
+
 Check public claims against the Challenge source, mechanical report, submission
 authorization, and repository documentation. Pay particular attention to
 materially overstated scope, novelty or priority; contradictory repository
@@ -22,6 +27,11 @@ to any fuller pinned account. Do not demand unavailable cost, hardware, prompt,
 or timing detail merely for completeness. Review metadata should state the
 actual level and basis of checking; do not demand a separate review that did
 not occur.
+
+Keep contribution roles distinct: bibliographic authorship, mathematical
+discovery, formalization, verification, and communication may have different
+credits. Report a contradiction only when the same role is attributed
+incompatibly or the roles are materially unclear.
 
 For a thin wrapper, check that the substantive formalization is pinned at an
 immutable revision. Responsible maintainers may describe the submitted wrapper
