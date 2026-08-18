@@ -6,17 +6,14 @@ from Challenge module documentation, selected declaration docstrings, the
 project README, and `formalization.yaml`; it may be divided across locations
 and need not be duplicated.
 
-Separately assess `project.description` as the public description shown beneath
-the registry title. For every Comparator-selected theorem and definition,
-record whether that description points to it directly, covers it as part of a
-clearly identified group of results, or misses it. The description need not
-repeat a complete formal statement, declaration name, every hypothesis, or
-every edge case, but it must let a mathematical reader identify the subject and
-principal outcome. A project name, workflow account, proof-status claim,
-editorial judgment, or generic claim to formalize something is not sufficient.
-If any selected declaration is missing, create a concrete finding and fail this
-pass. Treat a materially false or misleading description as an alignment
-failure as well.
+Treat `project.description` as a concise public abstract, not a declaration
+manifest. It may describe related selected declarations collectively and need
+not name every theorem, variant, definition, hypothesis, constant, or edge
+case. Create a finding only when the abstract materially misstates the selected
+work or omits a distinct principal result family, leaving the public record
+materially misleading. Do not create a finding merely because an individual
+selected declaration is not separately identifiable. Missing mechanically
+required metadata is handled by intake validation, not editorial review.
 
 For each selected declaration, compare the concrete prose and Lean locations.
 Check definitions, quantifiers, hypotheses, coercions, degenerate cases, and
@@ -50,9 +47,6 @@ Return one bare JSON object and nothing else: no code fence, no surrounding pros
   "trust_level": null,
   "sources_checked": ["challenge_source", "repository@commit:path"],
   "declarations_checked": ["every Comparator theorem, then every definition, in order"],
-  "description_coverage": [
-    {"declaration": "each Comparator declaration in the same order", "coverage": "direct|collective|missing", "reason": "brief concrete reason"}
-  ],
   "codes_checked": [],
   "internal_notes": [{"evidence": "prose and Lean locations", "message": "private audit note"}]
 }

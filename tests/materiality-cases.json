@@ -70,6 +70,27 @@
     "reason": "Project scope is not a claim that every result belongs to the selected submission."
   },
   {
+    "id": "concise-grouped-registry-abstract",
+    "area": "analysis",
+    "scenario": "A concise public abstract identifies the mathematical subject and principal result families but does not enumerate every selected variant or companion declaration.",
+    "expected": "internal_note",
+    "reason": "A registry abstract is not a declaration manifest; related selected results may be described collectively."
+  },
+  {
+    "id": "legacy-missing-mechanical-abstract",
+    "area": "number-theory",
+    "scenario": "Legacy evidence predates the mechanically required public-abstract field, while eligible pinned narrative supplies a substantive account of the selected work.",
+    "expected": "internal_note",
+    "reason": "Mechanical validation and repair own the structural defect; editorial review assesses the available substantive account."
+  },
+  {
+    "id": "misleading-registry-abstract",
+    "area": "geometry",
+    "scenario": "The public abstract omits a distinct principal result family and consequently gives a materially misleading account of the selected work.",
+    "expected": "finding",
+    "reason": "A materially misleading public account clears the author-facing finding threshold."
+  },
+  {
     "id": "unconditional-with-domain-conditions",
     "area": "number-theory",
     "scenario": "A result is described as unconditional or requiring no hypotheses, while its declarations retain domain conditions defining the objects under study.",

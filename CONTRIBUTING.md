@@ -405,9 +405,10 @@ These fields are hard mechanical requirements:
 
 - `project.name`: a nonempty string;
 - `project.description`: a nonempty string of at most 10,000 characters. This
-  is the exact abstract shown in the Registry and must at least identify the
-  mathematical content and principal results selected by the submitted
-  Comparator configuration;
+  is the exact abstract shown in the Registry and must identify the
+  mathematical content and principal result families selected by the submitted
+  Comparator configuration; it need not enumerate every declaration or
+  variant;
 - `project.authors`: a nonempty list of nonempty name strings. Palomar still
   reads the former mapping form for compatibility, but new metadata should use
   the v0.4 string form;
@@ -542,11 +543,11 @@ fuller narrative mathematical account may be in Lean module documentation in
 the Challenge source, docstrings attached to the compared declarations, the
 selected-project README or repository-root fallback, or `formalization.yaml`.
 It may be in one of these locations or divided across several, and need not be
-duplicated. `project.description` is the one required synopsis: it may point to
-a family or collective result rather than restating every theorem completely,
-but it must point to every theorem and definition selected by
-`comparator.json`. Taken together, the supplied prose must make it possible to
-identify and assess the exact claim being submitted.
+duplicated. `project.description` is the one required synopsis: it identifies
+the mathematical subject and principal result families, but it is not a
+declaration manifest and need not enumerate every theorem, variant, definition,
+hypothesis, or constant. Taken together, the supplied prose must make it
+possible to identify and assess the exact claim being submitted.
 
 During preliminary checks, the submission page displays the exact registry
 abstract and the selected Comparator declarations even when every check passes.
@@ -573,11 +574,11 @@ Across the eligible narrative locations, include:
   review;
 - the repository licence.
 
-The statement-alignment review records whether the required description points
-directly or collectively to each Comparator-selected declaration. Any selected
-declaration with no such coverage fails that review pass. More detailed prose
-elsewhere is still used to judge fidelity and context, but it cannot substitute
-for a public abstract that identifies the registered result.
+The statement-alignment review treats the required description as a concise
+public abstract. It creates a finding only when the abstract materially
+misstates the selected work or omits a distinct principal result family, not
+because an individual declaration is not separately identifiable. Presence,
+shape, and length are checked mechanically before editorial review.
 
 Do not claim novelty without a credible literature search. If novelty has not
 been established, say that it is unknown.
