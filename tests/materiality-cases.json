@@ -25,7 +25,7 @@
     "area": "number-theory",
     "scenario": "A code could describe mathematics in the proof, but the evidence does not confirm that it is used.",
     "expected": "internal_note",
-    "reason": "Proof-level relevance is presumed from the author's selection and is accepted without investigation."
+    "reason": "Proof-level relevance is presumed from the author's selection and is not treated as a problem without investigation."
   },
   {
     "id": "egregiously-off-topic-classification",
@@ -133,11 +133,11 @@
     "reason": "A reviewer-side access limitation is not an author-facing defect."
   },
   {
-    "id": "cross-pass-duplicate",
+    "id": "cross-check-duplicate",
     "area": "combinatorics",
-    "scenario": "Two passes independently identify the same material scope defect and the same correction.",
+    "scenario": "Two checks independently identify the same material scope defect and the same correction.",
     "expected": "finding_once",
-    "reason": "The first pass reports it; later passes retain only additional private audit reasoning."
+    "reason": "The first check reports it; later checks retain only additional private audit reasoning."
   },
   {
     "id": "polished-routine-result",

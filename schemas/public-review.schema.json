@@ -12,20 +12,20 @@
   },
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "The review as it is archived beside a record and served to anyone. It is a projection of the private review: scores, finding severity, private audit notes, and the top-level repetition of every finding message are removed. Every author-facing material finding remains once in passes[].findings. The shape is closed at every level so an unreviewed field cannot be served accidentally.",
+  "description": "The review as it is archived beside a record and served to anyone. It is a projection of the private review: scores, finding severity, private audit notes, and the top-level repetition of every finding message are removed. Every author-facing material finding remains once in checks[].findings. The shape is closed at every level so an unreviewed field cannot be served accidentally.",
   "properties": {
-    "decision": {
+    "outcome": {
       "enum": [
-        "accept",
-        "revise",
-        "reject"
+        "neutral",
+        "revision_required",
+        "rejected"
       ]
     },
     "mechanical_report": {
       "format": "uri",
       "type": "string"
     },
-    "passes": {
+    "checks": {
       "items": {
         "additionalProperties": false,
         "description": "Closed, and for the same reason the root is closed: everything here is served. The projection removes scores, private audit notes, and each finding's severity by name. A review carrying any other unlisted field therefore fails validation rather than serving data whose visibility was never decided.",
@@ -84,16 +84,16 @@
               null
             ]
           },
-          "verdict": {
+          "outcome": {
             "enum": [
-              "pass",
-              "warn",
-              "fail"
+              "neutral",
+              "warning",
+              "failure"
             ]
           }
         },
         "required": [
-          "verdict"
+          "outcome"
         ],
         "type": "object"
       },
@@ -124,7 +124,7 @@
       "uniqueItems": true
     },
     "schema_version": {
-      "const": 2
+      "const": 3
     },
     "source": {
       "additionalProperties": false,
@@ -160,10 +160,10 @@
     "policy_commit",
     "reviewed_at",
     "reviewer_models",
-    "decision",
+    "outcome",
     "summary",
     "requested_changes",
-    "passes"
+    "checks"
   ],
   "title": "Palomar published review",
   "type": "object"

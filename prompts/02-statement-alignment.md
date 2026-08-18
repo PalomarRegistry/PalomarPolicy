@@ -45,7 +45,7 @@ Return one bare JSON object and nothing else: no code fence, no surrounding pros
 
 {
   "step": "statement_alignment",
-  "verdict": "pass|warn|fail",
+  "outcome": "neutral|warning|failure",
   "summary": "short conclusion",
   "findings": [],
   "scores": {"statement_alignment": 4},

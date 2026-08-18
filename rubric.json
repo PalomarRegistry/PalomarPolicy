@@ -1,7 +1,7 @@
 {
   "schema_version": 10,
   "finding_comment_policy": "all",
-  "minimum_accept_score": 4,
+  "minimum_score": 4,
   "registry_scores": [
     "statement_alignment",
     "definition_fidelity",
@@ -152,7 +152,7 @@
   "step_result": {
     "required_fields": [
       "step",
-      "verdict",
+      "outcome",
       "summary",
       "findings",
       "scores",
@@ -162,10 +162,10 @@
       "codes_checked",
       "internal_notes"
     ],
-    "verdicts": [
-      "pass",
-      "warn",
-      "fail"
+    "outcomes": [
+      "neutral",
+      "warning",
+      "failure"
     ]
   }
 }

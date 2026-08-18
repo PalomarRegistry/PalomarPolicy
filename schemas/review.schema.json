@@ -11,16 +11,16 @@
     "policy_commit",
     "reviewed_at",
     "reviewer_models",
-    "decision",
+    "outcome",
     "summary",
     "scores",
     "warnings",
     "requested_changes",
-    "passes"
+    "checks"
   ],
   "properties": {
     "schema_version": {
-      "const": 2
+      "const": 3
     },
     "submission_id": {
       "type": "string",
@@ -63,11 +63,11 @@
         "minLength": 1
       }
     },
-    "decision": {
+    "outcome": {
       "enum": [
-        "accept",
-        "revise",
-        "reject"
+        "neutral",
+        "revision_required",
+        "rejected"
       ]
     },
     "summary": {
@@ -116,20 +116,20 @@
         "minLength": 1
       }
     },
-    "passes": {
+    "checks": {
       "type": "array",
       "minItems": 5,
       "items": {
         "type": "object",
         "required": [
-          "verdict"
+          "outcome"
         ],
         "properties": {
-          "verdict": {
+          "outcome": {
             "enum": [
-              "pass",
-              "warn",
-              "fail"
+              "neutral",
+              "warning",
+              "failure"
             ]
           }
         }

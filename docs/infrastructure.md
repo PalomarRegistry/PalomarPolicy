@@ -29,7 +29,7 @@ mechanism.
 
 `PalomarRegistry` contains registry infrastructure, not the mathematical work
 it evaluates. Submitter-owned repositories and cited sources remain under their
-owners' control. A preservation fork in `PalomarArchive` records accepted Git
+owners' control. A preservation fork in `PalomarArchive` records registered Git
 objects without transferring authorship, ownership, or endorsement to Palomar.
 Never infer editorial or automation authority from organization membership;
 authorize dedicated identities by the specific capabilities their role needs.
@@ -57,7 +57,7 @@ must remain configured as follows:
 | --- | --- | --- |
 | Base repository permission | Write | `PalomarArchivist` must add new preservation tags after its temporary per-fork administrator grant is removed. |
 | Public repository creation | Allowed | GitHub creates a native organization fork as a new public repository. |
-| Private repository creation | Disallowed | Accepted source is public and the archive must not become a private-data store. |
+| Private repository creation | Disallowed | Registered source is public and the archive must not become a private-data store. |
 | Repository deletion | Disallowed for members | The archive identity cannot erase a preserved fork. |
 | Repository visibility changes | Disallowed for members | The archive identity cannot hide or privatize a preserved fork. |
 | Require two-factor authentication | Enabled | A member without 2FA cannot retain organization access. |
@@ -70,7 +70,7 @@ organization's base Write permission. The ruleset allows creation of new
 `refs/tags/palomar/**/*` refs but has no bypass actor and rejects updates or
 deletions of an existing preservation ref. Organizations cannot star GitHub
 repositories, but `PalomarArchivist` is a user account and can. A separate
-post-registration reconciler stars only each accepted record's original
+post-registration reconciler stars only each registered record's original
 top-level source—not dependencies or archive forks—and verifies the star before
 recording it in private state.
 
@@ -137,26 +137,26 @@ code rather than of the commit they came from, so an object called immutable
 changed shape twice under a fixed record. The scores live outside the record
 now, in the private `scores/`, which staging never opens.
 
-The accepted-source path is:
+The registered-source path is:
 
 ```text
-author consents to register an accepted review
+author consents to register a review that identified no blocking problem
   -> PalomarReviewer verifies PALOMAR_ARCHIVE_TOKEN is PalomarArchivist
   -> resolve the submitted repository, every pinned Git dependency, and any
      separately recorded substantive formalization
   -> create or reuse one native PalomarArchive fork per GitHub fork network
   -> install and verify the immutable preservation-tag ruleset
   -> remove PalomarArchivist's direct repository administrator grant
-  -> create and read back a record-specific tag for every accepted commit
+  -> create and read back a record-specific tag for every registered commit
   -> bind source-archive.json and the preservation map into the database record
   -> only then publish the PalomarDatabase registration branch
 ```
 
 Any failure in that path stops registration before a database branch is
 published. A source shape that a native fork cannot preserve is rejected during
-mechanical verification rather than discovered after acceptance.
+mechanical verification rather than discovered during registration.
 
-The metadata-repair path is separate from acceptance and registration:
+The metadata-repair path is separate from review and registration:
 
 ```text
 failed verification publishes structured, schema-backed repairable fields
@@ -170,7 +170,7 @@ failed verification publishes structured, schema-backed repairable fields
   -> the author reviews and chooses whether to merge it
 ```
 
-A repair pull request is a proposal, not an accepted record or a preserved
+A repair pull request is a proposal, not a registered record or a preserved
 source. It never grants `palomar-repair` access to `PalomarRegistry`, and the
 repair worker refuses to push unless GitHub reports that Actions is disabled on
 the destination fork.
@@ -399,7 +399,7 @@ After advancing submissions, the same workflow runs `palomar-review
 star-registered`. It uses GitHub's
 [`PUT /user/starred/{owner}/{repo}` endpoint](https://docs.github.com/en/rest/activity/starring#star-a-repository-for-the-authenticated-user),
 reads the star back, and only then records the account, repository, and time in
-private submission state. A failed call cannot undo or block an accepted record;
+private submission state. A failed call cannot undo or block a registered record;
 because no success is recorded, the next scheduled pass retries it.
 
 After creating or rotating `PALOMAR_ARCHIVE_TOKEN`, sign in as the archive
@@ -509,7 +509,7 @@ layer: it walks first-parent append-only history, checks every frozen path's
 mode, validates every record from its bytes, stages a full public dataset, and
 reconciles every served page against that rebuild. Keeping this reconstruction
 weekly preserves the independent whole-database check without charging it to
-each accepted registration or conflating it with the daily published-evidence
+each registration or conflating it with the daily published-evidence
 audit.
 
 Before changing the data Worker, deploy and check `palomar-data-staging`. Then
@@ -585,7 +585,7 @@ filtered-data, availability, health-check, and the two weekly sweep workflows
 are automated.
 The sweeps are where anything whose cost is the size of the registry rather than
 the size of the change has been moved, because those checks used to run once per
-accepted result and the registry paid for them quadratically over its life. The
+registered result and the registry paid for them quadratically over its life. The
 account is
 currently using the Cloudflare Workers and R2 free tiers; usage and paid-plan
 triggers are tracked in the workspace `TODO.md`.

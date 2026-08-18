@@ -34,7 +34,7 @@ Return one bare JSON object and nothing else: no code fence, no surrounding pros
 
 {
   "step": "definition_fidelity",
-  "verdict": "pass|warn|fail",
+  "outcome": "neutral|warning|failure",
   "summary": "short conclusion",
   "findings": [],
   "scores": {"definition_fidelity": 4, "auditability": 4},
