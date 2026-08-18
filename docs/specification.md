@@ -154,7 +154,8 @@ Challenge and Solution must be distinct module names. Palomar asks Lake for its
 ordered source paths and selects the first matching regular, non-symlink file
 inside the selected project. The Challenge is compiled separately against a
 frozen trusted environment, and every source in its transitive closure must
-resolve to Lean core or the accepted Mathlib/Tau Ceti statement surface.
+resolve to Lean core or the accepted Mathlib, Tau Ceti, and CSLib statement
+surface.
 Proof-only dependencies used by the Solution may be broader, but remain pinned
 and confined.
 
