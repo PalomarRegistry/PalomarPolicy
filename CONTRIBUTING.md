@@ -416,12 +416,13 @@ These fields are hard mechanical requirements:
   the v0.4 string form;
 - `project.license`: the exact SPDX identifier detected from the root licence
   file;
-- `classification.arxiv`: one or two distinct codes from Palomar's checked-in
+- `classification.arxiv`: at least one distinct code from Palomar's checked-in
   arXiv taxonomy snapshot, `taxonomies/arxiv-categories.json`, in the
   [PalomarSubmission repository][submission-repo];
-- `classification.msc2020`: one to eight distinct codes from Palomar's
+- `classification.msc2020`: up to eight distinct codes from Palomar's
   checked-in MSC2020 snapshot, `taxonomies/msc2020-codes.json`, in the
-  [PalomarSubmission repository][submission-repo];
+  [PalomarSubmission repository][submission-repo]; a submission that records no
+  MSC2020 code is accepted;
 - `automation.methods`: a nonempty list of mappings, each with a nonempty
   `method`;
 - `review.status`: a nonempty string.
