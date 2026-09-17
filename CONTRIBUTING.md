@@ -177,6 +177,14 @@ manifest.
   TOML Lakefile must be valid TOML.
 - Commit `lake-manifest.json`. It is mandatory for a `lakefile.lean` project.
   The narrow exception for a TOML project without a manifest is in section 6.3.
+- If the project uses canonical Mathlib, the selected project toolchain must
+  exactly match the `lean-toolchain` in the resolved, authenticated Mathlib
+  revision, including the patch version and release-candidate suffix. A tag's
+  spelling in `inputRev` does not override the resolved revision. Palomar checks
+  this before cache retrieval and trusted dependency builds. On a mismatch,
+  align the project toolchain and Mathlib pin, regenerate `lake-manifest.json`,
+  and submit the resulting commit. Projects without Mathlib are unaffected.
+
 
 ### 2.2 Challenge and Solution modules
 
