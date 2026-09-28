@@ -158,6 +158,14 @@ fields are reserved for humans, and naming an automated system in either
 requires correction before registration. AI contributions remain reportable in
 automation metadata and narrative provenance.
 
+All submitted Lean sources must use the module system and have at most 10,000
+physical lines per file, with the counting convention, scope, and exclusions
+in [the submission standard](../CONTRIBUTING.md#lean-source-requirements).
+The complete immutable source scan precedes builds; compiler header confirmation
+precedes submitted Lake execution. Bounded browser and API scans cannot replace
+this gate. Registry metadata corrections do not apply the new source requirements
+to previously registered commits. The stricter Challenge limits remain in force.
+
 Challenge and Solution must be distinct module names. Palomar asks Lake for its
 ordered source paths and selects the first matching regular, non-symlink file
 inside the selected project. The Challenge is compiled separately against a

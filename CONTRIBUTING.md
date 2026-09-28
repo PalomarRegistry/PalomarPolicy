@@ -161,6 +161,37 @@ committed manifest the verifier cannot determine its exact dependencies before
 running submitted code. This is why a Lean Lakefile always needs a committed
 manifest.
 
+#### Lean source requirements
+
+Every regular `.lean` source file in the submitted repository must use Lean's
+module system and contain at most **10,000 physical lines**. This includes
+Challenge, Solution, unused source files, generated certificates, contained
+projects, and local path dependencies. Ordinary comments may precede the
+`module` header; module documentation belongs after it. Blank and comment lines
+count. LF and CRLF each delimit one line; an unterminated final line counts,
+and a final newline does not add an empty line.
+
+Lake configuration files named `lakefile.lean`, files below `.git` or `.lake`,
+and symbolic links are excluded from this source rule. Separately declared
+substantive source repositories for thin wrappers receive the same checks.
+External pinned Git dependencies are outside this per-file limit; Lean still
+checks their compatibility with the module system. The existing Challenge
+limits of **1,000 lines and 100 KiB** also apply.
+
+Porting requires more than adding `module`: make the declarations needed by
+other modules public, use `public import` where the public interface needs an
+import, and expose definitions whose bodies clients need. See
+[Lean's modules and visibility reference](https://lean-lang.org/doc/reference/latest/Source-Files-and-Modules/#modules-and-visibility).
+Rebuild and rerun Comparator after porting. Split oversized files into smaller
+modules or reduce generated certificates; do not hide them in excluded paths.
+
+The submission form and HTTPS intake check a bounded subset at the exact
+commit and report incomplete scans explicitly. The verifier scans the complete
+checkout before builds and confirms headers with Lean's parser before running
+submitted Lake code. Violations identify the file and require a corrected new
+commit. These rules apply to new ordinary submissions and revisions; metadata
+corrections retain their registered source and are not retroactively rejected.
+
 #### Mechanical requirements
 
 - The `lean-toolchain` file must name a Lean release, in the form
