@@ -63,6 +63,19 @@ author-facing defect. Record the limitation in `internal_notes`; absent
 affirmative evidence of a material omission or unsupported claim, make no
 finding.
 
+When a passing mechanical report records Challenge `trust_level: high`
+and every listed Challenge dependency has provenance `allowlisted`,
+verification has authenticated the external Challenge import closure at
+pinned revisions, including packages reported under their owning root.
+Assess established library meanings without requiring those sources to be
+present locally. Record that reliance and its limitations in `internal_notes`;
+do not claim source inspection or invent undocumented semantic details.
+Source absence alone must not create a finding, fail a check, lower a score,
+or require revision. Authentication alone does not establish semantic
+fidelity or justify a score of 4. Continue auditing local definitions,
+hypotheses, and concrete semantic concerns. This exception does not cover
+qualified Challenge closures or dependencies reached only from Solution.
+
 Lean operations may be total outside their ordinary mathematical domain: for
 example division at zero, truncated subtraction, extrema of empty sets,
 unbounded suprema or infima, nonconvergent infinite operations, and defaulted

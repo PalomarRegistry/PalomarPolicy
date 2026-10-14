@@ -871,6 +871,9 @@ Each check uses one of three machine-readable outcomes:
 - `failure`: the check identified a material deficiency or contradiction, or could not
   affirmatively establish a mandatory criterion from the available evidence.
 
+The allowlisted-dependency exception in `prompts/materiality.md` applies to
+these outcomes and the score anchors below.
+
 A failed check does not by itself choose the final outcome. Synthesis returns
 `revision_required` when a specific, realistically correctable evidence or
 presentation gap could make the submission qualify, and `rejected` for a

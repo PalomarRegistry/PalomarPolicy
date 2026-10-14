@@ -16,7 +16,8 @@ Use the mechanically computed Challenge dependency closure and size to assess
 auditability. Mathlib-only Challenge imports give `high` trust. Allowed Tau
 Ceti imports give `qualified` trust but are not by themselves a criticism or a
 lower auditability score. A material dependency whose source or meaning cannot
-be inspected is a finding. Solution-only dependencies are outside this pass.
+be inspected is a finding, subject to the allowlisted-dependency exception in
+`prompts/materiality.md`. Solution-only dependencies are outside this pass.
 
 Record concrete positive inspections and harmless limitations in
 `internal_notes`. Do not create public praise and do not repeat an earlier
