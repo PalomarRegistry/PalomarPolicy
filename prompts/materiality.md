@@ -11,8 +11,10 @@ evidence supports at least one of these conclusions:
   contradictory;
 - a subject classification is egregiously off-topic for both the result and any
   plausible proof;
-- the selected statements or their trusted dependencies cannot be audited from
-  the pinned evidence; or
+- the selected statements or their project-local dependencies cannot be
+  audited from the pinned evidence (Palomar, not the submitter, supplies the
+  pinned sources of allowlisted libraries, so their absence is never a
+  finding); or
 - the mathematical result does not clear Palomar's research-interest floor.
 
 Do not create findings for terminology preferences, stylistic duplication,
