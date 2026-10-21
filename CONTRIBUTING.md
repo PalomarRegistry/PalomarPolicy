@@ -729,6 +729,16 @@ substantive repository at the exact declared commit. It then:
 7. requires every exported proof to pass Lean's kernel and replay through the
    pinned NanoDa kernel.
 
+The runner additionally attempts con-ron after those mandatory checks pass.
+Known support and capacity declines are recorded without claiming con-ron
+acceptance; actual rejection or an unknown checker error still blocks the run.
+The entry names only the independent kernels that accepted its exact export.
+This advisory replay is controlled by Palomar, not by a submitter option.
+Technical Maintainers can update the checker independently through a reviewed,
+checksum-pinned official release. Mechanical evidence records that release and
+the actual executable digest; the submitted compiler and mandatory checks stay
+unchanged. Authentication and positive/negative controls are required.
+
 A passing mechanical report establishes that the recorded Solution satisfies
 the recorded Challenge under those checks. It does not establish that the
 Challenge says what the metadata claims, that a definition has its ordinary

@@ -110,6 +110,24 @@ separate protected configuration with NanoDa enabled and uses that for every
 verification. This is intentional policy: independent replay is Palomar's
 responsibility, not a configuration burden or veto delegated to submitters.
 
+Palomar also attempts an advisory con-ron replay after Lean and NanoDa accept.
+A recognized inductive-support decline, fuel exhaustion, or authenticated
+capacity failure does not invalidate their completed mandatory checks. An
+actual rejection, disallowed axiom or unknown checker error remains blocking.
+The mechanical report records bounded attempt evidence and only successful
+independent kernels in `kernels`; the registry displays that successful set.
+A declined checker is never described as having verified any part of the proof.
+The absence of con-ron assurance alone is not an editorial finding or a reason
+to lower a score. Positive and ill-typed negative controls must establish that
+the advisory checker works before candidate verification begins.
+
+Technical Maintainers may update con-ron independently of the source compiler
+through the verifier's reviewed checker manifest. An override must bind the exact
+source toolchain to an official release, authenticate both archive and executable
+checksums, pass the same controls, and record the executable actually run and its
+release provenance in mechanical evidence. Submitters cannot select overrides;
+failed authentication or controls stop verification.
+
 `PalomarSubmission/toolchains.json` is closed to exactly the fields
 `schema_version` and `minimum`; it neither selects nor pins trusted tools. The
 verifier derives the `lean4export` release tag from the submitted Lean version,
