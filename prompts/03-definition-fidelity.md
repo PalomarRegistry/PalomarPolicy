@@ -15,8 +15,20 @@ case remains reachable or cannot be audited from the pinned evidence.
 Use the mechanically computed Challenge dependency closure and size to assess
 auditability. Mathlib-only Challenge imports give `high` trust. Allowed Tau
 Ceti imports give `qualified` trust but are not by themselves a criticism or a
-lower auditability score. A material dependency whose source or meaning cannot
-be inspected is a finding. Solution-only dependencies are outside this pass.
+lower auditability score. Solution-only dependencies are outside this pass.
+
+Palomar supplies the Lean sources of the allowlisted libraries the Challenge
+imports, and of the packages their own manifests pin, at the exact verified
+revisions; the binding context lists where each is mounted. Read the material
+imported definitions there rather than inferring them from their names, and
+record each file you read in `sources_checked`. The submitter neither provides
+nor controls these sources, so their absence, size, or any part you did not
+reach is never a finding, a requested change, or a reason to lower a score:
+note it in `internal_notes`. A finding about an imported library definition
+must rest on what its pinned source says, or on a reachable divergence between
+the library's documented meaning and the Challenge's account of it. A material
+project-local dependency whose source or meaning cannot be inspected is a
+finding.
 
 Record concrete positive inspections and harmless limitations in
 `internal_notes`. Do not create public praise and do not repeat an earlier

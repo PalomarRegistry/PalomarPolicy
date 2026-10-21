@@ -280,6 +280,8 @@ jobs:
               "same-role-attribution-conflict": "finding",
               "cited-source-literature-context": "internal_note",
               "reviewer-cannot-access-cited-source": "internal_note",
+              "reviewer-cannot-read-pinned-library-source": "internal_note",
+              "pinned-library-definition-contradicts-account": "finding",
           }.items():
               assert cases_by_id[case_id]["expected"] == expected
           assert {case["expected"] for case in cases} >= {

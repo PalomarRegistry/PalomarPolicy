@@ -166,5 +166,19 @@
     "scenario": "The formalization and prose are correct and polished, but the selected result is routine and no credible research audience is established.",
     "expected": "reject",
     "reason": "Presentation quality does not replace the research-interest floor."
+  },
+  {
+    "id": "reviewer-cannot-read-pinned-library-source",
+    "area": "number-theory",
+    "scenario": "A Challenge imports only Mathlib, and the reviewer cannot read the pinned Mathlib source of an imported definition such as an L-series or a q-expansion.",
+    "expected": "internal_note",
+    "reason": "Palomar supplies allowlisted library sources; the submitter cannot remedy their absence, which says nothing about the statement."
+  },
+  {
+    "id": "pinned-library-definition-contradicts-account",
+    "area": "analysis",
+    "scenario": "The pinned Mathlib source shows that an imported definition is totalized to zero on a case the theorem's hypotheses allow, while the Challenge describes it as the classical value there.",
+    "expected": "finding",
+    "reason": "The audited library source shows a reachable divergence from the advertised statement."
   }
 ]
