@@ -69,6 +69,7 @@
         "comparator_config",
         "lakefile",
         "lean_toolchain",
+        "mechanical_report",
         "previous_findings"
       ]
     },
@@ -132,6 +133,7 @@
         "project_readme",
         "comparator_config",
         "solution_source",
+        "mechanical_report",
         "previous_findings"
       ]
     },
