@@ -13,8 +13,12 @@ account is a valid correction. Record accurate correspondences and ordinary
 implementation omissions in `internal_notes`; do not create public praise or
 repeat an earlier finding.
 
-This pass does not re-prove the theorem and does not replace Comparator. Audit
-all selected declarations rather than one headline. List every Comparator
+This pass does not re-prove the theorem and does not replace Comparator. Assess
+the proof account using the mandatory mechanical result. A recorded advisory
+con-ron support/capacity decline, or its absence from the successful kernel list,
+is not itself a proof-account finding or a reason to lower a score. Do not claim
+that a checker accepted unless the mechanical report records its acceptance.
+Audit all selected declarations rather than one headline. List every Comparator
 theorem followed by every Comparator definition in configuration order in
 `declarations_checked`. Record every prose, Solution, and imported-proof
 location inspected in `sources_checked`; use an empty `codes_checked` list.
