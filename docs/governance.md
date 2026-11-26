@@ -18,6 +18,10 @@ The initial Technical Maintainers are:
 - Nestor Guillen
 - Jaume de Dios
 
+Additional Technical Maintainers:
+
+- Aayush Rajasekaran
+
 This is deliberately a high-trust operational role. It is intended for people
 who can direct or review an urgent technical repair when another maintainer is
 unavailable.
