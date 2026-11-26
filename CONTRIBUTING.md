@@ -361,8 +361,9 @@ Palomar's own uses of the submission:
   in section 8;
 - processing by the automated reviewer.
 
-None of these uses is commercial, so the licence need not be an open-source
-licence: Creative Commons NonCommercial licences are accepted. NoDerivatives
+Palomar carries out these uses only for its noncommercial registry purposes,
+so the licence need not be an open-source licence: Creative Commons
+NonCommercial licences are accepted. NoDerivatives
 licences are not currently accepted.
 
 #### Accepted licences
@@ -390,7 +391,9 @@ with the Creative Commons versions and jurisdiction ports listed in
 [`licence-supplement/`](https://github.com/PalomarRegistry/PalomarSubmission/tree/main/licence-supplement)
 of the [PalomarSubmission repository][submission-repo]. Licences that are not
 accepted include NoDerivatives licences (`CC-BY-ND-*` and `CC-BY-NC-ND-*`),
-Creative Commons version 1.0 licences, and custom or modified terms.
+version 1.0 of the Creative Commons Attribution licences (`CC-BY-1.0`,
+`CC-BY-SA-1.0`, `CC-BY-NC-1.0`, and `CC-BY-NC-SA-1.0`), and custom or
+modified terms.
 
 #### Mechanical requirements
 
