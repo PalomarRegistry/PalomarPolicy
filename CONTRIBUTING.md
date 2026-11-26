@@ -351,7 +351,46 @@ the declared and detected identifier, but does not verify ownership or provide
 legal advice.
 
 The licence file and `project.license` in `formalization.yaml` must identify
-the same unambiguous standard SPDX licence.
+the same unambiguous standard SPDX licence, and that licence must permit
+Palomar's own uses of the submission:
+
+- noncommercial redistribution of the verbatim source, including the native
+  public forks in [`PalomarArchive`](https://github.com/PalomarArchive)
+  described in section 8;
+- display of the Challenge statement, including the HTML rendering described
+  in section 8;
+- processing by the automated reviewer.
+
+None of these uses is commercial, so the licence need not be an open-source
+licence: Creative Commons NonCommercial licences are accepted. NoDerivatives
+licences are not currently accepted.
+
+#### Accepted licences
+
+Any licence on this list is accepted. Declare its identifier in
+`project.license` exactly as written here.
+
+- Permissive software licences, for example `MIT`, `Apache-2.0`,
+  `BSD-2-Clause`, `BSD-3-Clause`, `ISC`, `0BSD`, `BSL-1.0`, `Zlib`, and
+  `MIT-0`.
+- Copyleft software licences, for example `GPL-3.0`, `GPL-2.0`, `LGPL-3.0`,
+  `LGPL-2.1`, `AGPL-3.0`, `MPL-2.0`, `EPL-2.0`, and `EUPL-1.2`. The detector
+  reports the GNU licences by these identifiers, so `GPL-3.0-only` or
+  `GPL-3.0-or-later` in `project.license` does not match.
+- Public-domain dedications: `CC0-1.0` and `Unlicense`.
+- Creative Commons Attribution and Attribution-ShareAlike, versions 2.0 to
+  4.0, for example `CC-BY-4.0`, `CC-BY-SA-4.0`, and `CC-BY-3.0`.
+- Creative Commons Attribution-NonCommercial and
+  Attribution-NonCommercial-ShareAlike, versions 2.0 to 4.0, for example
+  `CC-BY-NC-4.0`, `CC-BY-NC-SA-4.0`, and `CC-BY-NC-3.0`.
+
+The complete set is every licence in the choosealicense.com corpus of the
+pinned [Licensee](https://github.com/licensee/licensee) detector, together
+with the Creative Commons versions and jurisdiction ports listed in
+[`licence-supplement/`](https://github.com/PalomarRegistry/PalomarSubmission/tree/main/licence-supplement)
+of the [PalomarSubmission repository][submission-repo]. Licences that are not
+accepted include NoDerivatives licences (`CC-BY-ND-*` and `CC-BY-NC-ND-*`),
+Creative Commons version 1.0 licences, and custom or modified terms.
 
 #### Mechanical requirements
 
@@ -362,11 +401,13 @@ name is case-insensitive and must be one of:
 - one of those names followed by `.md`, `.markdown`, or `.txt`.
 
 The file must be a regular, non-symlink, nonempty UTF-8 text file no larger
-than 1 MiB. Palomar's licence detector must find exactly one unambiguous
-standard SPDX identifier, such as `Apache-2.0`, and that identifier must match
-`project.license` in `formalization.yaml` exactly. A missing, multiple, custom,
-ambiguous, or mismatched licence fails mechanical verification before
-editorial review.
+than 1 MiB. It must contain the complete licence text, such as the plain-text
+legal code published by Creative Commons or the text on the SPDX licence page;
+a short notice that only names or links a licence is not enough. Palomar's
+licence detector must find exactly one accepted licence, and its identifier
+must match `project.license` in `formalization.yaml` exactly. A missing,
+multiple, custom, ambiguous, unaccepted, or mismatched licence fails
+mechanical verification before editorial review.
 
 ## 3. Write `formalization.yaml`
 
