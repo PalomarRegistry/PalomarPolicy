@@ -13,10 +13,11 @@ later policy changes do not reinterpret an earlier outcome.
 
 | Component | Authority | Must not do |
 | --- | --- | --- |
-| `PalomarServer` | Intake, GitHub push-access check, private status access, withdrawal, and registration consent | Execute source, run editorial review, or write registry records |
-| `PalomarSubmission` | Public mechanical verification and registrable-Challenge rendering | Hold private identity or review state, or decide editorial policy |
+| `PalomarServer` | Intake, GitHub push-access check, private status access, withdrawal, and registration consent; for confidential submissions also the one-time source snapshot, the lifecycle record, certificates, submit publicly, and withdrawal cleanup | Execute source, run editorial review, or write registry records |
+| `PalomarSubmission` | Public mechanical verification and registrable-Challenge rendering, as reusable workflows that confidential runs also call | Hold private identity or review state, or decide editorial policy |
+| `PalomarConfidentialRuns` | Private repository in which confidential verification and render runs execute, calling the `PalomarSubmission` workflows | Contain verifier code of its own, hold secrets, or become public |
 | `PalomarSubmissionState` | Private append-only submission state and scheduled orchestration | Publish unregistered review outcomes or define policy |
-| `PalomarPolicy` | Submission rules, rubric, prompts, and review and correction-decision schemas | Hold submissions, registered records, or credentials |
+| `PalomarPolicy` | Submission rules, rubric, prompts, review and correction-decision schemas, the confidential invite list, and the certificate public keys | Hold submissions, registered records, or credentials |
 | `PalomarTemplate` | Reusable submission starter and CI example | Define binding policy or registry truth |
 | `PalomarReviewer` | Automated editorial review, deterministic correction decisions, evidence validation, source preservation, registration PR preparation, clean-check merge, and finalization | Change policy, register without consent, or treat model output as trusted instructions |
 | `PalomarDatabase` | Private canonical ledger, immutable record schemas, and filtered-publication tooling | Perform intake, execute source, or conduct review |
@@ -64,9 +65,10 @@ Push access is not proof of authorship or source-author approval either way, so
 the submission separately records its authorization relationship.
 
 The repository, commit, submission identifier, public verification run, and
-mechanical logs are public from verification onward. The editorial review and
-its outcome remain private unless the submitter registers a review that
-identified no blocking problem.
+mechanical logs are public from verification onward, except for a
+[confidential submission](#confidential-submissions), which publishes none of
+them. The editorial review and its outcome remain private unless the submitter
+registers a review that identified no blocking problem.
 Palomar publishes no submitter: no published record identifies the account that
 proved push access, no schema has a field for it, and registration does not add
 one. What is published about that person is the declared authorization
@@ -397,6 +399,138 @@ commits. The intentional preservation promise is this maintained native-fork
 copy; Palomar does not additionally archive Lean toolchain binaries, Mathlib
 cache objects, or other non-Git artifacts.
 
+## Confidential submissions
+
+A confidential submission is verified and reviewed like an ordinary one, but
+nothing about it appears on any public Palomar surface. It lets the author of an
+article under confidential journal review give the journal a signed certificate
+saying what Palomar checked. It never becomes a registry record itself: the
+author later submits the same commit publicly, as an ordinary submission. The
+author-facing account is
+[section 8.1 of the submission standard](../CONTRIBUTING.md#81-confidential-submissions).
+
+### Scope
+
+Confidential mode is an invited pilot. Intake is refused unless the submission
+server's confidential switch is on and the submitting GitHub account's numeric
+user ID is listed in
+[`invited-confidential.json`](../invited-confidential.json). Every refusal, for
+any reason, has the same wording, so intake cannot be used to probe which
+private repositories exist. The pilot accepts only:
+
+- a submitted repository that is public, or private with the read-only Palomar
+  Source GitHub App installed on it;
+- public dependencies;
+- a plain Git tree: no submodules, no Git LFS, and no `.gitattributes` filter or
+  export rules. Palomar checks the original commit's tree at intake and refuses
+  anything else.
+
+The editorial standard is unchanged, the notability floor included.
+
+### Source
+
+Palomar reads the source exactly once. At intake the submission server mints a
+read-only token for that one repository, downloads the submitted commit as a
+tarball, stores it in private R2 storage with its SHA-256, and discards the
+token. Palomar keeps no access to the repository afterwards and never fetches
+from it again. Verification and rendering run in the private repository
+`PalomarConfidentialRuns`, using the same `PalomarSubmission` workflows as every
+submission, on the stored tarball after checking its hash. Run titles carry
+only the submission identifier, runs write no caches, and operator alerts are
+redacted to the identifier, phase, and diagnostic code.
+
+### Review and hold
+
+Review is the ordinary review, kept in private state; confidential review
+packets are never uploaded as Actions artifacts. A failure, a notability block,
+or a request for changes is shown only on the author's status page. A corrected
+commit is a new confidential submission.
+
+When the review identifies no blocking problem, the submission becomes `held`.
+Its evidence is then frozen: the tarball, the Challenge, and the accepted review
+never change. A held submission stays held until its author submits it publicly
+or withdraws it. It has no expiry, renewal, or automatic publication.
+
+The lifecycle is `reviewing`, `held`, or `withdrawn`, in one record per
+submission written only by the submission server. If that record is missing,
+the submission is treated as withdrawn.
+
+### Certificates
+
+At `held`, Palomar issues one pair of certificates, signed with its Ed25519
+certificate key. Later downloads return the same pair. The public keys are in
+[`keys/certificates.json`](../keys/certificates.json).
+
+- The **full certificate** names the repository, the commit, the tarball's
+  SHA-256, the Challenge's SHA-256, the Lean toolchain, the submission
+  identifier, and the date, and states that the commit passed mechanical
+  verification and the full editorial review.
+- The **anonymous certificate**, for double-blind review, contains only a random
+  identifier, the Challenge text, the Lean toolchain, and the verdict.
+
+A certificate's status is given only by
+`https://submit.palomar-registry.org/api/cert/<id>`, which anyone may query and
+which returns `valid` or `withdrawn`. Submitting publicly does not change it.
+
+The anonymous certificate omits the authors, the repository, the commit, every
+hash, the date, and the submission identifier. It does not hide what the
+Challenge text itself reveals, or the authors from Palomar, its Technical
+Maintainers, and its processors. The repository's own content, if a referee is
+shown it, is the author's responsibility, as on arXiv. Once the same commit is
+registered publicly, its entry shows the same Challenge.
+
+A certificate attests mechanical verification and an automated editorial
+review; it is not peer review, and it does not guarantee registration. A
+signed document cannot be recalled once downloaded.
+
+### Submit publicly
+
+To publish, the author makes the repository public and presses "submit
+publicly". Palomar checks, at that moment, that the signed-in account is an
+administrator of the repository, that the repository is public, and that the
+commit is reachable, then creates an ordinary public submission of that commit.
+Pressing again returns the same public submission. From there the ordinary
+pipeline applies: it re-verifies, renders, and re-reviews under the normal
+rules, and registers only with the author's ordinary consent. The public
+review may, rarely, disagree with the confidential one. Nothing public records
+that the commit was reviewed confidentially, and the confidential submission
+stays `held` until its author withdraws it.
+
+### Withdrawal and retention
+
+The author may withdraw at any time, including after submitting publicly, which
+the withdrawal does not affect. Withdrawal makes both certificates read
+`withdrawn` at once, stops any running confidential job before it uploads
+anything, and deletes:
+
+- the submission's R2 objects: tarball, lifecycle record, certificates, and any
+  confidential error text;
+- its runs, logs, and artifacts in `PalomarConfidentialRuns`;
+- its confidential files in the current tree of private state.
+
+The cleanup checks that each is gone and is retried daily until it succeeds. A
+tombstone holding only the identifier and dates remains, so the status address
+keeps answering `withdrawn`.
+
+Retained:
+
+- the Git history of private state, which keeps the review text and is
+  readable only by Technical Maintainers. A journal that needs it purged can
+  ask, and a Technical Maintainer rewrites it;
+- the model provider's retention of review requests: OpenAI's standard
+  retention, unless the journal requires zero data retention, in which case its
+  authors' reviews use a zero-data-retention project;
+- Namespace's and GitHub's internal logs, under their own retention policies;
+- redacted operator alerts, and any certificate already downloaded.
+
+### Access and contact
+
+Technical Maintainers can read confidential material, under the confidentiality
+and recusal obligation in [governance](governance.md#confidential-material).
+GitHub, Namespace, Cloudflare, and OpenAI process it as they process every
+submission. Palomar has no email channel and collects no contact address: the
+status page is the only way it tells the author anything.
+
 ## Security and deferred boundaries
 
 Submitted source is hostile. Verification and rendering execute without
@@ -419,7 +553,9 @@ Rendered HTML is sanitized, content-addressed, and served from
 `data.palomar-registry.org`, separate from the website origin. PalomarWeb embeds
 it with a restrictive CSP and an iframe sandbox without `allow-same-origin`.
 
-The current service accepts only public GitHub repositories and Lean projects.
-Private-repository support, DOI minting, automatic dependency updates, stronger
+The current service accepts Lean projects in GitHub repositories. A private
+repository is accepted only for an invited
+[confidential submission](#confidential-submissions), and only the submitted
+repository may be private. Private dependencies, DOI minting, automatic dependency updates, stronger
 repeat-submission abuse controls, and proof assistants other than Lean remain
 future work tracked outside this specification.

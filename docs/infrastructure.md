@@ -113,6 +113,26 @@ source preservation. Organization owners retain the authority to remove stale
 repair forks. The repair identity needs no authority to merge its proposals:
 the submitter reviews and merges them in the submitter-owned repository.
 
+## Confidential submissions
+
+[Confidential submissions](specification.md#confidential-submissions) use these
+resources, none of which may become public:
+
+| Resource | Required configuration |
+| --- | --- |
+| Private repository `PalomarRegistry/PalomarConfidentialRuns` | Members are Technical Maintainers only; no secrets; caller workflows that only call the pinned `PalomarSubmission` workflows; no cache writes |
+| GitHub App "Palomar Source" | Repository Contents read and Metadata read only, on selected repositories; its private key is a `palomar-server` Worker secret and never reaches a workflow |
+| Private R2 storage bound only to `palomar-server` | `conf/<id>/` holds the tarball, lifecycle record, certificates, and confidential error text; `conf-tombstones/<id>` holds only the identifier, dates, and cleanup state |
+| Certificate signing key | Ed25519 private key as a `palomar-server` Worker secret; its public half is in [`keys/certificates.json`](../keys/certificates.json) |
+| Intake switch `CONFIDENTIAL_INTAKE` | A `palomar-server` variable; confidential intake is refused unless it is on, and in invited mode unless the account is in [`invited-confidential.json`](../invited-confidential.json) |
+
+Runs receive a one-hour presigned read of one tarball, never a token. The
+withdrawal cleanup job deletes the locations listed in the specification and
+checks each is gone; a daily scheduled run re-dispatches any tombstone whose
+cleanup is still pending. A journal that requires zero data retention from the
+model provider has its authors' reviews run in an OpenAI project with zero data
+retention.
+
 ## Service topology
 
 | Host | Serves | Hosted by | Status |
@@ -588,7 +608,8 @@ Registrar operations, payment, organization-level GitHub Pages domain
 verification, the `www` Redirect Rule, data-Worker staging/production
 deployments, creation and recovery of the `PalomarArchivist` GitHub account,
 creation and recovery of the `palomar-repair` GitHub account, archive- and
-repair-organization policy changes, and credential rotation are manual.
+repair-organization policy changes, the confidential resources above, and
+credential rotation are manual.
 Website, server, review, registration, source preservation, metadata repair,
 filtered-data, availability, health-check, and the two weekly sweep workflows
 are automated.

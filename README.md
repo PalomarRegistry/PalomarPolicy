@@ -20,6 +20,10 @@ The versioned editorial contract for the Palomar registry.
   auditable review report.
 - [`schemas/registry-correction.schema.json`](schemas/registry-correction.schema.json)
   defines the deterministic consent artifact for a maintainer correction.
+- [`keys/certificates.json`](keys/certificates.json) lists the public keys that
+  sign confidential-submission certificates.
+- [`invited-confidential.json`](invited-confidential.json) lists the numeric
+  GitHub user IDs invited to the confidential-submission pilot.
 
 Review reports record the exact policy commit, so policy changes do not silently
 reinterpret past acceptances. Policy changes happen here and can receive ordinary
