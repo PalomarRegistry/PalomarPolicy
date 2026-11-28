@@ -74,6 +74,23 @@ The initial Scientific Advisory Board is:
 - Ravi Vakil
 - Akshay Venkatesh
 
+## Confidential material
+
+Technical Maintainers can read [confidential submissions](specification.md#confidential-submissions),
+as they can every submission: through private submission state, the private
+runs repository `PalomarConfidentialRuns`, and the Cloudflare and Namespace
+accounts. Palomar discloses this to authors and participating journals rather
+than restricting that access. Anyone with such access must:
+
+- keep confidential submissions confidential, and read them only to operate
+  Palomar;
+- recuse from any confidential submission in which they have a conflict of
+  interest, for example as an author, a competitor, or a referee or editor of
+  the article it accompanies.
+
+Moderators and Scientific Advisory Board members have no access to confidential
+material by virtue of those roles.
+
 ## GitHub trust model
 
 Palomar uses the GitHub Free plan. It does not plan to buy GitHub Team.

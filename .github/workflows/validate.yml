@@ -292,5 +292,34 @@ jobs:
           }
           assert len({case["area"] for case in cases}) >= 6
           assert all(case["scenario"].strip() and case["reason"].strip() for case in cases)
+
+          # Confidential certificates are verified against these public keys.
+          # The file is closed so a reader can rely on every field it sees.
+          import base64
+          import re
+
+          keyset = json.loads((root / "keys/certificates.json").read_text())
+          assert set(keyset) == {"schema", "keys"}
+          assert keyset["schema"] == "palomar-certificate-keys/1"
+          key_ids = [key["key_id"] for key in keyset["keys"]]
+          assert len(key_ids) == len(set(key_ids)), "duplicate certificate key id"
+          date_time = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")
+          for key in keyset["keys"]:
+              assert set(key) == {"key_id", "alg", "public_key", "not_before", "revoked_at"}, key
+              assert re.fullmatch(r"palomar-cert-\d{4}-\d+", key["key_id"]), key["key_id"]
+              assert key["alg"] == "Ed25519"
+              assert len(base64.b64decode(key["public_key"], validate=True)) == 32
+              assert date_time.fullmatch(key["not_before"])
+              assert key["revoked_at"] is None or date_time.fullmatch(key["revoked_at"])
+
+          # The confidential invite list is read by the submission server, so
+          # its shape is closed: numeric GitHub user IDs, never logins, which
+          # can be renamed and reused.
+          invites = json.loads((root / "invited-confidential.json").read_text())
+          assert set(invites) == {"schema", "github_user_ids"}
+          assert invites["schema"] == "palomar-confidential-invites/1"
+          user_ids = invites["github_user_ids"]
+          assert all(type(user_id) is int and user_id > 0 for user_id in user_ids)
+          assert len(user_ids) == len(set(user_ids)), "duplicate invited user id"
           print(f"validated {len(ids)} review steps")
           PY

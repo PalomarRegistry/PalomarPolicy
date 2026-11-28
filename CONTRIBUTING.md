@@ -1033,9 +1033,10 @@ later.
 
 Mechanical verification runs in a public GitHub Actions workflow, so the
 repository, the commit, and the fact that they were mechanically checked are
-public from the moment of submission. The mechanical report also includes the
-declared authorization relationship and any optional approval evidence, so
-those are public too. That workflow does only the mechanical check. It runs
+public from the moment of submission. A
+[confidential submission](#81-confidential-submissions) is the exception. The
+mechanical report also includes the declared authorization relationship and
+any optional approval evidence, so those are public too. That workflow does only the mechanical check. It runs
 before any editorial review, contains none of the review text, and shows no
 review outcome, so its public log reveals nothing about whether a review
 happened or what it found. The review and its outcome stay non-public unless the submitter
@@ -1080,6 +1081,89 @@ Challenge is eligible for inline display when exactly one declaration is
 compared and the file is no more than 100 lines and 32 KiB. Larger
 Challenges open in a dedicated rendered page. A rendering failure postpones
 registration but does not change the review outcome.
+
+### 8.1 Confidential submissions
+
+A confidential submission is for a formalisation that accompanies an article
+under confidential review at a journal. Palomar verifies and reviews it as it
+would any submission, publishes nothing about it, and gives you a signed
+certificate to send to the journal. When you are ready to publish, you submit
+the same commit publicly. The binding details are in
+[the protocol specification](docs/specification.md#confidential-submissions).
+
+**Who can use it.** Confidential submission is an invited pilot. Palomar lists
+the GitHub accounts it has invited. During the pilot, a confidential
+submission must:
+
+- depend only on public repositories;
+- be a plain Git tree: no submodules, no Git LFS, and no `.gitattributes`
+  filter or export rules.
+
+The submitted repository itself may be private. To submit a private
+repository, install the read-only Palomar Source GitHub App on that repository
+only.
+
+**What Palomar does with your source.** At intake Palomar downloads the
+submitted commit once, as a tarball, and keeps that snapshot. It does not keep
+access to your repository and never reads it again, so you may uninstall the App
+afterwards.
+
+**The standard is unchanged.** The review applies every requirement in this
+document, including the research-interest requirement in section 7. You receive
+certificates only after the full review identifies no blocking problem. If it
+finds one, you see it on your status page and nowhere else; a corrected commit
+is a new confidential submission.
+
+**Certificates.** Once the review passes, your status page offers two signed
+certificates:
+
+- a **full certificate**, naming the repository, the commit, the hashes of the
+  snapshot and the Challenge, the Lean toolchain, the submission identifier,
+  and the date;
+- an **anonymous certificate**, for double-blind review, containing only a
+  random identifier, the Challenge text, the Lean toolchain, and the verdict.
+
+Anyone can check a certificate's signature against Palomar's public keys in
+[`keys/certificates.json`](keys/certificates.json), and its status (`valid` or
+`withdrawn`) at the address printed on it. The anonymous certificate does not
+name you or your repository, but it cannot hide what the Challenge text
+reveals, and keeping your repository's content anonymous, if you show it to
+referees, is your responsibility, as on arXiv. A certificate says that the
+commit passed mechanical verification and Palomar's automated editorial
+review. It is not peer review, and it does not guarantee a Palomar entry.
+
+**How long Palomar holds it.** Indefinitely, until you submit publicly or
+withdraw. Nothing expires, and nothing is published or deleted automatically.
+Palomar has no email: your status page is the only place it tells you
+anything, so keep the status link.
+
+**Publishing.** Make your repository public, then press **Submit publicly** on
+the status page (you must be an administrator of the repository). Palomar then
+handles that commit as an ordinary public submission: it is verified and
+reviewed again under the normal rules, and registered only if you consent as
+usual. The public review is independent and could, rarely, disagree. Nothing
+public says that the commit was first reviewed confidentially. Your
+certificates stay valid until you withdraw the confidential submission.
+
+**Withdrawing.** Press **Withdraw** at any time; it does not affect a public
+submission you have already made. Both certificates then read `withdrawn`, and
+Palomar deletes its snapshot, your certificates, its records and error text for
+the submission, its private verification runs and their logs, and its current
+review files. Some copies remain:
+
+- the Git history of Palomar's private submission state, which includes the
+  review text and is readable only by Technical Maintainers;
+- OpenAI's retention of the review requests, unless your journal requires zero
+  data retention;
+- the internal logs of Namespace and GitHub, under their own retention
+  policies;
+- certificates you have already sent.
+
+**Who can see it.** Palomar's Technical Maintainers can read confidential
+submissions. They must keep them confidential and recuse themselves where they
+have a conflict of interest (see [governance](docs/governance.md#confidential-material)).
+GitHub, Namespace, Cloudflare, and OpenAI process it as they process every
+submission.
 
 ## 9. Updates and permanent identifiers
 
